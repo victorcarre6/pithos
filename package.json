@@ -1,0 +1,11 @@
+{
+  "name": "pithos",
+  "private": true,
+  "scripts": {
+    "validate:typescript": "node scripts/validate-typescript.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
+

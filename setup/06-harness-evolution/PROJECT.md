@@ -25,11 +25,23 @@ sous-agents, tout en conservant une source de vérité externe et un historique 
 
 ## Critères de succès
 
-- [ ] Un skill créé est archivé, activé et réutilisé après redémarrage.
-- [ ] Une extension créée est validée puis chargée dans un nouveau processus.
-- [ ] Une extension invalide laisse l'état actif précédent utilisable.
-- [ ] La constitution reste inchangée et permet une restauration.
-- [ ] Chaque fichier actif est attribuable à un run et à un snapshot.
+- [ ] Un skill créé est archivé et actif après redémarrage ; sa réutilisation cognitive par Pi reste à tester.
+- [ ] Une extension créée est validée et chargée dans un nouveau processus Node ; le chargement Pi reste à tester.
+- [x] Une extension invalide laisse l'état actif précédent utilisable.
+- [x] La constitution reste inchangée et permet une restauration.
+- [x] Chaque fichier actif est attribuable à un run et à un snapshot.
+
+## Validation réalisée
+
+- Snapshots `before/after`, manifest SHA-256, rationale et journal de validations.
+- Promotion d'un skill conforme au standard Agent Skills et redécouverte par une nouvelle instance du manager.
+- Parsing TypeScript sans exécution via l'API compiler, puis import de l'extension promue dans un nouveau
+  processus Node.
+- Rejet d'une extension invalide sans altération de la version active.
+- Diff et restauration explicite depuis une constitution dont le hash reste inchangé.
+
+Les deux validations Pi réelles demeurent ouvertes à cause des timeouts de la baseline, sans bloquer le
+mécanisme externe de snapshot et promotion.
 
 ## Dépendances
 
