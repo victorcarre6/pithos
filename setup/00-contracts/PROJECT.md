@@ -24,11 +24,27 @@ développe aucun service : il produit des schémas, exemples et validateurs mini
 
 ## Critères de succès
 
-- [ ] Chaque consommateur prévu peut être décrit sans champ implicite.
-- [ ] Les fixtures valides passent le validateur et les fixtures invalides échouent.
-- [ ] Le rapport permet une reprise sans lire toute la session précédente.
-- [ ] Les statuts distinguent succès processus, protocole, tâche et rapport.
-- [ ] Les contrats précisent les champs obligatoires, optionnels et leur compatibilité.
+- [x] Chaque consommateur prévu peut être décrit sans champ implicite.
+- [x] Les fixtures valides passent le validateur et les fixtures invalides échouent.
+- [x] Le rapport permet une reprise sans lire toute la session précédente.
+- [x] Les statuts distinguent succès processus, protocole, tâche et rapport.
+- [x] Les contrats précisent les champs obligatoires, optionnels et leur compatibilité.
+
+## Validation réalisée
+
+```text
+pytest -q
+9 passed
+
+pithos-contracts json run contracts/fixtures/valid/run.json
+VALID
+
+pithos-contracts events contracts/fixtures/valid/events.jsonl
+VALID
+
+pithos-contracts report contracts/fixtures/valid/report.md
+VALID
+```
 
 ## Dépendances
 

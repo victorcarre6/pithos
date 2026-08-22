@@ -1,0 +1,3 @@
+{"schema_version":"1.0","event_id":"evt-20260822T191500.000000Z-a1b2c3","run_id":"run-20260822T211500Z-a1b2c3","timestamp":"2026-08-22T21:15:00+02:00","type":"run.started","source":"runner","sequence":0,"payload":{"model":"qwen3.8:27b"}}
+{"schema_version":"1.0","event_id":"evt-20260822T194200.000000Z-d4e5f6","run_id":"run-20260822T211500Z-a1b2c3","timestamp":"2026-08-22T21:42:00+02:00","type":"run.finished","source":"runner","sequence":1,"payload":{"status":"completed"}}
+

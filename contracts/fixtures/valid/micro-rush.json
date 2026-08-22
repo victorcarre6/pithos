@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "micro_rush_id": "rush-audio-input",
+  "experiment_id": "audio-visualizer",
+  "title": "Capture audio interface input",
+  "status": "active",
+  "branch": "agent/rush-audio-input",
+  "created_at": "2026-08-22T21:14:00+02:00",
+  "completed_at": null,
+  "pull_request_url": null,
+  "run_ids": ["run-20260822T211500Z-a1b2c3"]
+}
+
