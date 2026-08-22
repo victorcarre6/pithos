@@ -24,11 +24,22 @@ Permettre à l'agent expérimental de conserver un micro-rush sur une branche, p
 
 ## Critères de succès
 
-- [ ] Un micro-rush incomplet reprend sur la même branche.
-- [ ] Un micro-rush terminé produit un commit traçable et une PR.
-- [ ] La policy refuse un autre dépôt et une opération destructive.
-- [ ] La fusion est possible uniquement pour une PR autorisée.
-- [ ] Les credentials n'apparaissent dans aucun artefact de test.
+- [x] Un micro-rush incomplet reprend sur la même branche.
+- [x] Un micro-rush terminé produit un commit traçable et une PR via le double contrôlé.
+- [x] La policy refuse un autre dépôt et une opération destructive.
+- [x] La fusion est possible uniquement pour une PR autorisée.
+- [x] Les credentials n'apparaissent dans aucun artefact de test.
+
+## Validation réalisée
+
+- Socket Unix réelle mode `0600`.
+- Double contrôlé couvrant branche existante, commit, push, création, inspection et fusion de PR.
+- Refus d'une opération inconnue, de `main`, d'un autre remote et d'une PR head/base incorrecte.
+- Vérification qu'aucune commande n'utilise `--force` ou un token et que les événements ne conservent que
+  statut et code de sortie.
+
+Le test GitHub réel reste volontairement différé après la première passe autonome, conformément à la décision
+utilisateur. La surface broker et sa policy sont prêtes pour cette validation.
 
 ## Dépendances
 

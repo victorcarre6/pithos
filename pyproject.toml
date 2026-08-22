@@ -22,6 +22,7 @@ pithos-model-probe = "pithos_model_probe.cli:main"
 pithos-capability-probe = "pithos_capability_probe.cli:main"
 pithos-continuity = "pithos_continuity.cli:main"
 pithos-runner = "pithos_runner.cli:main"
+pithos-git-broker = "pithos_git_broker.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = [
@@ -30,6 +31,7 @@ packages = [
   "src/pithos_capability_probe",
   "src/pithos_continuity",
   "src/pithos_runner",
+  "src/pithos_git_broker",
 ]
 
 [tool.pytest.ini_options]

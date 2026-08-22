@@ -14,8 +14,11 @@ class EventWriter:
         self.path = path
         self.run_id = run_id
         self.source = source
-        self.sequence = 0
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.sequence = 0
+        if self.path.exists():
+            with self.path.open(encoding="utf-8") as event_file:
+                self.sequence = sum(1 for line in event_file if line.strip())
 
     def append(self, event_type: str, payload: dict) -> dict:
         now = datetime.now(UTC)
@@ -39,4 +42,3 @@ class EventWriter:
         self.sequence += 1
 
         return event
-
