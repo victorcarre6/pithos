@@ -5,6 +5,8 @@ import secrets
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pithos_live_log import LiveLog
+
 
 class EventWriter:
     """Append one flushed JSON event per line with a monotone sequence."""
@@ -39,6 +41,20 @@ class EventWriter:
             event_file.write(serialized + "\n")
             event_file.flush()
 
+        if len(self.path.parents) >= 3 and self.path.parent.parent.name == "runs":
+            logs_root = self.path.parents[2]
+            level = _live_level(event_type, payload)
+            LiveLog(logs_root).write(self.run_id, level, self.source, event_type)
+
         self.sequence += 1
 
         return event
+
+
+def _live_level(event_type: str, payload: dict) -> str:
+    if event_type == "run.finished" and payload.get("status") not in {"completed", "running"}:
+        return "ERROR"
+    if event_type.endswith(".failed") or payload.get("is_error"):
+        return "ERROR"
+
+    return "INFO"

@@ -27,3 +27,10 @@
 - Offset et `request_id` persistants pour rendre updates et envois idempotents après redémarrage.
 - `/pause` et `/stop` sont observés par le monitor du run ; aucune reprise Telegram n'est exposée.
 - Le loop guard tente le message exact avant l'interruption et reste fail-safe si Telegram est indisponible.
+
+## 23:08 — Live logs 10
+
+- Format mono-ligne horodaté, verrou `flock`, flush et `fsync` à chaque événement.
+- Rotation par renommage vers une archive illimitée, sans dépendance à SQLite ou au dashboard.
+- Test réel : un processus `tail -F` a reçu les lignes avant et après remplacement du fichier canonique.
+- **72 tests passent** sur l'ensemble du dépôt.

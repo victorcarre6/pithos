@@ -10,5 +10,5 @@
 - [DONE] 07 — stockage SQLite reconstructible.
 - [DONE] 08 — dashboard dockerisé.
 - [DONE] 09 — broker Telegram ; probe réel prêt, en attente des deux credentials.
-- [TODO] 10 — live log compatible `tail -F`.
+- [DONE] 10 — live log compatible `tail -F`.
 - [TODO] 11 — bootstrap de campagne après validation du socle.

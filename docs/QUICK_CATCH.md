@@ -2,8 +2,8 @@
 
 ## État
 
-Les chantiers **00 à 09** sont implémentés. Le probe Telegram réel attend uniquement `TELEGRAM_BOT_TOKEN` et
-`TELEGRAM_USER_ID`. Le prochain chantier est le flux texte `10`.
+Les chantiers **00 à 10** sont implémentés. Le probe Telegram réel attend uniquement `TELEGRAM_BOT_TOKEN` et
+`TELEGRAM_USER_ID`. Il reste l'audit transversal du socle avant le bootstrap `11`.
 
 ## Commandes
 

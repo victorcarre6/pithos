@@ -25,11 +25,11 @@ dashboard.
 
 ## Critères de succès
 
-- [ ] `tail -F ~/logs/pithos/live.log` suit plusieurs runs sans doublons manifestes.
-- [ ] Chaque ligne permet d'identifier l'heure, le run et la gravité.
-- [ ] La rotation ne coupe pas durablement un lecteur existant.
-- [ ] Un redémarrage reprend l'écriture sans écraser l'historique.
-- [ ] Une panne SQLite ou dashboard n'interrompt pas le flux.
+- [DONE] `tail -F ~/logs/pithos/live.log` suit plusieurs runs sans doublons manifestes.
+- [DONE] Chaque ligne permet d'identifier l'heure, le run et la gravité.
+- [DONE] La rotation ne coupe pas durablement un lecteur existant.
+- [DONE] Un redémarrage reprend l'écriture sans écraser l'historique.
+- [DONE] Une panne SQLite ou dashboard n'interrompt pas le flux.
 
 ## Dépendances
 

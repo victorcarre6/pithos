@@ -28,6 +28,7 @@ pithos-git-broker = "pithos_git_broker.cli:main"
 pithos-harness = "pithos_harness.cli:main"
 pithos-events = "pithos_event_store.cli:main"
 pithos-telegram = "pithos_telegram.cli:main"
+pithos-live-log = "pithos_live_log.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = [
@@ -40,6 +41,7 @@ packages = [
   "src/pithos_harness",
   "src/pithos_event_store",
   "src/pithos_telegram",
+  "src/pithos_live_log",
 ]
 
 [tool.pytest.ini_options]
