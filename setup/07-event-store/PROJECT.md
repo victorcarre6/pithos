@@ -26,11 +26,11 @@ dépendante de la disponibilité de la base.
 
 ## Critères de succès
 
-- [ ] Une réingestion ne duplique aucune donnée.
-- [ ] Une ligne invalide n'empêche pas l'ingestion des lignes suivantes.
-- [ ] Un redémarrage reprend au bon offset.
-- [ ] Les relations run/micro-rush/session/PR restent interrogeables.
-- [ ] Les migrations préservent les événements et payloads existants.
+- [DONE] Une réingestion ne duplique aucune donnée.
+- [DONE] Une ligne invalide n'empêche pas l'ingestion des lignes suivantes.
+- [DONE] Un redémarrage reprend au bon offset.
+- [DONE] Les relations run/micro-rush/session/PR restent interrogeables.
+- [DONE] Les migrations préservent les événements et payloads existants.
 
 ## Dépendances
 

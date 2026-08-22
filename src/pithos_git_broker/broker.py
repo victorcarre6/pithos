@@ -86,12 +86,17 @@ class GitBroker:
 
         response = handlers[operation](arguments)
         events_path = self.logs_root / "runs" / run_id / "events.jsonl"
+        event_payload = {
+            "ok": response["ok"],
+            "exit_code": response["exit_code"],
+        }
+        if operation == "pr_create" and response["ok"]:
+            event_payload["url"] = response["stdout"].strip()
+        elif operation == "pr_view" and response["ok"]:
+            event_payload["pull_request"] = json.loads(response["stdout"])
         EventWriter(events_path, run_id, source="git-broker").append(
             f"git.{operation}",
-            {
-                "ok": response["ok"],
-                "exit_code": response["exit_code"],
-            },
+            event_payload,
         )
 
         return response

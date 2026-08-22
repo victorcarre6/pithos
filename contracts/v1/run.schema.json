@@ -24,6 +24,7 @@
     "started_at": { "type": "string", "format": "date-time" },
     "finished_at": { "type": ["string", "null"], "format": "date-time" },
     "branch": { "type": ["string", "null"], "minLength": 1 },
+    "session_id": { "type": ["string", "null"], "minLength": 1 },
     "commit_before": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,64}$" },
     "commit_after": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,64}$" },
     "artifacts_dir": { "type": "string", "pattern": "^runs/run-" },
@@ -41,4 +42,3 @@
     }
   }
 }
-

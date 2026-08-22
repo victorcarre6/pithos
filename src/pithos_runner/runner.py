@@ -73,6 +73,7 @@ def run_once(configuration: RunnerConfiguration) -> dict:
             "started_at": started_at,
             "finished_at": None,
             "branch": None,
+            "session_id": None,
             "commit_before": None,
             "commit_after": None,
             "artifacts_dir": f"runs/{run_id}",
@@ -80,7 +81,14 @@ def run_once(configuration: RunnerConfiguration) -> dict:
             "success": {"process": None, "protocol": None, "task": None, "report": None},
         }
         _write_run(run_dir / "run.json", run_document)
-        events.append("run.started", {"model": configuration.model})
+        events.append(
+            "run.started",
+            {
+                "experiment_id": configuration.experiment_id,
+                "micro_rush_id": None,
+                "model": configuration.model,
+            },
+        )
 
         latest_path = configuration.logs_root / "latest.md"
         continuity_dir = configuration.workspace / ".pithos"
@@ -129,6 +137,9 @@ def run_once(configuration: RunnerConfiguration) -> dict:
         stdout = (run_dir / "stdout.jsonl").read_text(encoding="utf-8")
         pi_events, parse_errors = parse_events(stdout)
         protocol_success, _ = classify_protocol(pi_events, parse_errors)
+        session_event = next((event for event in pi_events if event.get("type") == "session"), None)
+        if session_event:
+            run_document["session_id"] = session_event.get("id")
 
         report_success = False
         if report_path.exists():
@@ -162,6 +173,13 @@ def run_once(configuration: RunnerConfiguration) -> dict:
             "report": report_success,
         }
         _write_run(run_dir / "run.json", run_document)
-        events.append("run.finished", {"status": status, "stop_reason": stop_reason})
+        events.append(
+            "run.finished",
+            {
+                "status": status,
+                "stop_reason": stop_reason,
+                "session_id": run_document["session_id"],
+            },
+        )
 
         return run_document
