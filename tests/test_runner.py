@@ -1,5 +1,6 @@
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -142,7 +143,7 @@ time.sleep(30)
     assert "run.heartbeat" in {event["type"] for event in events}
 
 
-def test_loop_guard_pauses_future_runs(tmp_path):
+def test_loop_guard_notifies_then_pauses_even_if_notification_fails(tmp_path, monkeypatch):
     executable = _executable(
         tmp_path / "loop-pi",
         """
@@ -159,9 +160,18 @@ time.sleep(30)
 """,
     )
     configuration = _configuration(tmp_path, executable, repeat_limit=3)
+    configuration = replace(configuration, telegram_socket=tmp_path / "missing.sock")
+    attempts = []
+
+    def unavailable(socket_path, request):
+        attempts.append((socket_path, request))
+        raise OSError("Telegram unavailable")
+
+    monkeypatch.setattr("pithos_telegram.client.send_request", unavailable)
 
     result = run_once(configuration)
 
+    assert attempts[0][1]["text"] == "Boucle récursive infinie détectée."
     assert result["status"] == "paused"
     assert result["stop_reason"] == LOOP_WARNING
     assert read_state(configuration.logs_root / "runtime" / "state.json")["paused"] is True

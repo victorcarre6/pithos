@@ -7,10 +7,10 @@ __pycache__/
 .venv/
 node_modules/
 dist/
+*.tsbuildinfo
 *.db
 *.db-shm
 *.db-wal
 .env
 config/pi/auth.json
 config/pi/models-store.json
-

@@ -17,6 +17,7 @@ def _configuration(arguments) -> RunnerConfiguration:
         pi_config_dir=arguments.pi_config_dir.resolve(),
         timeout_seconds=arguments.timeout_seconds,
         repeat_limit=arguments.repeat_limit,
+        telegram_socket=arguments.telegram_socket,
     )
 
 
@@ -33,6 +34,7 @@ def main() -> int:
     run_parser.add_argument("--pi-config-dir", type=Path, required=True)
     run_parser.add_argument("--timeout-seconds", type=int, default=3600)
     run_parser.add_argument("--repeat-limit", type=int, default=5)
+    run_parser.add_argument("--telegram-socket", type=Path)
     subparsers.add_parser("status")
     pause_parser = subparsers.add_parser("pause")
     pause_parser.add_argument("--reason", default="paused by local user")
@@ -61,4 +63,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

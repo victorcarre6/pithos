@@ -9,6 +9,6 @@
 - [DONE] 06 — snapshots et promotion du harness.
 - [DONE] 07 — stockage SQLite reconstructible.
 - [DONE] 08 — dashboard dockerisé.
-- [TODO] 09 — broker Telegram.
+- [DONE] 09 — broker Telegram ; probe réel prêt, en attente des deux credentials.
 - [TODO] 10 — live log compatible `tail -F`.
 - [TODO] 11 — bootstrap de campagne après validation du socle.

@@ -20,3 +20,10 @@
 - API FastAPI strictement read-only avec pagination bornée et health service/données séparé.
 - Interface React/Vite dérivée des design tokens et cartes d'Argos/Aede.
 - SQLite et artefacts montés `:ro` dans la composition Docker ; publication LAN différée.
+
+## 23:08 — Telegram 09
+
+- Broker socket `0600`, destinataire fixe, cinq types sortants et rate limiting.
+- Offset et `request_id` persistants pour rendre updates et envois idempotents après redémarrage.
+- `/pause` et `/stop` sont observés par le monitor du run ; aucune reprise Telegram n'est exposée.
+- Le loop guard tente le message exact avant l'interruption et reste fail-safe si Telegram est indisponible.

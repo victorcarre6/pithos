@@ -2,8 +2,8 @@
 
 ## État
 
-Les chantiers **00 à 08** sont implémentés. Les limites mesurées de la baseline empêchent encore de valider
-les critères qui exigent des tool calls Pi réels. Le prochain chantier est le broker Telegram `09`.
+Les chantiers **00 à 09** sont implémentés. Le probe Telegram réel attend uniquement `TELEGRAM_BOT_TOKEN` et
+`TELEGRAM_USER_ID`. Le prochain chantier est le flux texte `10`.
 
 ## Commandes
 

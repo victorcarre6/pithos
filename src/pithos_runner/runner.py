@@ -20,6 +20,25 @@ from .state import read_state, write_state
 LOOP_WARNING = "[WARNING] Boucle récursive infinie détectée."
 
 
+def _notify_loop(socket_path: Path | None, run_id: str) -> None:
+    """Best-effort notification before interrupting the process group."""
+
+    if socket_path is None:
+        return
+
+    from pithos_telegram.client import send_request
+
+    send_request(
+        socket_path,
+        {
+            "request_id": f"{run_id}-loop-guard",
+            "run_id": run_id,
+            "kind": "WARNING",
+            "text": "Boucle récursive infinie détectée.",
+        },
+    )
+
+
 @dataclass(frozen=True)
 class RunnerConfiguration:
     """Paths and bounded policies for one experiment runner."""
@@ -34,6 +53,7 @@ class RunnerConfiguration:
     timeout_seconds: int = 3600
     repeat_limit: int = 5
     heartbeat_seconds: float = 30
+    telegram_socket: Path | None = None
 
 
 def new_run_id() -> str:
@@ -132,6 +152,8 @@ def run_once(configuration: RunnerConfiguration) -> dict:
             repeat_limit=configuration.repeat_limit,
             heartbeat_seconds=configuration.heartbeat_seconds,
             on_heartbeat=lambda: events.append("run.heartbeat", {}),
+            stop_requested=lambda: read_state(state_path)["paused"],
+            on_loop_detected=lambda: _notify_loop(configuration.telegram_socket, run_id),
         )
 
         stdout = (run_dir / "stdout.jsonl").read_text(encoding="utf-8")
@@ -153,6 +175,9 @@ def run_once(configuration: RunnerConfiguration) -> dict:
             status = "paused"
             stop_reason = LOOP_WARNING
             write_state(state_path, True, stop_reason)
+        elif outcome.externally_stopped:
+            status = "paused"
+            stop_reason = read_state(state_path)["reason"]
         elif outcome.timed_out:
             status = "timed_out"
             stop_reason = "run exceeded its configured timeout"

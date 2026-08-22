@@ -19,6 +19,7 @@ class MonitoredOutcome:
     exit_code: int | None
     timed_out: bool
     loop_detected: bool
+    externally_stopped: bool
     repeated_signature: str | None
 
 
@@ -68,6 +69,8 @@ def run_monitored(
     repeat_limit: int,
     heartbeat_seconds: float = 30,
     on_heartbeat: Callable[[], None] | None = None,
+    stop_requested: Callable[[], bool] | None = None,
+    on_loop_detected: Callable[[], None] | None = None,
 ) -> MonitoredOutcome:
     """Stream a child group until completion, timeout or repeated identical tools."""
 
@@ -97,6 +100,7 @@ def run_monitored(
     repeat_count = 0
     timed_out = False
     loop_detected = False
+    externally_stopped = False
 
     stdout_path.parent.mkdir(parents=True, exist_ok=True)
     with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
@@ -109,6 +113,9 @@ def run_monitored(
                 next_heartbeat = now + heartbeat_seconds
             if now - started_at >= timeout_seconds:
                 timed_out = True
+                _terminate_group(process)
+            if stop_requested and stop_requested() and process.poll() is None:
+                externally_stopped = True
                 _terminate_group(process)
 
             try:
@@ -137,11 +144,23 @@ def run_monitored(
                 repeat_count = 1
             if repeat_count >= repeat_limit:
                 loop_detected = True
+                if on_loop_detected:
+                    try:
+                        on_loop_detected()
+                    except (OSError, RuntimeError):
+                        pass
                 _terminate_group(process)
 
     if process.poll() is None:
         process.wait()
 
-    exit_code = None if timed_out or loop_detected else process.returncode
+    interrupted = timed_out or loop_detected or externally_stopped
+    exit_code = None if interrupted else process.returncode
 
-    return MonitoredOutcome(exit_code, timed_out, loop_detected, last_signature if loop_detected else None)
+    return MonitoredOutcome(
+        exit_code,
+        timed_out,
+        loop_detected,
+        externally_stopped,
+        last_signature if loop_detected else None,
+    )
