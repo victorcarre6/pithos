@@ -23,11 +23,17 @@ la session LLM précédente.
 
 ## Critères de succès
 
-- [ ] La seconde session reprend un fait créé par la première sans lire sa session JSONL.
-- [ ] Une écriture interrompue ne corrompt pas le dernier rapport valide.
-- [ ] Les trois sections obligatoires sont contrôlées.
-- [ ] Le micro-rush, la branche et la prochaine action sont identifiables.
-- [ ] Les archives et le rapport global restent cohérents.
+- [ ] Une seconde session Pi reprend un fait créé par la première sans lire sa session JSONL.
+- [x] Une écriture interrompue ou invalide ne corrompt pas le dernier rapport valide.
+- [x] Les trois sections obligatoires sont contrôlées.
+- [x] Le micro-rush, la branche et la prochaine action sont identifiables.
+- [x] Les archives et le rapport global restent cohérents.
+
+## Validation réalisée
+
+Les tests couvrent publication, lecture indépendante, idempotence, collision d'archive, rapport invalide et
+absence de `latest.md`. La validation Pi en deux sessions reste impossible avec la baseline actuelle dans une
+durée exploitable ; elle demeure explicitement ouverte.
 
 ## Dépendances
 

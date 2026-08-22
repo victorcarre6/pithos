@@ -83,8 +83,8 @@ def _split_frontmatter(content: str) -> tuple[dict, str]:
     return metadata, body
 
 
-def validate_report(path: Path) -> None:
-    """Validate report metadata and the three required continuity sections."""
+def validate_report(path: Path) -> dict:
+    """Validate a continuity report and return its decoded metadata."""
 
     content = path.read_text(encoding="utf-8")
     metadata, body = _split_frontmatter(content)
@@ -102,3 +102,4 @@ def validate_report(path: Path) -> None:
     if section_positions != sorted(section_positions):
         raise ValidationFailure("report sections must be ordered Context, Work, Next items")
 
+    return metadata
