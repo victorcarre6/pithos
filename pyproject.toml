@@ -18,10 +18,10 @@ dev = [
 
 [project.scripts]
 pithos-contracts = "pithos_contracts.cli:main"
+pithos-model-probe = "pithos_model_probe.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pithos_contracts"]
+packages = ["src/pithos_contracts", "src/pithos_model_probe"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-

@@ -23,11 +23,11 @@ Mesurer la baseline d'inférence choisie par l'utilisateur sur le Mac mini M2 16
 
 ## Critères de succès
 
-- [ ] Le débit et la mémoire sont mesurés sur plusieurs prompts représentatifs.
+- [x] Le débit et la mémoire sont mesurés sur plusieurs prompts représentatifs.
 - [ ] Le contexte maximal stable est borné par une mesure réussie et une limite observée.
-- [ ] Les tool calls valides et invalides sont caractérisés.
-- [ ] Les boucles, fins de génération et erreurs de parsing sont rapportées.
-- [ ] Une configuration baseline est documentée sans la modifier automatiquement.
+- [ ] Les tool calls valides et invalides sont caractérisés — le cas valide expire actuellement après 300 s.
+- [x] Les boucles, fins de génération et erreurs de parsing sont rapportées.
+- [x] Une configuration baseline est documentée sans la modifier automatiquement.
 
 ## Dépendances
 
