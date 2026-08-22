@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>dev.pithos.runner.__EXPERIMENT_ID__</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PITHOS_RUNNER__</string>
+    <string>run</string>
+    <string>--experiment-id</string>
+    <string>__EXPERIMENT_ID__</string>
+    <string>--workspace</string>
+    <string>__WORKSPACE__</string>
+    <string>--pi-config-dir</string>
+    <string>__PI_CONFIG_DIR__</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>__WORKSPACE__</string>
+  <key>StartInterval</key>
+  <integer>10800</integer>
+  <key>StandardOutPath</key>
+  <string>__LOGS_ROOT__/launchd.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__LOGS_ROOT__/launchd.stderr.log</string>
+</dict>
+</plist>
+

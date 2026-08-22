@@ -26,12 +26,20 @@ un arrêt persistant après détection de boucle.
 
 ## Critères de succès
 
-- [ ] Deux lancements concurrents n'exécutent qu'un seul Pi.
-- [ ] Un verrou orphelin est diagnostiqué puis récupéré sans tuer un processus non lié.
-- [ ] Le timeout interrompt proprement tout l'arbre de processus.
-- [ ] L'état `paused` survit aux réveils périodiques.
-- [ ] Une commande locale explicite permet la reprise.
-- [ ] Tous les chemins et états du run sont rapportés.
+- [x] Deux lancements concurrents n'exécutent qu'un seul Pi.
+- [x] Un verrou orphelin est diagnostiqué puis récupéré sans tuer un processus non lié.
+- [x] Le timeout interrompt proprement tout l'arbre de processus.
+- [x] L'état `paused` survit aux réveils périodiques.
+- [x] Une commande locale explicite permet la reprise.
+- [x] Tous les chemins et états du run sont rapportés.
+
+## Validation réalisée
+
+- Processus factices : succès avec rapport, timeout avec descendant, boucle de tools et refus après pause.
+- Verrou : propriétaire vivant refusé, PID mort récupéré sans signal.
+- Heartbeat : événement append-only émis pendant une exécution longue.
+- Contrats : `run.json` et `events.jsonl` validés dans le chemin nominal.
+- Plist : `plutil -lint` réussi ; installation volontairement non effectuée.
 
 ## Dépendances
 
