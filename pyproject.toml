@@ -13,6 +13,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+  "fastapi>=0.116,<0.117",
+  "httpx>=0.28,<0.29",
   "pytest>=8.3,<9",
 ]
 

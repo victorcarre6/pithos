@@ -8,7 +8,7 @@
 - [DONE] 05 — broker Git local ; validation GitHub réelle différée.
 - [DONE] 06 — snapshots et promotion du harness.
 - [DONE] 07 — stockage SQLite reconstructible.
-- [TODO] 08 — dashboard dockerisé.
+- [DONE] 08 — dashboard dockerisé.
 - [TODO] 09 — broker Telegram.
 - [TODO] 10 — live log compatible `tail -F`.
 - [TODO] 11 — bootstrap de campagne après validation du socle.

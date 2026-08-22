@@ -3,7 +3,7 @@
 ## But
 
 Construire un dashboard dockerisé permanent qui consulte SQLite et les artefacts de runs sans modifier la
-campagne. L'utilisateur fournira un template Node.js, TypeScript et Python avant l'implémentation.
+campagne. Argos et Aede constituent les templates Node.js, TypeScript et Python fournis par l'utilisateur.
 
 ## Vues minimales
 
@@ -26,7 +26,7 @@ campagne. L'utilisateur fournira un template Node.js, TypeScript et Python avant
 
 ## Contraintes
 
-- Attendre le template utilisateur avant de choisir l'architecture applicative.
+- Réutiliser les design tokens et patterns d'Argos/Aede sans conserver leur domaine métier.
 - Monter SQLite et les logs en lecture seule.
 - Ne pas exposer le service au-delà de la configuration explicitement fournie.
 - Le dashboard ne commande ni Pi, ni Git, ni Telegram.
@@ -34,11 +34,11 @@ campagne. L'utilisateur fournira un template Node.js, TypeScript et Python avant
 
 ## Critères de succès
 
-- [ ] Les vues minimales utilisent des données réellement ingérées.
-- [ ] Un gros run reste consultable sans charger tous ses payloads en mémoire.
-- [ ] Le container redémarre sans migration destructive.
-- [ ] Aucun endpoint de lecture ne modifie SQLite ou les artefacts.
-- [ ] Le healthcheck distingue service disponible et données indisponibles.
+- [DONE] Les vues minimales utilisent des données réellement ingérées.
+- [DONE] Un gros run reste consultable sans charger tous ses payloads en mémoire.
+- [DONE] Le container redémarre sans migration destructive.
+- [DONE] Aucun endpoint de lecture ne modifie SQLite ou les artefacts.
+- [DONE] Le healthcheck distingue service disponible et données indisponibles.
 
 ## Dépendances
 

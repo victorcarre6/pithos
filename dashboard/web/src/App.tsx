@@ -1,0 +1,17 @@
+import { Activity, Bot, Database } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+type Run = {run_id:string;status:string|null;model:string|null;started_at:string|null;stop_reason:string|null};
+type Event = {event_id:string;timestamp:string;type:string;source:string;payload:unknown};
+type Stats = {total_runs:number;running_runs:number;completed_runs:number;other_runs:number;events:number;tool_failures:number};
+
+async function api<T>(path:string):Promise<T>{const response=await fetch(`/api${path}`);if(!response.ok)throw new Error(await response.text());return response.json() as Promise<T>}
+const emptyStats:Stats={total_runs:0,running_runs:0,completed_runs:0,other_runs:0,events:0,tool_failures:0};
+
+export function App(){
+  const [stats,setStats]=useState(emptyStats);const [runs,setRuns]=useState<Run[]>([]);const [selected,setSelected]=useState("");const [events,setEvents]=useState<Event[]>([]);const [offset,setOffset]=useState(0);const [error,setError]=useState("");
+  const refresh=useCallback(async()=>{try{const [nextStats,nextRuns]=await Promise.all([api<Stats>("/stats"),api<{items:Run[]}>("/runs")]);setStats(nextStats);setRuns(nextRuns.items);setSelected(current=>current||nextRuns.items[0]?.run_id||"");setError("")}catch(reason){setError(reason instanceof Error?reason.message:String(reason))}},[]);
+  useEffect(()=>{void refresh();const timer=setInterval(()=>void refresh(),10000);return()=>clearInterval(timer)},[refresh]);
+  useEffect(()=>{if(!selected)return;void api<{items:Event[]}>(`/runs/${selected}/events?limit=100&offset=${offset}`).then(value=>setEvents(value.items)).catch(reason=>setError(String(reason)))},[selected,offset]);
+  const metrics=[["Runs",stats.total_runs],["En cours",stats.running_runs],["Événements",stats.events],["Tool failures",stats.tool_failures]];
+  return <main className="shell"><header className="header"><div className="brand"><div className="logo"><Bot size={18}/></div><div><strong>Pithos</strong><div className="subtitle">Agent observability</div></div></div><div className="health"><Activity size={16}/> Projection active</div></header>{error&&<p className="error">{error}</p>}<section className="grid">{metrics.map(([label,value])=><div className="card" key={label}><div className="label">{label}</div><div className="metric">{value}</div></div>)}</section><section className="layout"><div className="card"><h3>Runs</h3><div className="list">{runs.map(run=><button className={`run ${selected===run.run_id?"active":""}`} onClick={()=>{setSelected(run.run_id);setOffset(0)}} key={run.run_id}><div className="row"><strong>{run.run_id}</strong><span className={`pill ${run.status}`}>{run.status??"unknown"}</span></div><div className="muted">{run.model??"—"} · {run.started_at??"—"}</div></button>)}</div></div><div className="card"><div className="row"><h3>Timeline</h3><Database size={18}/></div><div className="events">{events.map(event=><article className="event" key={event.event_id}><div className="row"><strong>{event.type}</strong><span className="muted">{event.source}</span></div><pre>{JSON.stringify(event.payload,null,2)}</pre></article>)}</div><div className="pager"><button className="action" disabled={!offset} onClick={()=>setOffset(Math.max(0,offset-100))}>Précédent</button><button className="action" disabled={events.length<100} onClick={()=>setOffset(offset+100)}>Suivant</button></div></div></section></main>}

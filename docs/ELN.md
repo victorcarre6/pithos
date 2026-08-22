@@ -14,3 +14,9 @@
 - Curseur byte/ligne par source, ingestion idempotente, quarantaine et refus des troncatures.
 - Migrations v1/v2 et projections métier ajoutées ; contenu brut intégral conservé.
 - **56 tests passent** sur l'ensemble du dépôt.
+
+## 23:08 — Dashboard 08
+
+- API FastAPI strictement read-only avec pagination bornée et health service/données séparé.
+- Interface React/Vite dérivée des design tokens et cartes d'Argos/Aede.
+- SQLite et artefacts montés `:ro` dans la composition Docker ; publication LAN différée.
