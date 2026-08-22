@@ -27,11 +27,14 @@ Prouver que le couple Pi + modèle exécute réellement les capacités nécessai
 
 ## Critères de succès
 
-- [ ] Chaque scénario distingue `process_success`, `protocol_success`, `task_success` et `report_success`.
-- [ ] Un tool call imprimé mais non exécuté échoue explicitement.
-- [ ] Les effets attendus sont vérifiés hors de la réponse du modèle.
-- [ ] Deux exécutions simultanées ne partagent pas leurs fixtures.
-- [ ] Le probe peut être relancé sans nettoyage manuel dangereux.
+- [x] Chaque scénario distingue `process_success`, `protocol_success`, `task_success` et `report_success`.
+- [x] Un tool call imprimé mais non exécuté échoue explicitement.
+- [x] Les effets attendus sont vérifiés hors de la réponse du modèle.
+- [x] Deux exécutions simultanées ne partagent pas leurs fixtures.
+- [x] Le probe peut être relancé sans nettoyage manuel dangereux.
+
+La conformité de ces invariants est couverte par tests déterministes. Les scénarios réels restent à valider
+avec une baseline capable de terminer les tool calls dans la limite du run ; voir `RESULTS.md`.
 
 ## Dépendances
 
