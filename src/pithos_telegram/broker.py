@@ -1,6 +1,7 @@
 """Validate, deliver and journal the narrow Telegram capability."""
 
 import json
+import re
 import time
 from collections import deque
 from pathlib import Path
@@ -17,6 +18,7 @@ MESSAGE_PREFIXES = {
     "EMERGENCY": "[EMERGENCY]",
 }
 LOOP_WARNING = "[WARNING] Boucle récursive infinie détectée."
+RUN_ID_PATTERN = re.compile(r"^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$")
 
 
 class TelegramBroker:
@@ -32,13 +34,19 @@ class TelegramBroker:
         self.rate_limit = rate_limit
         self.sent_at = deque()
         self.seen_requests = set()
+        self.seen_updates = set()
         self.offset_path = logs_root / "runtime" / "telegram-offset.json"
         self.answers_path = logs_root / "runtime" / "answers.jsonl"
         self.requests_path = logs_root / "runtime" / "telegram-requests.jsonl"
         self.updates_path = logs_root / "runtime" / "telegram-updates.jsonl"
         if self.requests_path.exists():
             for line in self.requests_path.read_text(encoding="utf-8").splitlines():
-                self.seen_requests.add(json.loads(line)["request_id"])
+                request = json.loads(line)
+                if request.get("result") == "sent":
+                    self.seen_requests.add(request["request_id"])
+        if self.updates_path.exists():
+            for line in self.updates_path.read_text(encoding="utf-8").splitlines():
+                self.seen_updates.add(int(json.loads(line)["update_id"]))
 
     def send(self, request: dict) -> dict:
         """Deliver one idempotent, rate-limited message to the configured user."""
@@ -59,10 +67,21 @@ class TelegramBroker:
             raise RuntimeError("Telegram rate limit reached")
 
         message = f"{MESSAGE_PREFIXES[kind]} {text}"
-        result = self.api.send(self.user_id, message)
+        try:
+            result = self.api.send(self.user_id, message)
+        except RuntimeError:
+            self._append_record(
+                self.requests_path,
+                {"request_id": request_id, "run_id": run_id, "result": "failed"},
+            )
+            self._event(run_id, "telegram.failed", {"kind": kind, "request_id": request_id})
+            raise
         self.sent_at.append(now)
         self.seen_requests.add(request_id)
-        self._append_record(self.requests_path, {"request_id": request_id, "run_id": run_id})
+        self._append_record(
+            self.requests_path,
+            {"request_id": request_id, "run_id": run_id, "result": "sent"},
+        )
         self._event(run_id, "telegram.sent", {"kind": kind, "request_id": request_id})
 
         return {"ok": True, "duplicate": False, "message_id": result.get("message_id")}
@@ -71,6 +90,13 @@ class TelegramBroker:
         """Apply one allowlisted command once and attribute it to its update id."""
 
         update_id = int(update["update_id"])
+        if update_id in self.seen_updates:
+            return {"ok": True, "duplicate": True, "update_id": update_id}
+        self.seen_updates.add(update_id)
+        self._append_record(
+            self.updates_path,
+            {"update_id": update_id, "command": None, "result": "claimed"},
+        )
         message = update.get("message") or {}
         sender = str((message.get("from") or {}).get("id", ""))
         chat = str((message.get("chat") or {}).get("id", ""))
@@ -94,7 +120,7 @@ class TelegramBroker:
             response = reason
         elif command == "/answer":
             run_id, separator, answer = arguments.partition(" ")
-            if not separator or not run_id or not answer.strip():
+            if not separator or not RUN_ID_PATTERN.fullmatch(run_id) or not answer.strip():
                 return {"ok": False, "reason": "usage: /answer <run_id> <message>"}
             self.answers_path.parent.mkdir(parents=True, exist_ok=True)
             record = {"update_id": update_id, "run_id": run_id, "answer": answer.strip()}
@@ -102,6 +128,11 @@ class TelegramBroker:
                 answers.write(json.dumps(record, separators=(",", ":")) + "\n")
                 answers.flush()
             response = f"Answer recorded for {run_id}."
+            self._event(
+                run_id,
+                "telegram.answer",
+                {"update_id": update_id, "answer": answer.strip()},
+            )
         else:
             self._append_record(
                 self.updates_path,

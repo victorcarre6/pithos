@@ -24,6 +24,9 @@ Une connexion transporte une ligne JSON :
 
 Opérations disponibles : `status`, `switch`, `commit`, `push`, `pr_create`, `pr_view`, `pr_merge`.
 
+L'extension de référence `ground_truth/.pi/extensions/pithos-git.ts` expose ces opérations à Pi sous un seul
+custom tool `pithos_git`. Le runner lui fournit uniquement `PITHOS_GIT_SOCKET` et `PITHOS_RUN_ID`.
+
 ## Policy
 
 - dépôt local et remote `origin` strictement égaux à la configuration ;
@@ -31,9 +34,8 @@ Opérations disponibles : `status`, `switch`, `commit`, `push`, `pr_create`, `pr
 - aucun force-push ou changement de branche principale ;
 - aucune création ou suppression de dépôt ;
 - fusion limitée à une PR ouverte de la branche active vers la branche principale configurée ;
-- journalisation du résultat sans commande, body de PR, stdout ou credential.
+- journalisation de la commande logique et de ses sorties complètes, sans credential.
 
 Le broker hérite de l'authentification `gh` de son processus hôte. Le runner Pi devra supprimer credentials et
 home utilisateur de son propre container. Le test GitHub réel est volontairement différé après cette première
 passe ; les tests utilisent un double de commande contrôlé et la socket réelle.
-

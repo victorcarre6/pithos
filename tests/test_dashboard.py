@@ -76,3 +76,44 @@ def test_report_rejects_path_traversal(tmp_path):
     response = client.get("/api/runs/not-a-run/report")
 
     assert response.status_code == 400
+
+
+def test_artifacts_are_allowlisted_and_byte_paginated(tmp_path):
+    client, _ = _client(tmp_path)
+    run_dir = tmp_path / "runs" / "run-20260823T120000Z-a1b2c3"
+    run_dir.mkdir(parents=True)
+    (run_dir / "stdout.jsonl").write_text("0123456789")
+
+    page = client.get(
+        "/api/runs/run-20260823T120000Z-a1b2c3/artifacts/stdout.jsonl?limit_bytes=4"
+    ).json()
+    rejected = client.get(
+        "/api/runs/run-20260823T120000Z-a1b2c3/artifacts/secret.env"
+    )
+
+    assert page["content"] == "0123"
+    assert page["next_offset"] == 4
+    assert page["has_more"] is True
+    assert rejected.status_code == 400
+
+
+def test_read_only_api_sees_uncheckpointed_wal_data(tmp_path):
+    client, database = _client(tmp_path)
+    writer = sqlite3.connect(database)
+    writer.execute("PRAGMA journal_mode=WAL")
+    writer.execute("PRAGMA wal_autocheckpoint=0")
+    writer.execute(
+        """
+        INSERT INTO runs(run_id, status, started_at)
+        VALUES ('run-20260823T130000Z-d4e5f6', 'running', '2026-08-23T13:00:00Z')
+        """
+    )
+    writer.commit()
+
+    runs = client.get("/api/runs").json()["items"]
+
+    assert {run["run_id"] for run in runs} == {
+        "run-20260823T120000Z-a1b2c3",
+        "run-20260823T130000Z-d4e5f6",
+    }
+    writer.close()

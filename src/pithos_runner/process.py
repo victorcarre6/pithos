@@ -21,6 +21,7 @@ class MonitoredOutcome:
     loop_detected: bool
     externally_stopped: bool
     repeated_signature: str | None
+    duration_seconds: float
 
 
 def _stream_reader(name: str, stream, output_queue: queue.Queue) -> None:
@@ -71,6 +72,8 @@ def run_monitored(
     on_heartbeat: Callable[[], None] | None = None,
     stop_requested: Callable[[], bool] | None = None,
     on_loop_detected: Callable[[], None] | None = None,
+    on_stdout_line: Callable[[str], None] | None = None,
+    on_forced_stop: Callable[[], None] | None = None,
 ) -> MonitoredOutcome:
     """Stream a child group until completion, timeout or repeated identical tools."""
 
@@ -101,6 +104,19 @@ def run_monitored(
     timed_out = False
     loop_detected = False
     externally_stopped = False
+    cleanup_done = False
+
+    def force_stop() -> None:
+        nonlocal cleanup_done
+
+        _terminate_group(process)
+        if cleanup_done or not on_forced_stop:
+            return
+        cleanup_done = True
+        try:
+            on_forced_stop()
+        except (OSError, RuntimeError):
+            pass
 
     stdout_path.parent.mkdir(parents=True, exist_ok=True)
     with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
@@ -113,10 +129,10 @@ def run_monitored(
                 next_heartbeat = now + heartbeat_seconds
             if now - started_at >= timeout_seconds:
                 timed_out = True
-                _terminate_group(process)
+                force_stop()
             if stop_requested and stop_requested() and process.poll() is None:
                 externally_stopped = True
-                _terminate_group(process)
+                force_stop()
 
             try:
                 name, line = output_queue.get(timeout=0.25)
@@ -134,6 +150,8 @@ def run_monitored(
 
             if name != "stdout":
                 continue
+            if on_stdout_line:
+                on_stdout_line(line)
             signature = _tool_signature(line)
             if signature is None:
                 continue
@@ -149,7 +167,7 @@ def run_monitored(
                         on_loop_detected()
                     except (OSError, RuntimeError):
                         pass
-                _terminate_group(process)
+                force_stop()
 
     if process.poll() is None:
         process.wait()
@@ -163,4 +181,5 @@ def run_monitored(
         loop_detected,
         externally_stopped,
         last_signature if loop_detected else None,
+        time.monotonic() - started_at,
     )

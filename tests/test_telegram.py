@@ -102,6 +102,19 @@ def test_poll_offset_makes_updates_idempotent_across_restarts(tmp_path):
     assert len(api.messages) == 1
 
 
+def test_direct_duplicate_update_is_claimed_before_a_second_action(tmp_path):
+    api = FakeAPI()
+    broker = TelegramBroker(api, "42", tmp_path)
+    update = _update(20, "/pause")
+
+    first = broker.handle_update(update)
+    duplicate = broker.handle_update(update)
+
+    assert first["ok"] is True
+    assert duplicate["duplicate"] is True
+    assert len(api.messages) == 1
+
+
 def test_loop_warning_has_exact_contract():
     assert LOOP_WARNING == "[WARNING] Boucle récursive infinie détectée."
 

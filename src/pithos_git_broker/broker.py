@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,6 +14,7 @@ from .policy import GitPolicy, PolicyViolation
 
 
 CommandRunner = Callable[[list[str], Path], subprocess.CompletedProcess]
+RUN_ID_PATTERN = re.compile(r"^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$")
 
 
 def _default_runner(command: list[str], cwd: Path) -> subprocess.CompletedProcess:
@@ -65,11 +67,10 @@ class GitBroker:
     def handle(self, request: dict) -> dict:
         """Validate and execute one broker request."""
 
-        self._validate_remote()
         operation = request.get("operation")
         arguments = request.get("arguments") or {}
         run_id = request.get("run_id")
-        if not isinstance(run_id, str) or not run_id.startswith("run-"):
+        if not isinstance(run_id, str) or not RUN_ID_PATTERN.fullmatch(run_id):
             raise PolicyViolation("run_id is required")
 
         handlers = {
@@ -84,22 +85,41 @@ class GitBroker:
         if operation not in handlers:
             raise PolicyViolation(f"operation is not allowed: {operation}")
 
-        response = handlers[operation](arguments)
-        events_path = self.logs_root / "runs" / run_id / "events.jsonl"
+        try:
+            self._validate_remote()
+            response = handlers[operation](arguments)
+        except (RuntimeError, PolicyViolation, subprocess.SubprocessError) as error:
+            self._journal(
+                run_id,
+                "failed",
+                {
+                    "operation": operation,
+                    "arguments": arguments,
+                    "ok": False,
+                    "error_type": type(error).__name__,
+                },
+            )
+            raise
+
         event_payload = {
+            "operation": operation,
+            "arguments": arguments,
             "ok": response["ok"],
             "exit_code": response["exit_code"],
+            "stdout": response["stdout"],
+            "stderr": response["stderr"],
         }
         if operation == "pr_create" and response["ok"]:
             event_payload["url"] = response["stdout"].strip()
         elif operation == "pr_view" and response["ok"]:
             event_payload["pull_request"] = json.loads(response["stdout"])
-        EventWriter(events_path, run_id, source="git-broker").append(
-            f"git.{operation}",
-            event_payload,
-        )
+        self._journal(run_id, operation, event_payload)
 
         return response
+
+    def _journal(self, run_id: str, action: str, payload: dict) -> None:
+        events_path = self.logs_root / "runs" / run_id / "events.jsonl"
+        EventWriter(events_path, run_id, source="git-broker").append(f"git.{action}", payload)
 
     def _validate_remote(self) -> None:
         repository = self.policy.validate_repository()

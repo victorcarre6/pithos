@@ -62,7 +62,14 @@ def test_status_is_journaled_without_command_content(tmp_path):
     events_path = tmp_path / "logs" / "runs" / RUN_ID / "events.jsonl"
     event = json.loads(events_path.read_text())
     assert event["type"] == "git.status"
-    assert event["payload"] == {"ok": True, "exit_code": 0}
+    assert event["payload"] == {
+        "operation": "status",
+        "arguments": {},
+        "ok": True,
+        "exit_code": 0,
+        "stdout": "ok\n",
+        "stderr": "",
+    }
 
     broker.handle({"operation": "status", "arguments": {}, "run_id": RUN_ID})
     events = [json.loads(line) for line in events_path.read_text().splitlines()]
@@ -164,6 +171,10 @@ def test_remote_must_match_policy(tmp_path):
 
     with pytest.raises(PolicyViolation, match="not allowed"):
         broker.handle({"operation": "status", "arguments": {}, "run_id": RUN_ID})
+
+    event = json.loads((tmp_path / "logs" / "runs" / RUN_ID / "events.jsonl").read_text())
+    assert event["type"] == "git.failed"
+    assert event["payload"]["error_type"] == "PolicyViolation"
 
 
 def test_unix_socket_round_trip_and_permissions(tmp_path):

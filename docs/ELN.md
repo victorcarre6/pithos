@@ -34,3 +34,18 @@
 - Rotation par renommage vers une archive illimitée, sans dépendance à SQLite ou au dashboard.
 - Test réel : un processus `tail -F` a reçu les lignes avant et après remplacement du fichier canonique.
 - **72 tests passent** sur l'ensemble du dépôt.
+
+## 23:08 — Audit transversal et runtime isolé
+
+- Le runner utilise désormais Docker par défaut avec filesystem racine read-only, workspace ciblé,
+  configuration Pi réinjectée et egress HTTP(S) via une allowlist Squid journalisée.
+- Les événements JSON de Pi sont conservés puis projetés en métriques de modèle, tools, commandes, tests,
+  fichiers, dépendances et réseau ; le chemin complet runner → JSONL → SQLite → API est testé.
+- Les mutations Git, Telegram et du harness passent par des brokers Unix dédiés ; la ground truth n'est
+  jamais montée en écriture dans le conteneur agent.
+- Le dashboard expose les métriques, domaines et artefacts paginés. La visibilité d'un SQLite en WAL sur
+  montage read-only est couverte par un test d'intégration.
+- Les requêtes Telegram sont rejouables après erreur, les updates sont traitées au plus une fois et
+  `/answer` alimente le contexte du réveil suivant.
+- **87 tests passent**, le frontend TypeScript compile et les deux compositions Docker sont valides.
+- La construction réelle des images reste non testée : le daemon Docker local est arrêté.

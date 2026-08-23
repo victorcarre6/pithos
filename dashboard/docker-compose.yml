@@ -2,11 +2,10 @@ services:
   api:
     build: ./api
     environment:
-      PITHOS_DATABASE: /data/pithos.db
+      PITHOS_DATABASE: /logs/pithos.db
       PITHOS_LOGS_ROOT: /logs
     volumes:
       - ${PITHOS_LOGS_ROOT:-${HOME}/logs/pithos}:/logs:ro
-      - ${PITHOS_DATABASE:-${HOME}/logs/pithos/pithos.db}:/data/pithos.db:ro
     restart: always
   web:
     build: ./web

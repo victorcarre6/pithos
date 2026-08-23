@@ -1,6 +1,8 @@
 """Incrementally ingest JSONL while quarantining invalid lines."""
 
+import hashlib
 import json
+import re
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
@@ -26,6 +28,7 @@ DOMAIN_TABLES = {
     "telegram": "telegram_events",
     "model": "model_messages",
 }
+RUN_ID_PATTERN = re.compile(r"^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$")
 
 
 class EventStore:
@@ -61,6 +64,9 @@ class EventStore:
         with path.open("rb") as event_file, self.connection:
             event_file.seek(offset)
             while raw_line := event_file.readline():
+                if not raw_line.endswith(b"\n"):
+                    event_file.seek(-len(raw_line), 1)
+                    break
                 line_number += 1
                 raw_content = raw_line.decode("utf-8", errors="replace").rstrip("\r\n")
                 if not raw_content.strip():
@@ -98,6 +104,78 @@ class EventStore:
             "offset_bytes": final_offset,
             "line_number": line_number,
         }
+
+    def ingest_squid(self, path: Path) -> dict:
+        """Project append-only Squid access lines attributed through proxy usernames."""
+
+        resolved_path = str(path.resolve())
+        source = self.connection.execute(
+            "SELECT offset_bytes, line_number FROM ingestion_sources WHERE file_path = ?",
+            (resolved_path,),
+        ).fetchone()
+        offset = source["offset_bytes"] if source else 0
+        line_number = source["line_number"] if source else 0
+        if path.stat().st_size < offset:
+            raise IngestionError(f"append-only source was truncated: {path}")
+
+        ingested = 0
+        quarantined = 0
+        with path.open("rb") as access_file, self.connection:
+            access_file.seek(offset)
+            while raw_line := access_file.readline():
+                if not raw_line.endswith(b"\n"):
+                    access_file.seek(-len(raw_line), 1)
+                    break
+                line_number += 1
+                raw_content = raw_line.decode("utf-8", errors="replace").rstrip("\r\n")
+                try:
+                    fallback_run_id = self._run_at(_squid_timestamp(raw_content))
+                    event = _squid_event(raw_content, line_number, fallback_run_id)
+                    validate_document(event, "event")
+                except (ValueError, ValidationFailure) as error:
+                    self._quarantine(resolved_path, line_number, raw_content, str(error))
+                    quarantined += 1
+                    continue
+                serialized = json.dumps(event, separators=(",", ":"))
+                if self._insert_event(event, serialized, resolved_path, line_number):
+                    self._project(event)
+                    ingested += 1
+
+            final_offset = access_file.tell()
+            self._update_source(resolved_path, final_offset, line_number)
+
+        return {
+            "path": resolved_path,
+            "ingested": ingested,
+            "quarantined": quarantined,
+            "offset_bytes": final_offset,
+            "line_number": line_number,
+        }
+
+    def _update_source(self, file_path: str, offset: int, line_number: int) -> None:
+        self.connection.execute(
+            """
+            INSERT INTO ingestion_sources(file_path, offset_bytes, line_number, updated_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(file_path) DO UPDATE SET
+                offset_bytes = excluded.offset_bytes,
+                line_number = excluded.line_number,
+                updated_at = excluded.updated_at
+            """,
+            (file_path, offset, line_number, datetime.now(UTC).isoformat()),
+        )
+
+    def _run_at(self, timestamp: datetime) -> str | None:
+        row = self.connection.execute(
+            """
+            SELECT run_id FROM runs
+            WHERE started_at <= ? AND (finished_at IS NULL OR finished_at >= ?)
+            ORDER BY started_at DESC LIMIT 1
+            """,
+            (timestamp.isoformat(), timestamp.isoformat()),
+        ).fetchone()
+
+        return row["run_id"] if row else None
 
     def _insert_event(self, event: dict, raw_content: str, file_path: str, line_number: int) -> bool:
         cursor = self.connection.execute(
@@ -202,17 +280,63 @@ class EventStore:
         elif action == "finished":
             self.connection.execute(
                 """
-                INSERT INTO runs(run_id, session_id, status, finished_at, stop_reason)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO runs(
+                    run_id, session_id, status, finished_at, stop_reason, duration_ms,
+                    input_tokens, output_tokens, total_tokens, tool_calls, tool_failures
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(run_id) DO UPDATE SET
                     session_id = excluded.session_id,
                     status = excluded.status,
                     finished_at = excluded.finished_at,
-                    stop_reason = excluded.stop_reason
+                    stop_reason = excluded.stop_reason,
+                    duration_ms = excluded.duration_ms,
+                    input_tokens = excluded.input_tokens,
+                    output_tokens = excluded.output_tokens,
+                    total_tokens = excluded.total_tokens,
+                    tool_calls = excluded.tool_calls,
+                    tool_failures = excluded.tool_failures
                 """,
                 (
                     event["run_id"], payload.get("session_id"), payload.get("status"),
-                    event["timestamp"], payload.get("stop_reason"),
+                    event["timestamp"], payload.get("stop_reason"), payload.get("duration_ms"),
+                    payload.get("input_tokens"), payload.get("output_tokens"),
+                    payload.get("total_tokens"), payload.get("tool_calls"),
+                    payload.get("tool_failures"),
                 ),
             )
 
+
+def _squid_timestamp(line: str) -> datetime:
+    epoch = line.split(" ", 1)[0]
+
+    return datetime.fromtimestamp(float(epoch), UTC)
+
+
+def _squid_event(line: str, line_number: int, fallback_run_id: str | None = None) -> dict:
+    parts = line.split(" ", 6)
+    if len(parts) != 7:
+        raise ValueError("invalid Squid access line")
+    _epoch, attributed_run_id, client, method, url, status, size = parts
+    run_id = attributed_run_id if RUN_ID_PATTERN.fullmatch(attributed_run_id) else fallback_run_id
+    if run_id is None:
+        raise ValueError("Squid line has no valid run attribution")
+    timestamp = _squid_timestamp(line)
+    timestamp_token = timestamp.strftime("%Y%m%dT%H%M%S.%fZ")
+    digest = hashlib.sha256(f"{line_number}:{line}".encode()).hexdigest()[:6]
+
+    return {
+        "schema_version": "1.0",
+        "event_id": f"evt-{timestamp_token}-{digest}",
+        "run_id": run_id,
+        "timestamp": timestamp.isoformat(),
+        "type": "network.requested",
+        "source": "egress-proxy",
+        "payload": {
+            "client": client,
+            "method": method,
+            "url": url,
+            "status": int(status),
+            "bytes": int(size),
+            "raw_line": line,
+        },
+    }

@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 EXCLUDED_PARTS = {".git", "node_modules", "__pycache__", ".pithos-staging"}
+HARNESS_ROOTS = {"AGENTS.md", "SYSTEM.md", ".pi"}
 
 
 def iter_files(root: Path):
@@ -13,6 +14,8 @@ def iter_files(root: Path):
         return
     for path in sorted(root.rglob("*")):
         relative = path.relative_to(root)
+        if relative.parts[0] not in HARNESS_ROOTS:
+            continue
         if any(part in EXCLUDED_PARTS for part in relative.parts):
             continue
         if path.is_symlink():
@@ -42,4 +45,3 @@ def snapshot_tree(source: Path, destination: Path) -> None:
 
 def tree_hashes(root: Path) -> dict[str, str]:
     return {str(relative): sha256_file(path) for path, relative in iter_files(root)}
-

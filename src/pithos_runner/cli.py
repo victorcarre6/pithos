@@ -15,9 +15,15 @@ def _configuration(arguments) -> RunnerConfiguration:
         workspace=arguments.workspace.resolve(),
         logs_root=arguments.logs_root.expanduser().resolve(),
         pi_config_dir=arguments.pi_config_dir.resolve(),
+        runtime=arguments.runtime,
+        docker_image=arguments.docker_image,
         timeout_seconds=arguments.timeout_seconds,
         repeat_limit=arguments.repeat_limit,
+        git_socket=arguments.git_socket,
+        harness_socket=arguments.harness_socket,
         telegram_socket=arguments.telegram_socket,
+        ground_truth_root=arguments.ground_truth_root,
+        harness_journals_root=arguments.harness_journals_root,
     )
 
 
@@ -32,9 +38,15 @@ def main() -> int:
     run_parser.add_argument("--experiment-id", required=True)
     run_parser.add_argument("--workspace", type=Path, required=True)
     run_parser.add_argument("--pi-config-dir", type=Path, required=True)
+    run_parser.add_argument("--runtime", choices=("docker", "host"), default="docker")
+    run_parser.add_argument("--docker-image", default="pithos-agent:local")
     run_parser.add_argument("--timeout-seconds", type=int, default=3600)
     run_parser.add_argument("--repeat-limit", type=int, default=5)
+    run_parser.add_argument("--git-socket", type=Path)
+    run_parser.add_argument("--harness-socket", type=Path)
     run_parser.add_argument("--telegram-socket", type=Path)
+    run_parser.add_argument("--ground-truth-root", type=Path)
+    run_parser.add_argument("--harness-journals-root", type=Path)
     subparsers.add_parser("status")
     pause_parser = subparsers.add_parser("pause")
     pause_parser.add_argument("--reason", default="paused by local user")

@@ -1,0 +1,23 @@
+services:
+  egress:
+    image: ubuntu/squid:6.10-24.10_edge
+    container_name: pithos-egress
+    configs:
+      - source: squid
+        target: /etc/squid/squid.conf
+    volumes:
+      - ${PITHOS_LOGS_ROOT:-${HOME}/logs/pithos}/network:/var/log/squid
+    networks:
+      - agent
+      - external
+    restart: always
+
+networks:
+  agent:
+    name: pithos-agent
+    internal: true
+  external:
+
+configs:
+  squid:
+    file: ./egress/squid.conf

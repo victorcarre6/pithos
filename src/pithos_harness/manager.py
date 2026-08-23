@@ -38,6 +38,7 @@ class HarnessManager:
         snapshot_tree(self.active_root, journal / "before")
         (journal / "rationale.md").write_text("# Rationale\n\nPending agent rationale.\n", encoding="utf-8")
         (journal / "validation.md").write_text("# Validation\n\nPending validation.\n", encoding="utf-8")
+        self._event(run_id, "harness.snapshot_before", {"journal": str(journal)})
 
         return journal
 
@@ -93,6 +94,11 @@ class HarnessManager:
             validation_file.write(f"\n## Run conclusion\n\n{validation.strip()}\n")
         manifest = self.manifest(run_id)
         (journal / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        self._event(
+            run_id,
+            "harness.snapshot_after",
+            {"artifact_count": len(manifest["artifacts"])},
+        )
 
         return manifest
 
@@ -162,4 +168,3 @@ class HarnessManager:
             return
         events_path = self.logs_root / "runs" / run_id / "events.jsonl"
         EventWriter(events_path, run_id, source="harness").append(event_type, payload)
-

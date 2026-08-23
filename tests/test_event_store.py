@@ -81,6 +81,23 @@ def test_truncated_source_is_rejected(tmp_path):
     store.close()
 
 
+def test_partial_final_line_is_left_for_the_next_ingestion(tmp_path):
+    events_path = tmp_path / "events.jsonl"
+    serialized = json.dumps(_event(0, "run.started"))
+    events_path.write_text(serialized[:-5], encoding="utf-8")
+    store = EventStore(tmp_path / "pithos.db")
+
+    partial = store.ingest(events_path)
+    with events_path.open("a", encoding="utf-8") as event_file:
+        event_file.write(serialized[-5:] + "\n")
+    complete = store.ingest(events_path)
+
+    assert partial["offset_bytes"] == 0
+    assert partial["quarantined"] == 0
+    assert complete["ingested"] == 1
+    store.close()
+
+
 def test_run_session_pr_and_full_model_content_remain_queryable(tmp_path):
     events_path = tmp_path / "events.jsonl"
     _append(
@@ -92,7 +109,20 @@ def test_run_session_pr_and_full_model_content_remain_queryable(tmp_path):
         ),
         _event(1, "model.response", {"role": "assistant", "content": "full response"}),
         _event(2, "git.pr_create", {"url": "https://github.com/acme/repo/pull/7"}),
-        _event(3, "run.finished", {"status": "completed", "session_id": "session-a"}),
+        _event(
+            3,
+            "run.finished",
+            {
+                "status": "completed",
+                "session_id": "session-a",
+                "duration_ms": 1200,
+                "input_tokens": 10,
+                "output_tokens": 5,
+                "total_tokens": 15,
+                "tool_calls": 2,
+                "tool_failures": 1,
+            },
+        ),
     )
     store = EventStore(tmp_path / "pithos.db")
 
@@ -103,6 +133,9 @@ def test_run_session_pr_and_full_model_content_remain_queryable(tmp_path):
     assert run["micro_rush_id"] == "rush-a"
     assert run["session_id"] == "session-a"
     assert run["pull_request_url"].endswith("/pull/7")
+    assert run["duration_ms"] == 1200
+    assert run["total_tokens"] == 15
+    assert run["tool_failures"] == 1
     assert message["content"] == "full response"
     assert "full response" in message["payload_json"]
     store.close()
@@ -163,6 +196,46 @@ def test_second_migration_preserves_existing_raw_events(tmp_path):
     raw = store.connection.execute("SELECT raw_json FROM events").fetchone()[0]
     versions = store.connection.execute("SELECT version FROM schema_migrations").fetchall()
     assert raw == '{"raw":"preserved"}'
-    assert [row[0] for row in versions] == [1, 2]
+    assert [row[0] for row in versions] == [1, 2, 3]
     assert store.connection.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+    store.close()
+
+
+def test_squid_access_log_is_attributed_and_projected_incrementally(tmp_path):
+    access_log = tmp_path / "access.log"
+    access_log.write_text(
+        f"1787486400.123 {RUN_ID} 172.18.0.2 GET https://pypi.org/simple 200 321\n"
+        "1787486401.000 - 172.18.0.2 GET https://forbidden.example 403 0\n"
+    )
+    store = EventStore(tmp_path / "pithos.db")
+
+    first = store.ingest_squid(access_log)
+    second = store.ingest_squid(access_log)
+
+    network = store.connection.execute("SELECT payload_json FROM network_events").fetchone()
+    assert first["ingested"] == 1
+    assert first["quarantined"] == 1
+    assert second["ingested"] == 0
+    assert json.loads(network[0])["url"] == "https://pypi.org/simple"
+    store.close()
+
+
+def test_squid_line_without_proxy_username_uses_the_single_active_run(tmp_path):
+    access_log = tmp_path / "access.log"
+    access_log.write_text("1787486400.123 - 172.18.0.2 CONNECT github.com:443 200 12\n")
+    store = EventStore(tmp_path / "pithos.db")
+    store.connection.execute(
+        """
+        INSERT INTO runs(run_id, status, started_at)
+        VALUES (?, 'running', '2026-08-23T11:00:00+00:00')
+        """,
+        (RUN_ID,),
+    )
+    store.connection.commit()
+
+    result = store.ingest_squid(access_log)
+
+    assert result["ingested"] == 1
+    event = store.connection.execute("SELECT run_id FROM network_events").fetchone()
+    assert event["run_id"] == RUN_ID
     store.close()

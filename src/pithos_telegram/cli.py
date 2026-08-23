@@ -34,7 +34,7 @@ def main() -> int:
         while not stop.wait(1):
             try:
                 broker.poll_once()
-            except RuntimeError:
+            except (RuntimeError, ValueError, KeyError, TypeError):
                 stop.wait(5)
 
     thread = threading.Thread(target=poll, daemon=True)

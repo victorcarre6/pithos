@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 
 from pithos_harness import HarnessManager
+from pithos_harness.broker import HarnessBroker
+from pithos_harness.manager import HarnessError
 from pithos_harness.files import sha256_file
 from pithos_harness.validation import ResourceValidationError, validate_skill
 
@@ -122,5 +124,40 @@ def test_manifest_attributes_every_active_file_to_run(tmp_path):
     assert {item["source_run_id"] for item in manifest["artifacts"]} == {RUN_ID}
     persisted = json.loads((journals / RUN_ID / "manifest.json").read_text())
     assert persisted["artifacts"] == manifest["artifacts"]
-    assert not (logs / "runs" / RUN_ID / "events.jsonl").exists()
+    events = [
+        json.loads(line)
+        for line in (logs / "runs" / RUN_ID / "events.jsonl").read_text().splitlines()
+    ]
+    assert [event["type"] for event in events] == [
+        "harness.snapshot_before",
+        "harness.snapshot_after",
+    ]
 
+
+def test_broker_promotes_only_staged_resource_to_matching_harness_root(tmp_path):
+    manager, active, _, _, _ = _manager(tmp_path)
+    staged = active / ".pithos-staging" / "probe-skill"
+    _valid_skill(staged)
+    manager.begin(RUN_ID)
+    broker = HarnessBroker(manager)
+
+    response = broker.handle(
+        {
+            "run_id": RUN_ID,
+            "kind": "skill",
+            "staged": ".pithos-staging/probe-skill",
+            "target": ".pi/skills/probe-skill",
+        }
+    )
+
+    assert response == {"ok": True, "target": ".pi/skills/probe-skill"}
+    assert (active / ".pi" / "skills" / "probe-skill" / "SKILL.md").exists()
+    with pytest.raises(HarnessError, match="staged"):
+        broker.handle(
+            {
+                "run_id": RUN_ID,
+                "kind": "skill",
+                "staged": "outside/skill",
+                "target": ".pi/skills/other",
+            }
+        )

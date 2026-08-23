@@ -13,6 +13,9 @@ pithos-runner run \
   --pi-config-dir ~/code/pithos/config/pi
 ```
 
+Ajoute `--git-socket` et `--telegram-socket` lorsque les brokers tournent. Le runner traduit ces chemins en
+`PITHOS_GIT_SOCKET` et `PITHOS_TELEGRAM_SOCKET` pour les extensions, sans transmettre leurs credentials.
+
 Le runner refuse `run` lorsque `~/logs/pithos/runtime/state.json` porte `paused=true`. Seule la commande locale
 `resume` efface cet état. Un réveil `launchd` suivant ne peut donc pas reprendre après un loop-guard.
 
@@ -39,4 +42,3 @@ Le rapport valide est archivé par le composant de continuité et publié dans l
 
 Le plist de référence exécute uniquement le runner. Il doit recevoir des chemins absolus lors du bootstrap.
 Son installation et son activation restent manuelles jusqu'à validation de la campagne.
-

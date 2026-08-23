@@ -12,6 +12,9 @@ def _collect(store: EventStore, logs_root: Path) -> list[dict]:
     results = []
     for path in sorted((logs_root / "runs").glob("*/events.jsonl")):
         results.append(store.ingest(path))
+    network_log = logs_root / "network" / "access.log"
+    if network_log.exists():
+        results.append(store.ingest_squid(network_log))
 
     return results
 
@@ -47,4 +50,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

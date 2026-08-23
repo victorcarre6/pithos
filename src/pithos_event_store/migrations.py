@@ -116,6 +116,14 @@ MIGRATIONS = [
         payload_json TEXT NOT NULL
     );
     """,
+    """
+    ALTER TABLE runs ADD COLUMN duration_ms INTEGER;
+    ALTER TABLE runs ADD COLUMN input_tokens INTEGER;
+    ALTER TABLE runs ADD COLUMN output_tokens INTEGER;
+    ALTER TABLE runs ADD COLUMN total_tokens INTEGER;
+    ALTER TABLE runs ADD COLUMN tool_calls INTEGER;
+    ALTER TABLE runs ADD COLUMN tool_failures INTEGER;
+    """,
 ]
 
 
@@ -139,4 +147,3 @@ def migrate(connection) -> None:
                 "INSERT INTO schema_migrations(version, applied_at) VALUES (?, datetime('now'))",
                 (version,),
             )
-

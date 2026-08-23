@@ -10,10 +10,11 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 
 
-DATABASE_PATH = Path(os.getenv("PITHOS_DATABASE", "/data/pithos.db"))
+DATABASE_PATH = Path(os.getenv("PITHOS_DATABASE", "/logs/pithos.db"))
 LOGS_ROOT = Path(os.getenv("PITHOS_LOGS_ROOT", "/logs"))
 app = FastAPI(title="Pithos observability", version="1.0.0")
 RUN_ID_PATTERN = re.compile(r"^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$")
+ARTIFACTS = {"report.md", "run.json", "stdout.jsonl", "stderr.log", "events.jsonl"}
 
 
 def _connect():
@@ -68,6 +69,14 @@ def stats():
     counters["tool_failures"] = _rows(
         "SELECT count(*) AS count FROM tool_calls WHERE is_error = 1"
     )[0]["count"]
+    totals = _rows(
+        """
+        SELECT coalesce(sum(total_tokens), 0) AS total_tokens,
+               coalesce(sum(duration_ms), 0) AS duration_ms
+        FROM runs
+        """
+    )[0]
+    counters.update(totals)
 
     return counters
 
@@ -99,6 +108,7 @@ def events(
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
     event_type: str | None = None,
+    domain: str | None = None,
 ):
     """Page raw events so large runs never load as one response."""
 
@@ -107,6 +117,9 @@ def events(
     if event_type:
         predicate += " AND type = ?"
         parameters.append(event_type)
+    if domain:
+        predicate += " AND type LIKE ?"
+        parameters.append(f"{domain}.%")
     parameters.extend([limit, offset])
     query = f"""
         SELECT event_id, timestamp, type, source, sequence, payload_json
@@ -133,3 +146,34 @@ def report(run_id: str):
         raise HTTPException(404, "Report not found")
 
     return {"content": report_path.read_text(encoding="utf-8")}
+
+
+@app.get("/api/runs/{run_id}/artifacts/{name}")
+def artifact(
+    run_id: str,
+    name: str,
+    offset: int = Query(0, ge=0),
+    limit_bytes: int = Query(64_000, ge=1, le=256_000),
+):
+    """Page an allowlisted raw artifact without loading the full file."""
+
+    if not RUN_ID_PATTERN.fullmatch(run_id) or name not in ARTIFACTS:
+        raise HTTPException(400, "Invalid artifact path")
+    path = LOGS_ROOT / "runs" / run_id / name
+    if not path.is_file():
+        raise HTTPException(404, "Artifact not found")
+
+    with path.open("rb") as artifact_file:
+        artifact_file.seek(offset)
+        content = artifact_file.read(limit_bytes)
+        next_offset = artifact_file.tell()
+    size = path.stat().st_size
+
+    return {
+        "name": name,
+        "content": content.decode("utf-8", errors="replace"),
+        "offset": offset,
+        "next_offset": next_offset,
+        "has_more": next_offset < size,
+        "size": size,
+    }

@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 
 from .manager import HarnessError, HarnessManager
+from .broker import HarnessBroker
+from .server import HarnessBrokerServer
 from .validation import ResourceValidationError
 
 
@@ -32,6 +34,8 @@ def main() -> int:
     restore = subparsers.add_parser("restore")
     restore.add_argument("path", type=Path)
     subparsers.add_parser("diff")
+    serve = subparsers.add_parser("serve")
+    serve.add_argument("--socket", type=Path, required=True)
     arguments = parser.parse_args()
     manager = HarnessManager(
         arguments.active_root,
@@ -49,6 +53,12 @@ def main() -> int:
             result = manager.finish(arguments.run_id, arguments.rationale, arguments.validation)
         elif arguments.command == "restore":
             result = str(manager.restore(arguments.path))
+        elif arguments.command == "serve":
+            broker = HarnessBroker(manager)
+            with HarnessBrokerServer(arguments.socket, broker) as server:
+                print(f"Harness broker listening on {arguments.socket}", flush=True)
+                server.serve_forever()
+            return 0
         else:
             result = manager.diff_ground_truth()
     except (OSError, HarnessError, ResourceValidationError) as error:
@@ -63,4 +73,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
