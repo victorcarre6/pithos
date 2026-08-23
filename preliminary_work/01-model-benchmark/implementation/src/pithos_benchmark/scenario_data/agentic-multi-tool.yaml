@@ -1,0 +1,11 @@
+version: 1
+id: agentic.multi-tool
+title: Ordered multi-tool effect through Pi
+suite: agentic
+kind: pi
+timeout_seconds: 1800
+messages:
+  - role: user
+    content: Delegated to the deterministic Pi capability fixture.
+expected:
+  pi_scenario: multi_tool

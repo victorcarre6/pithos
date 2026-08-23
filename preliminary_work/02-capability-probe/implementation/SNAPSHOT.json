@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "02-capability-probe",
+  "generated_at": "2026-08-23T15:06:51.033617+00:00",
+  "files": [
+    {
+      "path": "src/pithos_capability_probe/__init__.py",
+      "sha256": "6a49d0238681b7ece3b13b9a646abd94ee53e6288623d7dd6188700c9105a1dd"
+    },
+    {
+      "path": "src/pithos_capability_probe/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "6e86fb08a51f5368eb098745ce9eef2d84d0fbcfb5cb934f6a0929f495c461e7"
+    },
+    {
+      "path": "src/pithos_capability_probe/__pycache__/cli.cpython-312.pyc",
+      "sha256": "8582494ef3097a8be8e793626e8a165c4a98c81628c03816939305468a070ac5"
+    },
+    {
+      "path": "src/pithos_capability_probe/__pycache__/runner.cpython-312.pyc",
+      "sha256": "17999befd7e0dc260a2e4cabb81ef47181053bfb7f7184c95cb5375c91b11c4c"
+    },
+    {
+      "path": "src/pithos_capability_probe/__pycache__/scenarios.cpython-312.pyc",
+      "sha256": "05887e7cc0876097fc6c6c55d5f3358cce04e845a765c0b8526d7680489362b5"
+    },
+    {
+      "path": "src/pithos_capability_probe/cli.py",
+      "sha256": "6a0378c07500535d15072624d7d79dd6787267e914d6e78bb5b046d146ce7ddf"
+    },
+    {
+      "path": "src/pithos_capability_probe/runner.py",
+      "sha256": "eb8d6e4d2e80e8ef0def2549eb301e41ba8e9c3592be5074affbd2c66c4438d7"
+    },
+    {
+      "path": "src/pithos_capability_probe/scenarios.py",
+      "sha256": "700d7a01dc20e38f52c9c23650ce97df022b3caae794863a66b377366e64ea0f"
+    },
+    {
+      "path": "tests/test_capability_probe.py",
+      "sha256": "f5d126957e06a48cdfc6f3f9e24c99a0d6a3508786818adf8a1a7a848c83c5dd"
+    }
+  ]
+}

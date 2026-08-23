@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "00-contracts",
+  "generated_at": "2026-08-23T15:06:51.022061+00:00",
+  "files": [
+    {
+      "path": "src/contracts/fixtures/invalid/event-bad-timestamp.jsonl",
+      "sha256": "eb471d36d8f33fec7489c4f43a6f22bdf07438d61e3e627a87fc9956247b5167"
+    },
+    {
+      "path": "src/contracts/fixtures/invalid/event-missing-payload.jsonl",
+      "sha256": "6cee02aa9637f570a9858c93b8cca538dc0c4e075b362b56146904dd8402d15a"
+    },
+    {
+      "path": "src/contracts/fixtures/invalid/report-missing-section.md",
+      "sha256": "b4cb709d69e4a1d64b24257e6a6b52ca94d0d931b0d3bd653ea8fe5471b78ff7"
+    },
+    {
+      "path": "src/contracts/fixtures/invalid/run-bad-status.json",
+      "sha256": "64b8369655b961e1a7f58cfee7d272ed3f4f555ef8458671dc8363e90c3a4eed"
+    },
+    {
+      "path": "src/contracts/fixtures/valid/events.jsonl",
+      "sha256": "fa4b51e80d5bc9346963a5a6d871bd7faaf72e87257e3dd97ba8dfc9e2c2a437"
+    },
+    {
+      "path": "src/contracts/fixtures/valid/micro-rush.json",
+      "sha256": "c273d7aeaf9beb0e6c0fa70558ec9a28f88b1589479af3bc783d30ae6a1d30cb"
+    },
+    {
+      "path": "src/contracts/fixtures/valid/report.md",
+      "sha256": "a92fe159acfc629455b7613c8e5ae31052fea34b3f64255f688b21e986bdef2f"
+    },
+    {
+      "path": "src/contracts/fixtures/valid/run.json",
+      "sha256": "de9f040bfa2bc9030e363b86e4a2a7814d2a67467f9dee9c156de6b77f502dc5"
+    },
+    {
+      "path": "src/contracts/v1/README.md",
+      "sha256": "596a74eebab5015a58aa945559aa3a0bd0704175680c6e9cc10987eee415220c"
+    },
+    {
+      "path": "src/contracts/v1/event.schema.json",
+      "sha256": "e0709f4b349a1918252c22dc276a79f351cf16527aaf5e8998a5ef328aec671a"
+    },
+    {
+      "path": "src/contracts/v1/micro-rush.schema.json",
+      "sha256": "d5c0503f3b40551505a1fd789742e32a29c730668e3e5a0d3280481d4887d52e"
+    },
+    {
+      "path": "src/contracts/v1/report-metadata.schema.json",
+      "sha256": "14dcf8aaf7c286aac3e7a9250d3e5eb20925f088a651b165365c24562b9ab0ba"
+    },
+    {
+      "path": "src/contracts/v1/run.schema.json",
+      "sha256": "d96400d7c06f1f4410bdeac9077cc2823cf8d79fdc9a0137419106292c5484b7"
+    },
+    {
+      "path": "src/pithos_contracts/__init__.py",
+      "sha256": "7cd415f2521a08c30838dfdf6b98d5056b0beeef45dfed4c83da9d25d7cc430d"
+    },
+    {
+      "path": "src/pithos_contracts/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "d85f261317d3b7f114341e18e11b5c3f22f90e0c097b9f5b4c21202c291c358a"
+    },
+    {
+      "path": "src/pithos_contracts/__pycache__/validation.cpython-312.pyc",
+      "sha256": "bc88f83ace87398f3370a0e118090496ccaa0149f1529c76ea2a70219c269d20"
+    },
+    {
+      "path": "src/pithos_contracts/cli.py",
+      "sha256": "9efd645b3f809c43b6174c28aa08900698c0f10d5d189df324c98e21729ad50a"
+    },
+    {
+      "path": "src/pithos_contracts/validation.py",
+      "sha256": "4efc59882904a75ef2eedefa4a3ae77f72e1336d839aac8da2e98d3bf5574cf7"
+    },
+    {
+      "path": "tests/test_contracts.py",
+      "sha256": "6ad5b3de24edbfe376f58092e1195c204794b6a3836dffd4c4bd9183694c855d"
+    }
+  ]
+}

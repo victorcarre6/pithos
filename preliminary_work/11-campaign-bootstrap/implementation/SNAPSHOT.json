@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "11-campaign-bootstrap",
+  "generated_at": "2026-08-23T15:06:51.055211+00:00",
+  "files": [
+    {
+      "path": "src/create_experiment.py",
+      "sha256": "92892bd9c1e71d31a9c3fb0acd8da74b4fd7321cc98be4630487ab754bb0347d"
+    },
+    {
+      "path": "src/experiment/.gitignore",
+      "sha256": "828eda604f3ea88c81cfbd6fd2adb3e24c7db592bb0fdb427a46f22ab9169cfa"
+    },
+    {
+      "path": "src/experiment/PROJECT.md",
+      "sha256": "0cfc3cbb6aaea0513b68d092208a188869bdec0724d2797665d60fae42652792"
+    },
+    {
+      "path": "src/experiment/README.md",
+      "sha256": "81951beb48491cef9709ab1ccd57455b9b028c89d2189c8a665a0f33dab8f23e"
+    },
+    {
+      "path": "src/experiment/docs/ELN.md",
+      "sha256": "4271f0f80815f75738d8f9fe0716db3a855f29216af8a0179c162c106259bb85"
+    },
+    {
+      "path": "src/experiment/docs/EXPLANATIONS.md",
+      "sha256": "642b4ff39434d57260f54e60eddf378ef8d5853becb875493e9c6325d927027e"
+    },
+    {
+      "path": "src/experiment/docs/QUICK_CATCH.md",
+      "sha256": "03dbdabec10b0b3c869f2a4bbb1dc6a83aa1985db46b1d709810fb71e3b01c4e"
+    },
+    {
+      "path": "src/experiment/docs/ROADMAP.md",
+      "sha256": "711e16cc1cfd96091b625360d670fe53069a3c0fe4ae5b3a908d9d7177a954eb"
+    },
+    {
+      "path": "src/run_experiment.py",
+      "sha256": "10f50a3e0ae06625b5d0e874009b2a585f4d90364924ee7a00b89f89679e9d09"
+    },
+    {
+      "path": "tests/test_create_experiment.py",
+      "sha256": "38bb95376a8872f6380e18cc8c1d6dbf8ad434251e80a5f74ace5c0f99c8c4a1"
+    },
+    {
+      "path": "tests/test_run_experiment.py",
+      "sha256": "10409a47958482c6ea1ffc3797bad7968e25b51bc3b99161a4268b3168497e4d"
+    }
+  ]
+}

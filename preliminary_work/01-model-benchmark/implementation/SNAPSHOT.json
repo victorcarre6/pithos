@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "01-model-benchmark",
+  "generated_at": "2026-08-23T15:06:51.031774+00:00",
+  "files": [
+    {
+      "path": "src/pithos_benchmark/__init__.py",
+      "sha256": "d3a3378d72662ed90ea9e8395c5a5d73747cdf7ccb194b659616ef7fcc08a824"
+    },
+    {
+      "path": "src/pithos_benchmark/cli.py",
+      "sha256": "71036f799d56bad4cd25df13d5fc81190388008beb95da875481c2c08f9d46ff"
+    },
+    {
+      "path": "src/pithos_benchmark/dashboard.py",
+      "sha256": "72a20a630a3e2451f41007e86ae8e63aed1583ed1085f7c7a9d8bbf235d2acb1"
+    },
+    {
+      "path": "src/pithos_benchmark/endurance.py",
+      "sha256": "9fd6a0148d30444c0c877316bbfd8ad7cf4e0a737b87b4451ec69570e74fc080"
+    },
+    {
+      "path": "src/pithos_benchmark/engine.py",
+      "sha256": "64f4a2fce020f5a8428ed8f95cf7c6231baeae6e66659773562d90b458b61179"
+    },
+    {
+      "path": "src/pithos_benchmark/ollama.py",
+      "sha256": "e545863dd7eff5a43fdcd03eecd815538f71e89f258daf8ffefdfbb11e2b7e4c"
+    },
+    {
+      "path": "src/pithos_benchmark/resources.py",
+      "sha256": "f70d7abe97d1a2a62dce5c635737e53ef13336e7d4c671bb6843c217ab53e8d9"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/agentic-multi-tool.yaml",
+      "sha256": "64acb5c478f09e9c7e183675947479c93e6ce864caf364138cba7c74f77e1aba"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/agentic-report.yaml",
+      "sha256": "7f298951dfa902ec599e6aa1171a6ecf5b412b71f3bd84431f60a9c46dd18987"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/context-004k.yaml",
+      "sha256": "b7eaf0e18cbf2517b3e1220c16e6404bbf4ab804eb3e10c7f10f25a8984d1c26"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/context-008k.yaml",
+      "sha256": "9a87dc659839d9e6e7daf31eab25646b1380f787031f0a9bccf95657aea0f932"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/context-016k.yaml",
+      "sha256": "0bbda991ddffa96eea0b4baec77843c206397b99a92f34cb1bfd22444376094d"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/context-032k.yaml",
+      "sha256": "503f77480425df6a9ff9c602c2165c028824ca3cd3e103785e7776bf70c29866"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/endurance-micro-rush.yaml",
+      "sha256": "ab62d4b534e00d347a2f7bbf5a94682011349df57649ecee8661f3dd5d972e22"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/native-developer.yaml",
+      "sha256": "7c81c843a019a0aa85f3e3ba2b02a60acdc9da4fff7eafd9eade14e0ead5677a"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/native-structured.yaml",
+      "sha256": "4b56c68be1c0a9ccd93c737a2f2a01957aa75b453b3cb8ad1641a55603d0f90d"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/native-text.yaml",
+      "sha256": "259bbdba85fd9589d2962fc549c10119602788e639421bb654773973523ea0c9"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/native-tool.yaml",
+      "sha256": "3b7217b7254cd17f94804e2a2527a766e4cb44a92c896865cac39e80029112fe"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/pi-bash.yaml",
+      "sha256": "f5a069e5cc6706c165e7757e90bed29249af523b568d0230e9ff7a4f5d94ae30"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/pi-edit.yaml",
+      "sha256": "000647e35ad3e5a291e59003b5dcecdcf9a4a302ff477e45e4a93ddccd08f984"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/pi-read.yaml",
+      "sha256": "9e9ca862682d4c89125939a9d1e02eeccfbe82e368884d7adf644832bc386c84"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/pi-test.yaml",
+      "sha256": "27452ba822a9f01432bac72f3462c11bfd5cc624328c8fbe307b8d199eea744b"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/pi-text.yaml",
+      "sha256": "189c5e057258779f72da566e65deed0f7a2dc550e77ff6b57a5d3000a379381d"
+    },
+    {
+      "path": "src/pithos_benchmark/scenario_data/pi-write.yaml",
+      "sha256": "68188c4a3b629972d2ff293f0f1c4fa49703073f814b8bb8e2abe9864ce6daea"
+    },
+    {
+      "path": "src/pithos_benchmark/scenarios.py",
+      "sha256": "495905f099ff2df47c005c80f5dc69217360989b4c2923505c14663d6ac0131a"
+    },
+    {
+      "path": "src/pithos_benchmark/storage.py",
+      "sha256": "87d6c701a906d2998e8555e4d2becf83c6ada7839eb757dbd27a1226a14dd037"
+    },
+    {
+      "path": "src/pithos_benchmark/tui.py",
+      "sha256": "eeaf87fcf8305ec72d71a703ad6b93e9c3b8760d995083f93e311b447ca2a212"
+    },
+    {
+      "path": "src/pithos_model_probe/__init__.py",
+      "sha256": "bf81f7fc31998e9395d6585c31fac22619360aebd336baf4225bde6928f6a4fe"
+    },
+    {
+      "path": "src/pithos_model_probe/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "faa04905ad36930a3773a4f2282ceb3b588139249764cb50fbd931c90088065b"
+    },
+    {
+      "path": "src/pithos_model_probe/__pycache__/cli.cpython-312.pyc",
+      "sha256": "eac65a4d94812a0b09696a43a6bd59d72685012a30eabed06dd326b51058d7a2"
+    },
+    {
+      "path": "src/pithos_model_probe/__pycache__/client.cpython-312.pyc",
+      "sha256": "cf588b90b0f37f04554ff07b214245c0b4e9177fa44f5acf8f7a92ebd09e621b"
+    },
+    {
+      "path": "src/pithos_model_probe/__pycache__/probe.cpython-312.pyc",
+      "sha256": "e6de375ca186f6c5c8982ce1e4a504dc80f23cf09a160f7a6f752991125d7518"
+    },
+    {
+      "path": "src/pithos_model_probe/cli.py",
+      "sha256": "820c31a133ededb3a74a0fcbc5596004d81b29e70b97f55b635a52a9e6306e61"
+    },
+    {
+      "path": "src/pithos_model_probe/client.py",
+      "sha256": "dc761ed1e4b6646e364b11c6e07005e5889876198409bdc2ee27c8b6d5a03d1d"
+    },
+    {
+      "path": "src/pithos_model_probe/probe.py",
+      "sha256": "ef2a2cf5e5e9aa92d7ef3b03b21041b959992cd9b20f159647528a55e4575424"
+    },
+    {
+      "path": "tests/test_benchmark.py",
+      "sha256": "2c1d09a198e95349e553233303d613f9424d3f311ebaaf1ab7171f8188b2743f"
+    },
+    {
+      "path": "tests/test_model_probe.py",
+      "sha256": "a3b4a8d2db0f86c99e2b5c4c8edf1662edc1bd1ebe7afdbf1cb2deff95959601"
+    },
+    {
+      "path": "tests/test_pi_configuration.py",
+      "sha256": "0cb3c2ddf4d7df295b5eaa369af8b684ecdf1ffc48082b7f5c0608de343828f9"
+    }
+  ]
+}

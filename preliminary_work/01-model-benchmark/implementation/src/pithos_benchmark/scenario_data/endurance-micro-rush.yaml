@@ -1,0 +1,11 @@
+version: 1
+id: endurance.micro-rush
+title: Complete tested micro-rush with continuity report
+suite: endurance
+kind: pi
+timeout_seconds: 3600
+messages:
+  - role: user
+    content: Delegated to the deterministic benchmark endurance fixture.
+expected:
+  pi_scenario: benchmark_endurance

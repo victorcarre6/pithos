@@ -1,0 +1,22 @@
+version: 1
+id: native.structured-simple
+title: Exact JSON schema response
+suite: protocol
+kind: native
+timeout_seconds: 900
+messages:
+  - role: user
+    content: Return the requested JSON object with status set to ready and count set to 3.
+format_schema:
+  type: object
+  additionalProperties: false
+  properties:
+    status:
+      const: ready
+    count:
+      const: 3
+  required: [status, count]
+expected:
+  json:
+    status: ready
+    count: 3

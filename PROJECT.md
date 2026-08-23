@@ -43,20 +43,24 @@ progression doivent rester observables.
 ```text
 ~/code/pithos/
 ├── PROJECT.md
-├── ground_truth/       # constitution de référence, hors workspace des expériences
-├── setup/              # un dossier et un PROJECT.md par micro-projet de setup
+├── preliminary_work/   # 12 sous-projets autonomes, code et preuves inclus
+├── harness/            # distribution consolidée et installable
+│   ├── ground_truth/
+│   ├── config/
+│   ├── runtime/
+│   ├── dashboard/
+│   ├── src/
+│   ├── scripts/
+│   └── templates/
 ├── experiments/        # un dépôt Git indépendant par expérience
-├── journals/
-│   └── harness/        # snapshots versionnables des mutations du harness
-└── draft/
-    └── SETUP.md
+└── journals/harness/   # snapshots versionnables des mutations du harness
 
 ~/logs/pithos/          # traces volumineuses conservées hors Git
 ```
 
 ## Sources de vérité et état mutable
 
-- `ground_truth/` contient la constitution remontée en lecture seule dans l'environnement de chaque run ;
+- `harness/ground_truth/` contient la constitution remontée en lecture seule dans l'environnement de chaque run ;
   l'agent expérimental n'y écrit pas et son contenu n'est pas injecté dans le contexte du modèle.
 - Le workspace actif contient les instructions et capacités modifiables par l'agent.
 - Une session suivante reçoit uniquement la dernière version active des instructions, pas la constitution
@@ -125,9 +129,10 @@ dashboard dockerisé consulte la base et les logs. `~/logs/pithos/live.log` rest
 
 ## Baseline modèle
 
-Le candidat dense est `unsloth/Qwen3.8-27B-GGUF`. Il annonce 27 milliards de paramètres, un contexte natif de
-262 144 tokens, le developer role et des améliorations de tool calling. Sa quantification, son contexte réel
-et sa vitesse doivent être mesurés sur la machine ; le seuil minimal accepté est 1 token/s.
+Le premier candidat dense était `unsloth/Qwen3.8-27B-GGUF`. Sa mesure a motivé un benchmark comparatif d'une
+dizaine de modèles installés manuellement dans Ollama. Le seuil de viabilité permissif est `0,05 token/s` ;
+`1 token/s` reste la frontière d'une utilisation considérée pratique. Aucun modèle n'est sélectionné sur le
+seul débit : protocole, tools Pi, stabilité, mémoire et tâches agentiques restent des gates distinctes.
 
 La piste MoE `unsloth/Qwen3.6-35B-A3B-GGUF` doit également être documentée. Colibri annonce un conteneur int4
 d'environ 20 Go et 24 Go de RAM pour sa pleine résidence : ce chemin n'est donc pas présumé compatible avec
@@ -135,7 +140,8 @@ les 16 Go disponibles. La configuration du serveur d'inférence reste extérieur
 
 ## Micro-projets de setup
 
-Chaque dossier sous `setup/` possède son propre `PROJECT.md`, suffisamment complet pour être confié à un agent.
+Chaque dossier sous `preliminary_work/` possède son propre `PROJECT.md`, son implémentation, ses tests et ses
+preuves. Le code stabilisé est extrait explicitement vers `harness/`, qui constitue la distribution active.
 Ces composants d'infrastructure sont réalisés par un agent déjà qualifié et supervisé, comme Codex. Ils ne
 font pas partie de l'évaluation d'autonomie de Pi. Pi devient le sujet expérimental uniquement dans les dépôts
 placés sous `experiments/`, après validation du setup.
@@ -143,7 +149,7 @@ placés sous `experiments/`, après validation du setup.
 Ordre initial :
 
 1. spécification des contrats et formats ;
-2. sélection et mesure du modèle ;
+2. benchmark comparatif et sélection du modèle ;
 3. capability probe Pi/modèle ;
 4. rapports et continuité ;
 5. runner, verrou, réveil et timeout ;

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pithos.local/contracts/v1/report-metadata.schema.json",
+  "title": "Pithos continuity report metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "experiment_id", "status", "started_at", "finished_at", "next_wake"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run_id": { "type": "string", "pattern": "^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$" },
+    "experiment_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "micro_rush_id": { "type": ["string", "null"], "pattern": "^rush-[a-z0-9][a-z0-9-]{0,63}$" },
+    "status": { "enum": ["completed", "failed", "interrupted", "timed_out", "paused"] },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": "string", "format": "date-time" },
+    "branch": { "type": ["string", "null"] },
+    "commit_before": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,64}$" },
+    "commit_after": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,64}$" },
+    "stop_reason": { "type": ["string", "null"] },
+    "next_wake": { "enum": ["scheduled", "local_resume", "none"] }
+  }
+}
+

@@ -1,0 +1,27 @@
+{
+  "scenario": "text",
+  "process_success": false,
+  "protocol_success": false,
+  "task_success": false,
+  "report_success": null,
+  "exit_code": null,
+  "timed_out": true,
+  "protocol_evidence": "tool_executions=0",
+  "task_evidence": "assistant=''",
+  "command": [
+    "pi",
+    "--approve",
+    "--provider",
+    "ollama",
+    "--model",
+    "qwen3.8:27b",
+    "--thinking",
+    "off",
+    "--mode",
+    "json",
+    "--print",
+    "--session-dir",
+    "/Users/victorcarre/logs/pithos/capability-probes/qwen3.8-27b/text/sessions",
+    "Reply with exactly PITHOS_TEXT_OK. Do not use tools."
+  ]
+}

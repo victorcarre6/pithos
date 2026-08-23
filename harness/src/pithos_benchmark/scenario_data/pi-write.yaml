@@ -1,0 +1,11 @@
+version: 1
+id: pi.write
+title: Real file write through Pi
+suite: pi
+kind: pi
+timeout_seconds: 900
+messages:
+  - role: user
+    content: Delegated to the deterministic Pi capability fixture.
+expected:
+  pi_scenario: write

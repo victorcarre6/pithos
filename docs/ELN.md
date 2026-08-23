@@ -68,3 +68,17 @@
   réexécutions.
 - Le bootstrap réel puis son mode `--check` retournent `ready=true` sur cette machine.
 - **92 tests passent** après ajout des contrôles d'idempotence et de refus avant écriture.
+
+## 23:08 — Réorganisation et benchmark modèle
+
+- Le dépôt est séparé en `preliminary_work/`, `harness/` et `experiments/` sans submodule.
+- Les douze projets sont numérotés `00` à `11`; le probe initial est fusionné dans `01-model-benchmark`.
+- Les douze implémentations sont dupliquées avec manifests SHA-256 ; l'activation longue du projet 11 reste
+  en attente de la sélection modèle.
+- Le benchmark contrôle seulement la résidence des modèles déjà installés et exécute trois tentatives.
+- Moteur headless, streaming TTFT, ressources, gates, suites Ollama/Pi/agentic/endurance, SQLite, export Git,
+  TUI Textual et dashboard localhost sont implémentés.
+- L'installateur du harness et le générateur de dépôts expérimentaux sont ajoutés et testés.
+- Le lanceur d'expérience assemble proxy et brokers disponibles puis exécute un run unique ; le cleanup final
+  du benchmark décharge toujours le modèle ciblé.
+- **106 tests passent** après migration complète.

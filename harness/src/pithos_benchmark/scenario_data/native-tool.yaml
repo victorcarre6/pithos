@@ -1,0 +1,26 @@
+version: 1
+id: native.tool-simple
+title: Exact typed tool selection
+suite: protocol
+kind: native
+timeout_seconds: 900
+messages:
+  - role: user
+    content: Use read_fixture to read fixture.txt. Do not answer without calling the tool.
+tools:
+  - type: function
+    function:
+      name: read_fixture
+      description: Read one benchmark fixture.
+      parameters:
+        type: object
+        additionalProperties: false
+        properties:
+          path:
+            type: string
+        required: [path]
+expected:
+  tool:
+    name: read_fixture
+    arguments:
+      path: fixture.txt

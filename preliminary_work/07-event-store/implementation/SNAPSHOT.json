@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "07-event-store",
+  "generated_at": "2026-08-23T15:06:51.044325+00:00",
+  "files": [
+    {
+      "path": "src/pithos_event_store/__init__.py",
+      "sha256": "6e71d5d26fd7f58b9e21f1c081ee621b40368243713a5c01b3dc91f073778d89"
+    },
+    {
+      "path": "src/pithos_event_store/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "47962ea6f15c263e99bdef3d49b742343a6aff57d84ac33c16f79eb904ccb01b"
+    },
+    {
+      "path": "src/pithos_event_store/__pycache__/migrations.cpython-312.pyc",
+      "sha256": "d19629bd06ddb38517f28115d50b98a69cc3096e1bdd3d40b072f95a5e190871"
+    },
+    {
+      "path": "src/pithos_event_store/__pycache__/store.cpython-312.pyc",
+      "sha256": "e5543d73016e05034c77b73b585e3585da318fced3612db3de4c1752f9034e88"
+    },
+    {
+      "path": "src/pithos_event_store/cli.py",
+      "sha256": "56448a3d37ff2222a92110e38b3b9a102f8afb3140863dad66e7f579924241db"
+    },
+    {
+      "path": "src/pithos_event_store/migrations.py",
+      "sha256": "e6ef266f1bf86cb725381d1bd55bf5864d6b219d60a7078b8a3bda07a8f4ad8d"
+    },
+    {
+      "path": "src/pithos_event_store/store.py",
+      "sha256": "0ea0dd12bdb77bf477f2636b64782faa84da8c32d0c27dfd717aa8079ebdd838"
+    },
+    {
+      "path": "tests/test_event_store.py",
+      "sha256": "b182de59648f8e821f64c80ddea861a93cecea0771495aaff45a55347fca761d"
+    },
+    {
+      "path": "tests/test_observability_integration.py",
+      "sha256": "a5907dfa7cc6d72d90045498bbb7e2898a8b381a96f5388a4a2b28c3a2a7710f"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+version: 1
+id: native.developer-role
+title: Developer role precedence
+suite: smoke
+kind: native
+timeout_seconds: 900
+messages:
+  - role: developer
+    content: Reply with exactly PITHOS_DEVELOPER_OK.
+  - role: user
+    content: Follow the developer instruction.
+expected:
+  exact_text: PITHOS_DEVELOPER_OK

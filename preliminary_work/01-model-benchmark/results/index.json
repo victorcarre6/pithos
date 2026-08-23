@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "campaigns": [],
+  "legacy": [
+    {
+      "model": "qwen3.8:27b",
+      "kind": "ollama-native",
+      "path": "legacy/model-probes/qwen3.8-27b.json"
+    },
+    {
+      "model": "qwen3.8:27b",
+      "kind": "pi-capability",
+      "path": "legacy/capability-probes/qwen3.8-27b"
+    },
+    {
+      "model": "qwen3.8:27b",
+      "kind": "pi-timeout-diagnostic",
+      "path": "legacy/capability-probes/qwen3.8-27b-recheck"
+    },
+    {
+      "model": "qwen3.8:27b",
+      "kind": "pi-timeout-fixed",
+      "path": "legacy/capability-probes/qwen3.8-27b-timeout-fixed"
+    }
+  ]
+}

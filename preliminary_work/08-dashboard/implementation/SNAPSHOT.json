@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "08-dashboard",
+  "generated_at": "2026-08-23T15:06:51.048518+00:00",
+  "files": [
+    {
+      "path": "src/dashboard/api/Dockerfile",
+      "sha256": "edd4f5a9288477f8e79302d398900c701e2de1446be0f93291e15f8663cfa54b"
+    },
+    {
+      "path": "src/dashboard/api/app.py",
+      "sha256": "fba1e2dd766db9f6b5d7bae7ad2e9bfc8f55250c144578e5610084281eeaad9c"
+    },
+    {
+      "path": "src/dashboard/api/requirements.txt",
+      "sha256": "3b4f6bfd843af90d11867a0e5ed4ccb0936645921504a36cb41f52ccd3ccb6e2"
+    },
+    {
+      "path": "src/dashboard/docker-compose.yml",
+      "sha256": "c5f485f4f793c035510182533e10f8cc6205d6de624651b9194990d71bd2cd85"
+    },
+    {
+      "path": "src/dashboard/web/Dockerfile",
+      "sha256": "288278d12ad856aa40b2adedd0c152a4654c52896bf3a54ab5a57c120511b1c8"
+    },
+    {
+      "path": "src/dashboard/web/index.html",
+      "sha256": "4a528f95431e4251fda2710be50b2bf295ed2221ecc559ca4be982ae803c9ab4"
+    },
+    {
+      "path": "src/dashboard/web/nginx.conf",
+      "sha256": "ff35624d50e10fb023ea1308d47e6df7a5fc8f5596bafe1de682d1ed4651f140"
+    },
+    {
+      "path": "src/dashboard/web/package-lock.json",
+      "sha256": "646f8dcedf6fa73ba5f40e56fef650f7ca64c41cdf437b40d740bb98383edd9d"
+    },
+    {
+      "path": "src/dashboard/web/package.json",
+      "sha256": "861e05e8bdcd35196c805f05db3adb92dc10f87e875d9df133562be55c16ba3d"
+    },
+    {
+      "path": "src/dashboard/web/src/App.tsx",
+      "sha256": "e7255383a84468698079326f5c9427e2e05dae332e9737f197fc1a0c0583b0b0"
+    },
+    {
+      "path": "src/dashboard/web/src/index.css",
+      "sha256": "12d1a6f070ddecb430126fbcad71f2cfa7607a0303c8d5fadcb482a1fc98d7c7"
+    },
+    {
+      "path": "src/dashboard/web/src/main.tsx",
+      "sha256": "05bce923ba5fc7d0881f3401290e9b972fa7e50abf8696938b86e93755537307"
+    },
+    {
+      "path": "src/dashboard/web/src/theme.css",
+      "sha256": "c1dd19b80e703698afaa1e4fc300cc6a549d1f956b43bbef4ac42c6069f03812"
+    },
+    {
+      "path": "src/dashboard/web/tsconfig.json",
+      "sha256": "44b76cf5bc1df53b2f5804802dca81a4b98dc12ebb7669ccb6ad277f3f201c34"
+    },
+    {
+      "path": "src/dashboard/web/vite.config.ts",
+      "sha256": "3f8a82a2a4c7c949185e2bf28c01ccb58e81ff503e8aa3d65655d57432ed1c5a"
+    },
+    {
+      "path": "tests/test_dashboard.py",
+      "sha256": "93456644ef9e4e1f46342b305bbeaa04bc83b7bb5b10b9fdcc6a8474c5a9a0cb"
+    }
+  ]
+}

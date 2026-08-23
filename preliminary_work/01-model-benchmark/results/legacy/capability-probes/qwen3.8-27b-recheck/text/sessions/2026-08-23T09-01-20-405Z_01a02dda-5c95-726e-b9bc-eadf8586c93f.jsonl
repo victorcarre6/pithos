@@ -1,0 +1,5 @@
+{"type":"session","version":3,"id":"01a02dda-5c95-726e-b9bc-eadf8586c93f","timestamp":"2026-08-23T09:01:20.405Z","cwd":"/Users/victorcarre/logs/pithos/capability-probes/qwen3.8-27b-recheck/text/workspace"}
+{"type":"model_change","id":"0b3ec23c","parentId":null,"timestamp":"2026-08-23T09:01:20.429Z","provider":"ollama","modelId":"qwen3.8:27b"}
+{"type":"thinking_level_change","id":"9ceb1c1d","parentId":"0b3ec23c","timestamp":"2026-08-23T09:01:20.429Z","thinkingLevel":"off"}
+{"type":"message","id":"801169ed","parentId":"9ceb1c1d","timestamp":"2026-08-23T09:01:20.434Z","message":{"role":"user","content":[{"type":"text","text":"Reply with exactly PITHOS_TEXT_OK. Do not use tools."}],"timestamp":1787475680433}}
+{"type":"message","id":"76ded356","parentId":"801169ed","timestamp":"2026-08-23T09:06:20.954Z","message":{"role":"assistant","content":[],"api":"openai-completions","provider":"ollama","model":"qwen3.8:27b","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"error","timestamp":1787475680468,"errorMessage":"Request timed out."}}

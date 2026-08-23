@@ -12,5 +12,5 @@ dist/
 *.db-shm
 *.db-wal
 .env
-config/pi/auth.json
-config/pi/models-store.json
+harness/config/pi/auth.json
+harness/config/pi/models-store.json

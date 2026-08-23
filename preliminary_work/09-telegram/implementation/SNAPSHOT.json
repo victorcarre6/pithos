@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "09-telegram",
+  "generated_at": "2026-08-23T15:06:51.050736+00:00",
+  "files": [
+    {
+      "path": "src/pithos_telegram/__init__.py",
+      "sha256": "80e6cb97013395ca7aa10a0a8a8d1f8f491a8400335f7ddf71b9bc7a0aa1e4ea"
+    },
+    {
+      "path": "src/pithos_telegram/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "4fcf97c65c52c0e05b8b541fa54e03913f33f707b5a40aec03ac33770c25ec67"
+    },
+    {
+      "path": "src/pithos_telegram/__pycache__/broker.cpython-312.pyc",
+      "sha256": "f552b85269bfd67ab4478a35814b28e34753bb386e0fb1158761f2834cc383eb"
+    },
+    {
+      "path": "src/pithos_telegram/__pycache__/client.cpython-312.pyc",
+      "sha256": "da11c23577fbb24aa70481a5c0f1a8a67868740f7beb48ff6927c9355c91b7e9"
+    },
+    {
+      "path": "src/pithos_telegram/__pycache__/server.cpython-312.pyc",
+      "sha256": "1310742fad360c8a11a731a654f39ff4b4f25380e13fcf2945e9219c48316d79"
+    },
+    {
+      "path": "src/pithos_telegram/api.py",
+      "sha256": "f15e1132f795432e86bf248898b29697823dd146222995ff1b4e50b2d004511e"
+    },
+    {
+      "path": "src/pithos_telegram/broker.py",
+      "sha256": "65a26901a2fb56248e3e396871a2f8615a63a3604e2298ff949f4793451611f8"
+    },
+    {
+      "path": "src/pithos_telegram/cli.py",
+      "sha256": "146ae0377ecada36865f19fa1829cf8e4902adc8842c018041be9aa6eef50fc8"
+    },
+    {
+      "path": "src/pithos_telegram/client.py",
+      "sha256": "ad33158ab75cf0210d0dfcf37796789e05336ac1d4d0697d7bbdbaa1dbc78e38"
+    },
+    {
+      "path": "src/pithos_telegram/server.py",
+      "sha256": "691f8f6311ff665f521bb173f8a65557fe9eaf05330ee0d38520cc80273f3791"
+    },
+    {
+      "path": "tests/test_telegram.py",
+      "sha256": "4b06eeefe2d71ac585c0ea1d6b807beb527498255afc9bc55e4b5ba6b5495629"
+    }
+  ]
+}

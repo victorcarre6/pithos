@@ -1,0 +1,5 @@
+{"type":"session","version":3,"id":"01a02b45-6101-7e28-8af0-7e1e9b1f58fb","timestamp":"2026-08-22T20:59:22.241Z","cwd":"/Users/victorcarre/logs/pithos/capability-probes/qwen3.8-27b/text/workspace"}
+{"type":"agent_start"}
+{"type":"turn_start"}
+{"type":"message_start","message":{"role":"user","content":[{"type":"text","text":"Reply with exactly PITHOS_TEXT_OK. Do not use tools."}],"timestamp":1787432362283}}
+{"type":"message_end","message":{"role":"user","content":[{"type":"text","text":"Reply with exactly PITHOS_TEXT_OK. Do not use tools."}],"timestamp":1787432362283}}

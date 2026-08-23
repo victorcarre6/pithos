@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-22T20:05:08.309378+00:00",
+  "model": "qwen3.8:27b",
+  "host": {
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "machine": "arm64"
+  },
+  "ollama": {
+    "version": "0.32.13"
+  },
+  "model_processes_before": {
+    "models": [
+      {
+        "name": "qwen3.8:27b",
+        "model": "qwen3.8:27b",
+        "size": 18207064715,
+        "digest": "22130167c4c20e20c7b71454612966ca8e8171e9b3cc8ab6ce8aa6cbfec79643",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "27.3B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-08-22T22:09:04.441551+02:00",
+        "size_vram": 8564947024,
+        "context_length": 4096
+      }
+    ]
+  },
+  "model_processes_after": {
+    "models": [
+      {
+        "name": "qwen3.8:27b",
+        "model": "qwen3.8:27b",
+        "size": 18207064715,
+        "digest": "22130167c4c20e20c7b71454612966ca8e8171e9b3cc8ab6ce8aa6cbfec79643",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "27.3B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-08-22T22:33:08.367875+02:00",
+        "size_vram": 8564947024,
+        "context_length": 4096
+      }
+    ]
+  },
+  "complete": true,
+  "passed": false,
+  "minimum_decode_tokens_per_second": 1.0,
+  "scenarios": [
+    {
+      "name": "text",
+      "passed": true,
+      "timings": {
+        "client_elapsed_seconds": 134.954,
+        "total_duration_ns": 134734076375,
+        "load_duration_ns": 291542083,
+        "prompt_eval_count": 21,
+        "prompt_eval_duration_ns": 61216560000,
+        "eval_count": 6,
+        "eval_duration_ns": 67797742000,
+        "decode_tokens_per_second": 0.088
+      },
+      "evidence": {
+        "content": "PITHOS_TEXT_OK"
+      },
+      "raw_response": {
+        "model": "qwen3.8:27b",
+        "created_at": "2026-08-22T20:07:23.067679Z",
+        "message": {
+          "role": "assistant",
+          "content": "PITHOS_TEXT_OK"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 134734076375,
+        "load_duration": 291542083,
+        "prompt_eval_count": 21,
+        "prompt_eval_duration": 61216560000,
+        "eval_count": 6,
+        "eval_duration": 67797742000
+      },
+      "speed_passed": false
+    },
+    {
+      "name": "developer_role",
+      "passed": true,
+      "timings": {
+        "client_elapsed_seconds": 198.541,
+        "total_duration_ns": 198243479416,
+        "load_duration_ns": 667485250,
+        "prompt_eval_count": 33,
+        "prompt_eval_duration_ns": 59533377000,
+        "eval_count": 8,
+        "eval_duration_ns": 117767146000,
+        "decode_tokens_per_second": 0.068
+      },
+      "evidence": {
+        "content": "PITHOS_DEVELOPER_OK"
+      },
+      "raw_response": {
+        "model": "qwen3.8:27b",
+        "created_at": "2026-08-22T20:10:41.636536Z",
+        "message": {
+          "role": "assistant",
+          "content": "PITHOS_DEVELOPER_OK"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 198243479416,
+        "load_duration": 667485250,
+        "prompt_eval_count": 33,
+        "prompt_eval_duration": 59533377000,
+        "eval_count": 8,
+        "eval_duration": 117767146000
+      },
+      "speed_passed": false
+    },
+    {
+      "name": "structured_output",
+      "passed": false,
+      "speed_passed": false,
+      "timings": null,
+      "evidence": {
+        "error": "Ollama request failed: timed out"
+      },
+      "raw_response": null
+    },
+    {
+      "name": "tool_call",
+      "passed": false,
+      "speed_passed": false,
+      "timings": null,
+      "evidence": {
+        "error": "Ollama request failed: timed out"
+      },
+      "raw_response": null
+    }
+  ]
+}

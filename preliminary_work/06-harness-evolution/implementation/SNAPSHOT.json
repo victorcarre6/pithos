@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "06-harness-evolution",
+  "generated_at": "2026-08-23T15:06:51.042406+00:00",
+  "files": [
+    {
+      "path": "src/pithos_harness/__init__.py",
+      "sha256": "95d59fc45b244679a51162e7b2882f3a73ef89aaf6820d57d6ba5fd8b9567354"
+    },
+    {
+      "path": "src/pithos_harness/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "67b9bd1587595f330d4c440e60491dcd379f80584d2f6dcaf6445809e8378fe9"
+    },
+    {
+      "path": "src/pithos_harness/__pycache__/files.cpython-312.pyc",
+      "sha256": "03a2b607b9254db2bf94cc1a7ce83d77e01f6f5c6f1029955f24a5d5128f2980"
+    },
+    {
+      "path": "src/pithos_harness/__pycache__/manager.cpython-312.pyc",
+      "sha256": "434b22533408af712e7574d92c08e00c1b1aac31a8f4d6e28f604f3bc1d5ff65"
+    },
+    {
+      "path": "src/pithos_harness/__pycache__/validation.cpython-312.pyc",
+      "sha256": "69ddf38b0c23a7cdc9fa6f8b5dc09fd6e5e9a54c3edbecb435fb6e62f30a8283"
+    },
+    {
+      "path": "src/pithos_harness/broker.py",
+      "sha256": "4cfbd14a58a4be2592bb62078abcc5bfc4b86cf6d120c9ad749e9a6ba87c795a"
+    },
+    {
+      "path": "src/pithos_harness/cli.py",
+      "sha256": "762a1ce37e84d76bdfc5edca451e8c2a2ef6f7eb47ff57283debec0be1d552c2"
+    },
+    {
+      "path": "src/pithos_harness/files.py",
+      "sha256": "63ce61f48e1b3450690ec572013ecebec46f5b4c2c2b1dd0c3a3bc67aa1dd641"
+    },
+    {
+      "path": "src/pithos_harness/manager.py",
+      "sha256": "ab520cc37a1e790e196ea0b537468b169cdaa296323a44d4ea0ecfab9831642e"
+    },
+    {
+      "path": "src/pithos_harness/server.py",
+      "sha256": "ea85fdc3745c112d023d49848b9ec49117d3d2a4f396444f45c5048fd550d1a2"
+    },
+    {
+      "path": "src/pithos_harness/validation.py",
+      "sha256": "acf152bb81946ba406a31e7edc375a579c1c6aa6bb5153b768f4095845ac7895"
+    },
+    {
+      "path": "tests/test_harness.py",
+      "sha256": "e6720a45a9cc45a685fb4c30c5c0bcf6de30d6df9b9bc50d696086458c73a812"
+    }
+  ]
+}

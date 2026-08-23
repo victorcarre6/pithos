@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pithos.local/contracts/v1/event.schema.json",
+  "title": "Pithos event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "run_id", "timestamp", "type", "source", "payload"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "event_id": { "type": "string", "pattern": "^evt-[0-9]{8}T[0-9]{6}\\.[0-9]{6}Z-[a-z0-9]{6}$" },
+    "run_id": { "type": "string", "pattern": "^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$" },
+    "source": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,63}$" },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "payload": { "type": "object" }
+  }
+}
+

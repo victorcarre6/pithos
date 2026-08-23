@@ -1,0 +1,15 @@
+services:
+  api:
+    build: ./api
+    environment:
+      PITHOS_DATABASE: /logs/pithos.db
+      PITHOS_LOGS_ROOT: /logs
+    volumes:
+      - ${PITHOS_LOGS_ROOT:-${HOME}/logs/pithos}:/logs:ro
+    restart: always
+  web:
+    build: ./web
+    ports:
+      - "${PITHOS_DASHBOARD_PORT:-1208}:8080"
+    depends_on: [api]
+    restart: always

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "04-runner",
+  "generated_at": "2026-08-23T15:06:51.038141+00:00",
+  "files": [
+    {
+      "path": "src/pithos_runner/__init__.py",
+      "sha256": "fd6e8efb306bc455a390de8de0330d0cc3cfb40b7499689c5cdee861e47cc2ee"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "f551bb88f635cf70df5e8f73687a016014d7491b5f23ba1d6fbe00e9d74ef01e"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/events.cpython-312.pyc",
+      "sha256": "0bc4783e0ce454c3b8182b4a32957ad8cb804e82e8015c0ca8ea20263f83dfd3"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/lock.cpython-312.pyc",
+      "sha256": "db35d18070e6004c4569939fe593a78401e25a6142189f5c52168c4a02c5f1d1"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/pi_events.cpython-312.pyc",
+      "sha256": "7913c16c5f6ebd071c2995e73c5b15cc9e7dc4e349057c973b910316fa2d9a99"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/process.cpython-312.pyc",
+      "sha256": "35cfc28f3e7cd769529d3958924afa167efec801bd3b4c312c0528d0b5ae99e2"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/runner.cpython-312.pyc",
+      "sha256": "f3a4695ab7d01538e68966bdc912524c7dab09e4464e01b3ccb9efd07404b020"
+    },
+    {
+      "path": "src/pithos_runner/__pycache__/state.cpython-312.pyc",
+      "sha256": "b88806118795a8e9d17e09328cfb44b00059e171b325f4fda45f3d14e59c3710"
+    },
+    {
+      "path": "src/pithos_runner/cli.py",
+      "sha256": "d861ee19ae91c7bb139f31aa088854a3dff174aace5fa4eb18cc88c3a2ea8c10"
+    },
+    {
+      "path": "src/pithos_runner/events.py",
+      "sha256": "02f0512e86d9aaf49dc9b1003f9e5ba282f641af0eb03f16c9baadc44d8224ab"
+    },
+    {
+      "path": "src/pithos_runner/lock.py",
+      "sha256": "97b92aa07ed360505813b5ef261f76961c8a286a3406a468227092d688fcc95a"
+    },
+    {
+      "path": "src/pithos_runner/pi_events.py",
+      "sha256": "76524eb4e5ec87481b1004438faf936631e553e8c5317bd3bd7802164b626421"
+    },
+    {
+      "path": "src/pithos_runner/process.py",
+      "sha256": "4f5dfa2ed52a62fb248e442b89cf88cc6448ae0e4ff4b5ae370b9c0942d752f4"
+    },
+    {
+      "path": "src/pithos_runner/runner.py",
+      "sha256": "9c338d05b18caf7f914c0360af098404f7a308fe61e6fad588595edd743310b9"
+    },
+    {
+      "path": "src/pithos_runner/state.py",
+      "sha256": "c1e881f05ad191c97d9a04d903b70f776d741c7932c43f87cc7daf2642baf221"
+    },
+    {
+      "path": "tests/test_pi_events.py",
+      "sha256": "d7b3d18d9a48b9610d3295519659ba68bab935cb84f0baf248558ab1c024c30f"
+    },
+    {
+      "path": "tests/test_runner.py",
+      "sha256": "68a3ec3cf85b3b2b2f8ef49c2e9efb78663cc72cb89e1580874b5f920ee1b0b6"
+    }
+  ]
+}

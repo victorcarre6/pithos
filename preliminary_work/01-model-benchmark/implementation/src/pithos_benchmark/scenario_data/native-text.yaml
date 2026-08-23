@@ -1,0 +1,11 @@
+version: 1
+id: native.text-exact
+title: Exact text through native Ollama chat
+suite: smoke
+kind: native
+timeout_seconds: 900
+messages:
+  - role: user
+    content: Reply with exactly PITHOS_TEXT_OK. Do not explain.
+expected:
+  exact_text: PITHOS_TEXT_OK

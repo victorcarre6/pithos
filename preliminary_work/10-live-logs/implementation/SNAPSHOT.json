@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "10-live-logs",
+  "generated_at": "2026-08-23T15:06:51.052164+00:00",
+  "files": [
+    {
+      "path": "src/pithos_live_log/__init__.py",
+      "sha256": "f61295da8a1fbb1d0a6e349ffec9ab4c887e272f0a39d7ed3cf38d29807e7b3f"
+    },
+    {
+      "path": "src/pithos_live_log/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "2a9f088480367460a507c3a4362cc9c69b4092c4f3d5ea8e1ce5677da51cbaff"
+    },
+    {
+      "path": "src/pithos_live_log/__pycache__/writer.cpython-312.pyc",
+      "sha256": "b0d17d1cc16be6ed3418f4b318cd4e8cd6829ded609796ac32223ea79559506e"
+    },
+    {
+      "path": "src/pithos_live_log/cli.py",
+      "sha256": "35ff37b2b015d3f4df9442493c78fe6acf92e22117fd20e2f823a49e02814df4"
+    },
+    {
+      "path": "src/pithos_live_log/writer.py",
+      "sha256": "ec761fe3b236ac37552ab4b3da5fd468d72129d972e6482a48e7c35c0d91da70"
+    },
+    {
+      "path": "tests/test_live_log.py",
+      "sha256": "ee02f0c0b5ab4ad0c5319c7d1b23fdea6921ef490f58d5fd00d27ca4ac24e25e"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pithos.local/contracts/v1/micro-rush.schema.json",
+  "title": "Pithos micro-rush",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "micro_rush_id", "experiment_id", "title", "status", "branch", "created_at"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "micro_rush_id": { "type": "string", "pattern": "^rush-[a-z0-9][a-z0-9-]{0,63}$" },
+    "experiment_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "status": { "enum": ["planned", "active", "completed", "abandoned", "blocked"] },
+    "branch": { "type": "string", "pattern": "^agent/rush-[a-z0-9][a-z0-9-]{0,63}$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": ["string", "null"], "format": "date-time" },
+    "pull_request_url": { "type": ["string", "null"], "format": "uri" },
+    "run_ids": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^run-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{6}$" },
+      "uniqueItems": true
+    }
+  }
+}
+

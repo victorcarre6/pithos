@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "05-git-pr",
+  "generated_at": "2026-08-23T15:06:51.040110+00:00",
+  "files": [
+    {
+      "path": "src/pithos_git_broker/__init__.py",
+      "sha256": "de57c2c2b1b52b2397fcd09f9d2f0a20d8b122cddc30b9188c326cfceed389b8"
+    },
+    {
+      "path": "src/pithos_git_broker/__pycache__/__init__.cpython-312.pyc",
+      "sha256": "ff77b434b4b618f4fdd7cb0c075243bd2f4e4c5d69ce15c4ba176fa2f99d9c59"
+    },
+    {
+      "path": "src/pithos_git_broker/__pycache__/broker.cpython-312.pyc",
+      "sha256": "ca10f0a20cad789a20c037e0c12d6078befd89f3c0ab5a82995eedfd8b546bce"
+    },
+    {
+      "path": "src/pithos_git_broker/__pycache__/policy.cpython-312.pyc",
+      "sha256": "c31c1a8bf10c067a2064ae090f48e466cf97ff515389848499dd81915ccc4265"
+    },
+    {
+      "path": "src/pithos_git_broker/__pycache__/server.cpython-312.pyc",
+      "sha256": "ce3f12e7176e662e5b63984f651316a8af08f8408edf322e1ce3d0367d0bc14a"
+    },
+    {
+      "path": "src/pithos_git_broker/broker.py",
+      "sha256": "9cf4160d95a27a3a1a839afc10bf98b509d43b7f814c765ba92021a1b02048d1"
+    },
+    {
+      "path": "src/pithos_git_broker/cli.py",
+      "sha256": "33449ee69ab4cb2ba524d91019b62813a7188fc34a15a901ff794288470b383c"
+    },
+    {
+      "path": "src/pithos_git_broker/policy.py",
+      "sha256": "cb27eaf7c5e815e36de1c3ef6bd50c5ef99c38a9732382690828a41838e18650"
+    },
+    {
+      "path": "src/pithos_git_broker/server.py",
+      "sha256": "2769dbccc519f22b59ee2229651a89b1e3cae54d2c4210c111cf2620a3541feb"
+    },
+    {
+      "path": "tests/test_git_broker.py",
+      "sha256": "cced0671fd33e7e802e32b0b90a8314b35f9cab526b93659775683716c11942d"
+    }
+  ]
+}
