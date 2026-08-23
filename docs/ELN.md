@@ -49,3 +49,14 @@
   `/answer` alimente le contexte du réveil suivant.
 - **87 tests passent**, le frontend TypeScript compile et les deux compositions Docker sont valides.
 - La construction réelle des images reste non testée : le daemon Docker local est arrêté.
+
+## 23:08 — Probes Pi réels de clôture
+
+- Ollama `0.32.13` répond localement et expose les trois modèles attendus.
+- Le timeout HTTP interne Pi de cinq minutes a été identifié puis porté à une heure dans les configurations
+  host et Docker ; les retries agent sont désactivés pour préserver la limite globale d'un run.
+- Après correction, `qwen3.8:27b` n'a produit que quatre fragments de thinking en dix minutes et aucune
+  réponse finale. Les tool probes restent donc injustifiables dans cette configuration.
+- Pi RPC charge réellement les trois extensions Pithos et découvre le skill de continuité dans un nouveau
+  processus, sans dépendre de l'inference.
+- **89 tests passent** après ajout des invariants de configuration Pi host/Docker.

@@ -11,9 +11,9 @@ validés avant que Pi devienne le sujet de l'expérience autonome.
 - macOS sur Mac mini M2, 16 Go de mémoire unifiée ;
 - Node.js `26.7.0` ;
 - Pi `0.84.2` installé dans `~/.npm-global/bin/pi` ;
-- Docker disponible ;
-- Ollama `0.32.13` installé mais serveur actuellement arrêté ;
-- aucun skill ni aucune extension Pi globale détectés ;
+- Docker CLI disponible, mais daemon actuellement arrêté ;
+- Ollama `0.32.13` actif avec les trois modèles locaux attendus ;
+- extensions et skill Pithos dédiés sous `ground_truth/.pi/`, chargés par Pi RPC ;
 - QEMU/Gondolin absent et non requis pour la baseline Docker.
 
 ## Arborescence à préparer
@@ -69,21 +69,13 @@ peut ensuite créer des branches, pousser, ouvrir des pull requests et les fusio
 Ne placer aucun token GitHub ou Telegram dans le dépôt, les rapports ou la configuration lisible par Pi. Les
 opérations distantes devront passer par un tool ou un service local brokerisé.
 
-### 4. Rédiger les micro-projets
+### 4. Micro-projets d'infrastructure
 
-Créer un dossier par micro-projet sous `../setup/`, chacun avec un `PROJECT.md` autonome. Commencer seulement
-par les quatre prérequis :
+Les projets `00` à `10` disposent chacun d'un `PROJECT.md` autonome et de leur implémentation. Leur état
+canonique est suivi dans `docs/ROADMAP.md` et les observations dans `docs/ELN.md`.
 
-```text
-setup/
-├── 00-contracts/PROJECT.md
-├── 01-model-probe/PROJECT.md
-├── 02-capability-probe/PROJECT.md
-└── 03-continuity/PROJECT.md
-```
-
-Les projets suivants ne sont rédigés qu'après validation des probes, afin d'intégrer les capacités réellement
-observées du modèle et de Pi.
+La baseline modèle reste le seul prérequis non conforme : Pi ne termine pas une réponse textuelle en dix
+minutes dans la configuration Ollama mesurée, même après correction de son timeout HTTP interne.
 
 ### 5. Lancer Pi en mode supervisé
 
@@ -142,9 +134,9 @@ Chaque run possède :
 ~/logs/pithos/runs/<run_id>/
 ├── events.jsonl
 ├── report.md
-├── stdout.log
+├── stdout.jsonl
 ├── stderr.log
-└── session.jsonl
+└── sessions/
 ```
 
 Le runner publie atomiquement le rapport achevé vers `~/logs/pithos/latest.md` et écrit des lignes flushées
@@ -155,13 +147,13 @@ dans `~/logs/pithos/live.log`.
 - [ ] modèle chargé et débit mesuré ;
 - [ ] tool calls exécutés correctement ;
 - [ ] rapport de continuité validé ;
-- [ ] verrou et récupération d'un PID mort testés ;
-- [ ] timeout d'une heure testé ;
-- [ ] arrêt sur boucle testé ;
-- [ ] reprise automatique désactivée après loop-guard ;
-- [ ] credentials absents du workspace et des logs ;
+- [x] verrou et récupération d'un PID mort testés ;
+- [x] timeout et arbre de processus testés avec une limite réduite déterministe ;
+- [x] arrêt sur boucle testé ;
+- [x] reprise automatique désactivée après loop-guard ;
+- [x] credentials absents du workspace agent et des fixtures ;
 - [ ] première pull request créée lors d'un run supervisé ;
-- [ ] `tail -F ~/logs/pithos/live.log` lisible.
+- [x] `tail -F ~/logs/pithos/live.log` testé à travers une rotation.
 
 ## Sources techniques
 

@@ -45,6 +45,6 @@ au type de ressource. Après promotion, il programme `/pithos-reload` pour rendr
 `ground_truth/` n'est jamais une destination d'écriture. `diff` compare ses hashes à l'état actif. `restore`
 est une opération locale explicite sur un chemin précis ; aucun échec n'est restauré automatiquement.
 
-Les tests chargent réellement une extension TypeScript promue dans un nouveau processus Node. Le chargement
-par un nouveau processus Pi et la réutilisation cognitive d'un skill restent à confirmer lorsque la baseline
-peut terminer un tour avec tools.
+Les tests chargent réellement une extension TypeScript promue dans un nouveau processus Node. Un probe RPC
+charge aussi les extensions et découvre le skill dans un nouveau processus Pi. La réutilisation cognitive du
+skill reste à confirmer lorsque la baseline peut terminer un tour avec tools.

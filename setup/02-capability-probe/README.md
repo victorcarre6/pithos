@@ -37,8 +37,11 @@ et tool call natif. Le capability probe réel complet n'est donc pas lancé auto
 heure risquerait de ne couvrir qu'un ou deux scénarios. Le moteur et ses vérifications externes sont testés avec
 un faux Pi déterministe ; la compatibilité réelle reste à établir.
 
+La configuration Pi dédiée porte `httpIdleTimeoutMs` et `retry.provider.timeoutMs` à une heure. Le défaut Pi
+de cinq minutes interrompait les générations locales lentes avant le timeout externe. Les retries agent sont
+désactivés : le runner demeure l'unique limite dure et ne cumule pas plusieurs appels d'une heure.
+
 ## Scénarios différés
 
 La création/réutilisation d'un skill et la création/activation d'une extension nécessitent deux processus Pi.
 Ils seront ajoutés avec `06-harness-evolution`, qui définit snapshot, validation et promotion de ces artefacts.
-

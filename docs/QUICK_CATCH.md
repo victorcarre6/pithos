@@ -2,7 +2,7 @@
 
 ## État
 
-Les chantiers **00 à 10** et leur intégration transversale sont implémentés. La suite compte **87 tests**.
+Les chantiers **00 à 10** et leur intégration transversale sont implémentés. La suite compte **89 tests**.
 Le runtime agent est Docker par défaut ; son build réel attend un daemon Docker actif. Le probe Telegram
 attend uniquement `TELEGRAM_BOT_TOKEN` et `TELEGRAM_USER_ID`. Les validations réelles Pi/Ollama restent
 ouvertes à cause du débit et des timeouts observés sur `qwen3.8:27b`.

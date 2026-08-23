@@ -39,3 +39,17 @@ Le moteur du capability probe est validé. La compatibilité réelle Pi/Ollama r
 `write`, `edit`, `bash`, tests, multi-tools et rapport, car le tool calling direct expire déjà après cinq
 minutes avec la configuration actuelle. Skill et extension seront raccordés avec `06-harness-evolution`.
 
+## Recontrôle du 23 août 2026
+
+Un premier run de dix minutes a confirmé le timeout HTTP interne de Pi après 300 secondes, suivi d'un retry.
+La configuration dédiée fixe maintenant `httpIdleTimeoutMs` et `retry.provider.timeoutMs` à une heure et
+désactive les retries agent.
+
+Un second run `text` de dix minutes n'a plus produit `Request timed out`, ce qui valide la correction. Il n'a
+toutefois généré que quatre fragments de thinking avant le timeout externe, sans réponse finale. La baseline
+reste donc incompatible avec une campagne autonome exploitable dans sa configuration Ollama actuelle.
+
+Artefacts :
+
+- `~/logs/pithos/capability-probes/qwen3.8-27b-recheck/text/` ;
+- `~/logs/pithos/capability-probes/qwen3.8-27b-timeout-fixed/text/`.
