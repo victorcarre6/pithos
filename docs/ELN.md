@@ -60,3 +60,11 @@
 - Pi RPC charge réellement les trois extensions Pithos et découvre le skill de continuité dans un nouveau
   processus, sans dépendre de l'inference.
 - **89 tests passent** après ajout des invariants de configuration Pi host/Docker.
+
+## 23:08 — Bootstrap hôte
+
+- `scripts/bootstrap.py` vérifie les commandes, fichiers contrôlés et configurations Pi avant toute écriture.
+- Il crée uniquement les répertoires persistants manquants et préserve le contenu de `live.log` lors des
+  réexécutions.
+- Le bootstrap réel puis son mode `--check` retournent `ready=true` sur cette machine.
+- **92 tests passent** après ajout des contrôles d'idempotence et de refus avant écriture.

@@ -40,8 +40,13 @@ par l'utilisateur.
 
 ### 1. Préparer les emplacements
 
-Créer l'arborescence ci-dessus. Le script de bootstrap à produire ensuite devra être idempotent et refuser
-d'écraser une constitution ou un rapport existant.
+Créer et vérifier l'arborescence avec le script idempotent. Il valide d'abord les fichiers contrôlés et les
+configurations JSON, puis crée uniquement les répertoires manquants et `live.log` sans remplacer son contenu.
+
+```bash
+python scripts/bootstrap.py
+python scripts/bootstrap.py --check
+```
 
 À chaque run, `ground_truth/` est disponible comme référence externe en lecture seule. Pi reçoit uniquement
 la dernière version active de ses instructions ; la constitution n'est pas ajoutée à son contexte.

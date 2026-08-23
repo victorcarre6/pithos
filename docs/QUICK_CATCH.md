@@ -2,7 +2,7 @@
 
 ## État
 
-Les chantiers **00 à 10** et leur intégration transversale sont implémentés. La suite compte **89 tests**.
+Les chantiers **00 à 10** et leur intégration transversale sont implémentés. La suite compte **92 tests**.
 Le runtime agent est Docker par défaut ; son build réel attend un daemon Docker actif. Le probe Telegram
 attend uniquement `TELEGRAM_BOT_TOKEN` et `TELEGRAM_USER_ID`. Les validations réelles Pi/Ollama restent
 ouvertes à cause du débit et des timeouts observés sur `qwen3.8:27b`.
@@ -11,6 +11,7 @@ ouvertes à cause du débit et des timeouts observés sur `qwen3.8:27b`.
 
 ```bash
 pytest -q -p no:cacheprovider
+python scripts/bootstrap.py --check
 pithos-events --logs-root ~/logs/pithos once
 pithos-runner status --logs-root ~/logs/pithos
 npm --prefix dashboard/web run build
