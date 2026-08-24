@@ -171,7 +171,7 @@ def test_docker_runtime_mounts_only_scoped_paths_and_forwards_no_secrets(tmp_pat
     assert command[:2] == ["docker", "run"]
     assert "--network pithos-agent" in rendered
     assert f"src={workspace},dst=/workspace" in rendered
-    assert f"http://{RUN_ID}@pithos-egress:3128" in rendered
+    assert f"http://{RUN_ID}:pithos@pithos-egress:3128" in rendered
     assert "must-not-leak" not in rendered
     assert "OPENAI_API_KEY" not in environment
     assert "HOME" not in environment

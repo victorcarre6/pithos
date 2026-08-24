@@ -45,7 +45,7 @@ class EventWriter:
                 os.fsync(event_file.fileno())
             fcntl.flock(lock_file, fcntl.LOCK_UN)
 
-        if len(self.path.parents) >= 3 and self.path.parent.parent.name == "runs":
+        if len(self.path.parents) >= 3 and self.path.parent.parent.name in {"runs", "missions"}:
             logs_root = self.path.parents[2]
             level = _live_level(event_type, payload)
             try:

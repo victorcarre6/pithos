@@ -53,12 +53,16 @@ def test_restart_appends_without_overwriting(tmp_path):
     assert "after" in content
 
 
-def test_event_writer_mirrors_events_without_sqlite_or_dashboard(tmp_path):
-    events = tmp_path / "runs" / RUN_ID / "events.jsonl"
+def test_event_writer_mirrors_run_and_mission_events_without_sqlite_or_dashboard(tmp_path):
+    run_events = tmp_path / "runs" / RUN_ID / "events.jsonl"
+    mission_events = tmp_path / "missions" / RUN_ID / "events.jsonl"
 
-    EventWriter(events, RUN_ID).append("run.started", {})
+    EventWriter(run_events, RUN_ID).append("run.started", {})
+    EventWriter(mission_events, RUN_ID).append("run.finished", {"status": "completed"})
 
-    assert "run.started" in (tmp_path / "live.log").read_text()
+    live_log = (tmp_path / "live.log").read_text()
+    assert "run.started" in live_log
+    assert "run.finished" in live_log
 
 
 def test_unknown_level_is_rejected(tmp_path):

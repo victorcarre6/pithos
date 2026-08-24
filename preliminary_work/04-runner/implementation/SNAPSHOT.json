@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "04-runner",
-  "generated_at": "2026-08-24T15:10:49.569954+00:00",
+  "generated_at": "2026-08-24T16:07:22.678726+00:00",
   "files": [
     {
       "path": "src/pithos_runner/__init__.py",
@@ -42,7 +42,7 @@
     },
     {
       "path": "src/pithos_runner/events.py",
-      "sha256": "02f0512e86d9aaf49dc9b1003f9e5ba282f641af0eb03f16c9baadc44d8224ab"
+      "sha256": "76348c460a95bd7179a9ccbce493af7d9a10382e88a1e9b70548d811527c4c50"
     },
     {
       "path": "src/pithos_runner/lock.py",
@@ -58,7 +58,7 @@
     },
     {
       "path": "src/pithos_runner/runner.py",
-      "sha256": "2717ee8b47d5f589b3e2221ce42662396960de4cfd10ca53bb4486c91298ac1f"
+      "sha256": "10cfbd7552cba29d2f7b995924c3d03dbd2ab2546915157f50217f9044be297f"
     },
     {
       "path": "src/pithos_runner/state.py",
@@ -70,7 +70,7 @@
     },
     {
       "path": "tests/test_runner.py",
-      "sha256": "bcf527f396353371e5a79d56ca0c5b38b0628491f68092923e3d0d0930c8f33c"
+      "sha256": "cb1ada33b3ab01d96fa7ba8da093cb03de21117a2ff3cbc9d8296248a651b298"
     }
   ]
 }

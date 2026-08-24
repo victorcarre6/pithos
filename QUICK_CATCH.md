@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 17:25 CEST._
+_État vérifié le 24/08/2026 à 18:06 CEST._
 
 ## Micro quick catch général
 
@@ -12,7 +12,7 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **132 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **135 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
 runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap et intégrations.
 
@@ -22,10 +22,10 @@ runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstra
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** La PR expérimentale `#1` est fusionnée dans `main`. Le harnais validé est
-figé dans le commit `f4aea96` et proposé par la PR `#2` depuis `agent/rush-harness-orchestration`, avec
-**132 tests** verts et aucun secret tracké. Docker Desktop est installé mais son daemon est arrêté :
-construire et smoke tester le runtime Docker constitue la prochaine gate avant toute activation périodique.
+**Prochain chemin critique.** La PR expérimentale `#1` est fusionnée dans `main`. Le harnais est proposé par
+la PR `#2` depuis `agent/rush-harness-orchestration`. Le runtime Docker et l'observabilité réelle sont validés ;
+la prochaine décision humaine est la fusion de cette PR, puis l'autorisation explicite de l'activation
+périodique `launchd`. Aucun secret n'est tracké.
 
 ## Carte du dépôt
 
@@ -85,13 +85,16 @@ construire et smoke tester le runtime Docker constitue la prochaine gate avant t
 - **Preuve réelle Ling :** deux sessions et workspaces distincts ; la seconde reçoit uniquement `LATEST.md`,
   le lit avec un tool et restitue exactement le fait durable de la première.
 
-### 04 — Runner autonome — **DONE (simulation)**
+### 04 — Runner autonome — **DONE (réel)**
 
 - **Implémenté :** verrou anti-chevauchement, récupération de PID mort, heartbeat, timeout de 60 minutes,
   arrêt d'arbre de processus, loop guard et pause persistante.
 - **Runtime :** Docker par défaut, filesystem racine read-only, workspace ciblé et egress via Squid allowlisté.
-- **À faire :** construire l'image avec un daemon Docker actif, faire un smoke test réel puis installer
-  `launchd` uniquement après validation humaine de la campagne.
+- **Preuve réelle :** image arm64 `pithos-agent:local` construite ; Pi/Ling répond `DOCKER_OK` dans un rootfs
+  read-only via le réseau interne et Squid. Ollama répond `200`, un domaine arbitraire `403` et le log attribue
+  la requête au run `docker-pi-smoke`.
+- **Architecture macOS :** Docker Desktop ne monte pas les sockets Unix hôte. Le chemin orchestré ne les expose
+  donc pas au modèle : le finalizer hôte appelle les brokers après oracle vert.
 
 ### 05 — Git et pull requests — **DONE (réel)**
 
@@ -111,16 +114,17 @@ construire et smoke tester le runtime Docker constitue la prochaine gate avant t
 ### 07 — Event store SQLite — **DONE**
 
 - **Implémenté :** projection reconstructible depuis JSONL, migrations, curseurs byte/ligne, ingestion
-  idempotente, quarantaine et refus des troncatures.
+  idempotente, quarantaine et refus des troncatures. Le collecteur couvre `runs/` et `missions/`.
 - **Garantie :** Pi ne dépend pas de SQLite ; événements bruts, payloads et relations métier restent consultables.
+- **Preuve réelle :** **166 988 événements**, **0 quarantaine**, dont les missions Ling et le trafic Squid.
 - **Commande :** `pithos-events --logs-root ~/logs/pithos once`.
 
-### 08 — Dashboard d'observabilité — **DONE (build/config)**
+### 08 — Dashboard d'observabilité — **DONE (réel)**
 
 - **Implémenté :** API FastAPI read-only, pagination, health service/données, frontend React/Vite et Compose.
-- **Validation :** frontend compilé ; SQLite et artefacts sont montés en lecture seule.
-- **À faire :** construire/démarrer les images avec Docker actif et décider explicitement d'une éventuelle
-  publication LAN. Port local par défaut : `1208`.
+- **Validation :** images API/web construites et services healthy ; SQLite et artefacts sont montés en lecture
+  seule. La mission `run-20260824T160502Z-e0f030`, ses métriques, événements et rapport sont servis par l'API.
+- **Accès :** `http://127.0.0.1:1208`. Toute publication LAN reste hors périmètre sans décision explicite.
 
 ### 09 — Telegram — **DONE (réel)**
 
@@ -136,7 +140,8 @@ construire et smoke tester le runtime Docker constitue la prochaine gate avant t
 
 - **Implémenté :** `~/logs/pithos/live.log`, verrou `flock`, flush + `fsync`, rotation par renommage et archives
   illimitées, indépendamment de SQLite/dashboard.
-- **Acquis réel :** `tail -F` a suivi les lignes avant et après rotation.
+- **Acquis réel :** `tail -F` a suivi les lignes avant et après rotation ; les événements des runners et des
+  missions orchestrées alimentent le même fichier.
 - **Commande :** `tail -F ~/logs/pithos/live.log` ; la commande SSH exacte attend l'hôte et l'utilisateur.
 
 ### 11 — Bootstrap de campagne — **DONE**
@@ -182,10 +187,10 @@ $EDITOR ../experiments/<experiment-id>/PROJECT.md
 - [x] Baseline locale sélectionnée sur résultats réels et limites documentées.
 - [x] Tool calls Pi réellement exécutés dans la suite de qualification.
 - [x] Reprise réussie entre deux sessions neuves via `latest.md`.
-- [ ] Runtime Docker construit et smoke testé avec proxy/brokers.
+- [x] Runtime Docker construit et smoke testé avec egress attribué ; brokers exécutés côté hôte.
 - [x] Telegram réel probé avec credentials hors workspace.
 - [x] Branche, push et PR réels produits par un dry-run supervisé.
-- [ ] Événements JSONL, SQLite, dashboard, rapport et live log vérifiés sur ce dry-run.
+- [x] Événements JSONL, SQLite, dashboard, rapport et live log vérifiés sur une mission orchestrée.
 - [ ] Activation périodique `launchd` approuvée explicitement par l'utilisateur.
 
 ## Références canoniques

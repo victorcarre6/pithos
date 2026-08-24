@@ -11,6 +11,10 @@ runner progresser si l'observabilité est arrêtée et permet de reconstruire la
 Pi travaille dans le dépôt expérimental. Les credentials Git et Telegram restent dans des brokers hôte. Le
 harness actif peut évoluer, tandis que `ground_truth` sert uniquement à l'audit et à la restauration.
 
+Sur Docker Desktop macOS, les sockets Unix de l'hôte ne sont pas bind-mountables dans la VM Linux. Le chemin
+orchestré n'en dépend pas : les phases Ling s'exécutent sans broker dans le container, puis le finalizer hôte
+appelle les brokers après validation externe. Le modèle ne reçoit donc ni socket ni credential.
+
 ## Continuité sans session persistante
 
 Chaque réveil ouvre une session neuve. La continuité repose sur un rapport Markdown validé et publié
@@ -53,6 +57,10 @@ Le launcher exécute aussi un preflight : un workspace déjà conforme atteint d
 charger le modèle. Le rapport est écrit dans le workspace avant le commit, mais sa publication comme
 continuité globale intervient seulement après les opérations Git réussies. Un push refusé laisse ainsi un
 checkpoint terminal et les événements Git, sans annoncer un run incomplet comme nouvelle vérité durable.
+
+Chaque mission émet désormais son propre cycle `run.started` / `run.finished`. Le collecteur ingère à la fois
+`runs/*/events.jsonl` et `missions/*/events.jsonl`, et `EventWriter` réplique les deux familles dans
+`live.log`. SQLite et le dashboard restent des projections read-only et reconstructibles.
 
 Les credentials Telegram peuvent être chargés depuis le `.env` ignoré de l'expérience. Le launcher ne lit
 que les deux clés allowlistées et transmet cet environnement au broker hôte ; le modèle, le workspace projeté,

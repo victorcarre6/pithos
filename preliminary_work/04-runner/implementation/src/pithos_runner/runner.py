@@ -124,7 +124,7 @@ def _runtime_command(
         raise ValueError(f"unsupported runner runtime: {configuration.runtime}")
     _validate_pi_config(configuration.pi_config_dir)
 
-    proxy_url = f"http://{run_id}@pithos-egress:3128"
+    proxy_url = f"http://{run_id}:pithos@pithos-egress:3128"
     command = [
         "docker",
         "run",

@@ -2,6 +2,7 @@
 
 import json
 import secrets
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -48,6 +49,15 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     finalizer = LocalFinalizer(workspace, mission_root, logs_root, git_send)
     orchestrator = Orchestrator(state_store, phase_runner, validator, finalizer)
     state = MissionState(mission_id, project["experiment_id"])
+    started_monotonic = time.monotonic()
+    events.append(
+        "run.started",
+        {
+            "experiment_id": state.experiment_id,
+            "micro_rush_id": f"rush-{state.experiment_id}",
+            "model": configuration.model,
+        },
+    )
     _notify(telegram_socket, state, "started")
 
     try:
@@ -55,11 +65,41 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
         result = orchestrator.run(state, context_factory)
     except KeyboardInterrupt:
         orchestrator.interrupt(state, "operator interrupt")
+        events.append("run.finished", _finish_payload(state, mission_root, started_monotonic))
         _notify(telegram_socket, state, "finished")
         raise
+    events.append("run.finished", _finish_payload(result, mission_root, started_monotonic))
     _notify(telegram_socket, result, "finished")
 
     return result
+
+
+def _finish_payload(state, mission_root, started_monotonic):
+    """Aggregate phase metrics for the terminal run event."""
+
+    # métriques de toutes les sessions bornées
+    metrics = {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "tool_calls": 0,
+        "tool_failures": 0,
+    }
+    for path in sorted((Path(mission_root) / "phases").glob("*/result.json")):
+        result = json.loads(path.read_text(encoding="utf-8"))
+        phase_metrics = result.get("metrics") or {}
+        for name in metrics:
+            metrics[name] += int(phase_metrics.get(name) or 0)
+
+    # état terminal + durée murale
+    payload = {
+        "status": state.status,
+        "stop_reason": state.failure_summary or None,
+        "duration_ms": round((time.monotonic() - started_monotonic) * 1000),
+        **metrics,
+    }
+
+    return payload
 
 
 def _notify(socket_path, state, event):

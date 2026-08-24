@@ -261,3 +261,20 @@
 - La PR GitHub `#2` propose ce lot vers `main` : https://github.com/victorcarre6/pithos/pull/2.
 - Aucun credential Telegram n'est tracké ; le `.env` de l'expérience reste ignoré.
 - Prochaine gate : daemon Docker actif, build de l'image runtime puis smoke isolé avec proxy et brokers.
+
+## 24:08 — Runtime Docker et observabilité réels
+
+- Docker Desktop `28.5.1` est actif. L'image arm64 `pithos-agent:local` est construite et Pi/Ling répond
+  exactement `DOCKER_OK` depuis un container read-only sur le réseau interne.
+- Squid autorise Ollama `0.32.15` avec un statut `200`, refuse `example.com` avec `403` et attribue la requête
+  Pi au run `docker-pi-smoke`. L'auth Basic utilise un mot de passe fixe non secret uniquement pour forcer
+  l'émission du `run_id` dans le log.
+- Docker Desktop macOS refuse le bind mount des sockets Unix hôte, fichier seul comme répertoire parent. Le
+  chemin orchestré est conservé : phases Ling sans broker dans Docker, finalizer brokerisé sur l'hôte.
+- L'orchestrateur émet désormais `run.started` et `run.finished`; le collecteur parcourt `runs/` et `missions/`,
+  et le live writer réplique les deux familles dans `live.log`.
+- L'ingestion réelle projette **166 988 événements sans quarantaine**. Les images dashboard sont construites
+  et l'API locale sert la mission `run-20260824T160502Z-e0f030`, son statut `completed`, sa durée de 6 ms,
+  ses métriques nulles attendues sans inference et son rapport.
+- Le run historique `run-20260824T101858Z-63523f`, interrompu avant le correctif KeyboardInterrupt, reste
+  honnêtement `running` dans sa source append-only ; aucune projection n'est maquillée.

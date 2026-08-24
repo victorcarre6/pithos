@@ -13,6 +13,7 @@ Le runner Docker utilise `harness/config/pi-docker/`, dont l'URL Ollama cible `h
 source est montée read-only puis copiée dans un tmpfs privé pour permettre les fichiers runtime de Pi sans
 altérer la source contrôlée par l'utilisateur.
 
-Chaque run utilise `http://<run_id>@pithos-egress:3128` comme proxy. Le username non secret permet d'attribuer
-les lignes de `~/logs/pithos/network/access.log` au run. Toute modification d'allowlist est une modification
-versionnée du harness ; aucun domaine libre n'est accepté par défaut.
+Chaque run utilise `http://<run_id>:pithos@pithos-egress:3128` comme proxy. Le mot de passe fixe n'est pas un
+secret : il force seulement l'envoi de l'identifiant. Squid inscrit celui-ci dans
+`~/logs/pithos/network/access.log` pour attribuer chaque requête au run. Toute modification d'allowlist est
+une modification versionnée du harness ; aucun domaine libre n'est accepté par défaut.
