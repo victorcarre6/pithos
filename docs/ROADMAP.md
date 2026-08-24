@@ -7,7 +7,7 @@
 - [DONE] 02 — valider les dix capacités Pi réelles avec Ling, dont skill et extension après redémarrage.
 - [DONE] 03 — continuité atomique et reprise réelle entre deux sessions Pi indépendantes.
 - [DONE] 04 — runner Docker, verrou, timeout, arrêt forcé et loop guard.
-- [DONE] 05 — broker Git local et authentification GitHub réelle ; push/PR agent encore non produits.
+- [DONE] 05 — broker Git local, authentification GitHub réelle et push/PR produits par le dry-run agent.
 - [DONE] 06 — snapshots, broker de promotion et extensions Pi rechargeables.
 - [DONE] 07 — stockage SQLite reconstructible et ingestion egress Squid.
 - [DONE] 08 — dashboard dockerisé ; build d'image différé jusqu'au démarrage du daemon.

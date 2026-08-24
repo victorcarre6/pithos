@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 17:18 CEST._
+_État vérifié le 24/08/2026 à 17:25 CEST._
 
 ## Micro quick catch général
 
@@ -22,10 +22,10 @@ runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstra
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** La PR expérimentale `#1` est fusionnée dans `main`. Les changements du harnais
-sont isolés sur `agent/rush-harness-orchestration`, avec **132 tests** verts et aucun secret tracké. Docker
-Desktop est installé mais son daemon est arrêté : ouvrir la PR du harnais, puis construire et smoke tester
-le runtime Docker constitue la prochaine gate avant toute activation périodique.
+**Prochain chemin critique.** La PR expérimentale `#1` est fusionnée dans `main`. Le harnais validé est
+figé dans le commit `f4aea96` et proposé par la PR `#2` depuis `agent/rush-harness-orchestration`, avec
+**132 tests** verts et aucun secret tracké. Docker Desktop est installé mais son daemon est arrêté :
+construire et smoke tester le runtime Docker constitue la prochaine gate avant toute activation périodique.
 
 ## Carte du dépôt
 

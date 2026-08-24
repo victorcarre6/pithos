@@ -252,3 +252,12 @@
 - Les requêtes Telegram statiques `orchestrated-started` et `orchestrated-finished` sont toutes deux enregistrées
   `result: sent`; les deux événements associés sont `telegram.sent` de niveau `INFO`.
 - Le `.env` est absent de `git ls-files`. La suite complète passe avec 132 tests et les snapshots sont alignés.
+
+## 24:08 — PR du harnais ouverte
+
+- La PR expérimentale `#1` est fusionnée dans `main` au commit `33b1fe7`.
+- Le socle préliminaire complet est figé dans `f4aea96` sur `agent/rush-harness-orchestration`, après
+  validation des 132 tests, du build Vite, des deux configurations Compose, des snapshots et du diff Git.
+- La PR GitHub `#2` propose ce lot vers `main` : https://github.com/victorcarre6/pithos/pull/2.
+- Aucun credential Telegram n'est tracké ; le `.env` de l'expérience reste ignoré.
+- Prochaine gate : daemon Docker actif, build de l'image runtime puis smoke isolé avec proxy et brokers.
