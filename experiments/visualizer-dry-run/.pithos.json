@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "experiment_id": "visualizer-dry-run",
+  "title": "Lissage des bandes audio",
+  "description": "Ajouter un lissage temporel aux niveaux bass, mid et treble.",
   "micro_rush_id": "band-smoothing",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",

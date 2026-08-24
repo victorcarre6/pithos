@@ -12,6 +12,7 @@
 - [DONE] 07 — stockage SQLite reconstructible et ingestion egress Squid.
 - [DONE] 08 — dashboard dockerisé, construit et vérifié sur la projection réelle des missions.
 - [DONE] 09 — broker Telegram, probe réel et notifications statiques début/fin de run.
+- [DONE] 09b — messages human-readable et récap sidekick généré localement autour de faits immuables.
 - [DONE] 10 — live log compatible `tail -F`.
 - [DONE] 11 — finaliser correctement les interruptions et requalifier Ling sur un dry-run borné.
 - [DONE] 12 — orchestration Ling, preflight, rapport, Telegram, push et PR validés en conditions réelles.

@@ -312,3 +312,16 @@
 - Défaut observé : le rapport prenait `updated_at` comme début. Le contrôleur horodate désormais chaque entrée
   `started`; le test du rapport verrouille cette valeur pour les futurs runs. Le rapport historique reste une
   preuve non réécrite de ce défaut.
+
+## 24:08 — Récap Telegram humanisé
+
+- `title` et `description` deviennent obligatoires dans `.pithos.json`. Les messages statiques affichent le
+  but, puis statut, durée, réparations et PR depuis les faits du harnais.
+- Deux essais Ling libres sont rejetés : le premier interpelle un personnage non destinataire ; le second
+  adopte le bon ton mais invente un abandon malgré `validation: PASS`. Ces sorties ne sont pas envoyées.
+- Le protocole final contraint Ling à choisir ouverture, réaction et chute dans trois enums JSON. Objectif,
+  fichiers, réparations, tool calls, durée, validation et PR sont insérés ensuite par du code déterministe.
+- Smoke réel avec `pithos/ling-3.0-tiny:8b-16k` : structured output valide en environ 2 s, texte inférieur à
+  800 caractères, bégaiement et `Oh, punaise`, faits conformes au run `run-20260824T165029Z-dac825`.
+- Le message est envoyé réellement par `@pithos_workbot` avec la requête idempotente
+  `run-20260824T165029Z-dac825-morty-recap-smoke-v1`. Le token reste chargé depuis le `.env` ignoré.
