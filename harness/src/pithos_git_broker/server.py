@@ -13,8 +13,12 @@ class BrokerRequestHandler(socketserver.StreamRequestHandler):
     """Process one JSON request per socket connection."""
 
     def handle(self) -> None:
+        line = self.rfile.readline()
+        if not line:
+            return
+
         try:
-            request = json.loads(self.rfile.readline())
+            request = json.loads(line)
             response = self.server.broker.handle(request)
         except (json.JSONDecodeError, OSError, RuntimeError, PolicyViolation) as error:
             response = {"ok": False, "error": str(error)}
@@ -36,4 +40,3 @@ class GitBrokerServer(socketserver.UnixStreamServer):
     def server_close(self) -> None:
         super().server_close()
         self.socket_path.unlink(missing_ok=True)
-

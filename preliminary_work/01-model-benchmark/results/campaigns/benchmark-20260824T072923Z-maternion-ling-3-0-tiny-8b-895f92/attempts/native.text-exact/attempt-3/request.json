@@ -1,0 +1,14 @@
+{
+  "model": "maternion/ling-3.0-tiny:8b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Reply with exactly PITHOS_TEXT_OK. Do not explain."
+    }
+  ],
+  "stream": true,
+  "keep_alive": "30m",
+  "options": {
+    "temperature": 0
+  }
+}

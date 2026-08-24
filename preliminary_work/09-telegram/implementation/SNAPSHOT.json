@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "09-telegram",
-  "generated_at": "2026-08-23T15:06:51.050736+00:00",
+  "generated_at": "2026-08-24T15:10:49.582924+00:00",
   "files": [
     {
       "path": "src/pithos_telegram/__init__.py",
@@ -42,7 +42,7 @@
     },
     {
       "path": "src/pithos_telegram/server.py",
-      "sha256": "691f8f6311ff665f521bb173f8a65557fe9eaf05330ee0d38520cc80273f3791"
+      "sha256": "f0c95080f869ed12167c8bf2b08d681124fb81d23d12909b22c6acff669ae6c4"
     },
     {
       "path": "tests/test_telegram.py",

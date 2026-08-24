@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-20260824T101245Z-4c16f9",
+  "generated_at": "2026-08-24T10:15:48.757293+00:00",
+  "artifacts": [
+    {
+      "path": ".pi/extensions/pithos-git.ts",
+      "sha256": "8cb55831f44dff9938fdfc51b74e26e5d9e1915767c0696e33b28dda2883b166",
+      "source_run_id": "run-20260824T101245Z-4c16f9"
+    },
+    {
+      "path": ".pi/extensions/pithos-harness.ts",
+      "sha256": "7331dcdd1c802d823a7367352cc3c33870f26f01dc0d620072b26dface34da7c",
+      "source_run_id": "run-20260824T101245Z-4c16f9"
+    },
+    {
+      "path": ".pi/extensions/pithos-telegram.ts",
+      "sha256": "ee0581f2d83396d8a5db6e37fb3399e58f1d1af100c585a5ef2acd022a8b4b81",
+      "source_run_id": "run-20260824T101245Z-4c16f9"
+    },
+    {
+      "path": ".pi/lib/broker-socket.ts",
+      "sha256": "bca8c3e0a18a4eb933586adf0729179e31e3ba1f0810cff9d04c894fcaf4d807",
+      "source_run_id": "run-20260824T101245Z-4c16f9"
+    },
+    {
+      "path": ".pi/skills/pithos-continuity/SKILL.md",
+      "sha256": "3f826ccc866f1f4d529af4dd5a6499615655df40a11f38c90da4032c33a4bd0f",
+      "source_run_id": "run-20260824T101245Z-4c16f9"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "ebb2e38ae560d1431841158d540ebc1499d5d0d4a1e6314c86d8b5be58f2a271",
+      "source_run_id": "run-20260824T101245Z-4c16f9"
+    }
+  ]
+}

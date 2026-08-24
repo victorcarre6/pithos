@@ -1,0 +1,37 @@
+{
+  "attempt_id": "native.structured-simple-a2",
+  "scenario_id": "native.structured-simple",
+  "scenario_version": 1,
+  "attempt_number": 2,
+  "kind": "native",
+  "passed": true,
+  "error": null,
+  "evidence": {
+    "actual_json": {
+      "count": 3,
+      "status": "ready"
+    }
+  },
+  "duration_seconds": 0.9913389169960283,
+  "decode_tokens_per_second": 53.085054173839474,
+  "measurements": {
+    "client_duration_seconds": 0.9913389169960283,
+    "time_to_first_chunk_seconds": 0.06763208299526013,
+    "time_to_first_content_seconds": 0.06763208299526013,
+    "stream_chunk_count": 43,
+    "total_duration_seconds": 0.98994025,
+    "load_duration_seconds": 0.004779291,
+    "prompt_eval_count": 37,
+    "prompt_eval_duration_seconds": 0.04023,
+    "eval_count": 49,
+    "eval_duration_seconds": 0.923047,
+    "done_reason": "stop",
+    "decode_tokens_per_second": 53.085054173839474,
+    "prompt_tokens_per_second": 919.7116579666915,
+    "resource_sample_count": 1,
+    "peak_cpu_percent": 32.4,
+    "peak_memory_used_bytes": 11706302464,
+    "minimum_memory_available_bytes": 4197564416,
+    "peak_swap_used_bytes": 2187984896
+  }
+}

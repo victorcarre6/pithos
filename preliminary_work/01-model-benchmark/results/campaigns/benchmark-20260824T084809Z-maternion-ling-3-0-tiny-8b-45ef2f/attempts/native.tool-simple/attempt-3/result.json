@@ -1,0 +1,45 @@
+{
+  "attempt_id": "native.tool-simple-a3",
+  "scenario_id": "native.tool-simple",
+  "scenario_version": 1,
+  "attempt_number": 3,
+  "kind": "native",
+  "passed": true,
+  "error": null,
+  "evidence": {
+    "tool_calls": [
+      {
+        "id": "efiRUYfqOYOzDA8OtmrrtrI5Nl4U7S6m",
+        "function": {
+          "index": 0,
+          "name": "read_fixture",
+          "arguments": {
+            "path": "fixture.txt"
+          }
+        }
+      }
+    ]
+  },
+  "duration_seconds": 0.7397349589737132,
+  "decode_tokens_per_second": 53.17624676141886,
+  "measurements": {
+    "client_duration_seconds": 0.7397349589737132,
+    "time_to_first_chunk_seconds": 0.061756416980642825,
+    "time_to_first_content_seconds": 0.061756416980642825,
+    "stream_chunk_count": 19,
+    "total_duration_seconds": 0.737877916,
+    "load_duration_seconds": 0.004233583,
+    "prompt_eval_count": 240,
+    "prompt_eval_duration_seconds": 0.042593,
+    "eval_count": 36,
+    "eval_duration_seconds": 0.676994,
+    "done_reason": "stop",
+    "decode_tokens_per_second": 53.17624676141886,
+    "prompt_tokens_per_second": 5634.728711290588,
+    "resource_sample_count": 1,
+    "peak_cpu_percent": 51.9,
+    "peak_memory_used_bytes": 11687723008,
+    "minimum_memory_available_bytes": 4220764160,
+    "peak_swap_used_bytes": 2187984896
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "attempt_id": "agentic.continuity-report-a3",
+  "scenario_id": "agentic.continuity-report",
+  "scenario_version": 1,
+  "attempt_number": 3,
+  "kind": "pi",
+  "passed": true,
+  "error": null,
+  "evidence": {
+    "scenario": "report",
+    "process_success": true,
+    "protocol_success": true,
+    "task_success": true,
+    "report_success": true,
+    "exit_code": 0,
+    "timed_out": false,
+    "protocol_evidence": "tool_executions=2",
+    "task_evidence": "report contract is valid",
+    "command": [
+      "pi",
+      "--approve",
+      "--provider",
+      "ollama",
+      "--model",
+      "maternion/ling-3.0-tiny:8b",
+      "--thinking",
+      "off",
+      "--mode",
+      "json",
+      "--print",
+      "--session-dir",
+      "/Users/victorcarre/logs/pithos/benchmarks/benchmark-20260824T085055Z-maternion-ling-3-0-tiny-8b-e61f79/attempts/agentic.continuity-report/attempt-3/sessions",
+      "Use write to create report.md. Copy the YAML metadata and the three sections from REPORT_TEMPLATE.md, replacing no values."
+    ]
+  },
+  "duration_seconds": null,
+  "decode_tokens_per_second": null,
+  "measurements": {}
+}

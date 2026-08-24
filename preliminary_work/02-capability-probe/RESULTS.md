@@ -53,3 +53,17 @@ Artefacts :
 
 - `~/logs/pithos/capability-probes/qwen3.8-27b-recheck/text/` ;
 - `~/logs/pithos/capability-probes/qwen3.8-27b-timeout-fixed/text/`.
+
+## Qualification Ling du 24 août 2026
+
+Commande complète avec `maternion/ling-3.0-tiny:8b`, Ollama 0.32.15 et timeout de 900 secondes par processus.
+
+Les huit capacités mono-processus passent : texte, read, write, edit, bash, test, multi-tool et rapport. Deux
+scénarios inter-processus ont été ajoutés et passent également :
+
+- création d'un skill, redémarrage de Pi, découverte et réutilisation cognitive du marker ;
+- création d'une extension TypeScript, redémarrage de Pi, chargement puis exécution de son tool.
+
+Résultat final : **10/10**, avec succès processus, protocole et effet externe pour chaque scénario. Les traces,
+sessions, stdout, stderr, workspaces et résultats structurés sont conservés sous
+`~/logs/pithos/capability-probes/ling-3.0-tiny-8b/`.

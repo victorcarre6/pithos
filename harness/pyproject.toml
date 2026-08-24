@@ -48,6 +48,7 @@ packages = [
   "src/pithos_event_store",
   "src/pithos_telegram",
   "src/pithos_live_log",
+  "src/pithos_orchestrator",
 ]
 
 [tool.pytest.ini_options]

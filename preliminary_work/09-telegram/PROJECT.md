@@ -31,6 +31,7 @@ La reprise après loop-guard reste une commande locale sur le poste ; Telegram n
 - Journalisation des requêtes, résultats et messages.
 - Rate limiting, idempotence et gestion des indisponibilités.
 - Intégration du message exact de loop-guard.
+- Notifications statiques du runner au démarrage et à la fin d'un run.
 
 ## Contraintes
 
@@ -46,6 +47,7 @@ La reprise après loop-guard reste une commande locale sur le poste ; Telegram n
 - [DONE] Les updates dupliquées ne produisent pas plusieurs actions.
 - [DONE] `/pause` et `/stop` affectent le runner via une interface contrôlée.
 - [DONE] Le loop-guard notifie puis interrompt même si Telegram est indisponible.
+- [DONE] Le runner notifie son démarrage et son statut final sans dépendre du LLM.
 
 ## Dépendances
 

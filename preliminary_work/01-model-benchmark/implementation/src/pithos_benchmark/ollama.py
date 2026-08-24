@@ -15,6 +15,21 @@ class OllamaError(RuntimeError):
         self.chunks = chunks or []
 
 
+def _http_error_detail(error):
+    """Return the server error message carried by an HTTP failure."""
+
+    body = error.read().decode(errors="replace").strip()
+    if not body:
+        return str(error)
+
+    try:
+        decoded = json.loads(body)
+    except json.JSONDecodeError:
+        return body
+
+    return decoded.get("error") or body
+
+
 class OllamaClient:
     """Call the local Ollama API and control only model residency."""
 
@@ -102,12 +117,17 @@ class OllamaClient:
         tool_calls = []
         first_chunk_seconds = None
         first_content_seconds = None
+        deadline = started + timeout
 
         try:
             with self.opener(request, timeout=timeout) as response:
                 for raw_line in response:
                     if not raw_line.strip():
                         continue
+                    if monotonic() >= deadline:
+                        message = f"POST /api/chat exceeded {timeout} second wall-clock timeout"
+
+                        raise OllamaError(message, payload=payload, chunks=chunks)
                     chunk = json.loads(raw_line)
                     if not isinstance(chunk, dict):
                         raise OllamaError("POST /api/chat returned a non-object stream chunk")
@@ -121,6 +141,11 @@ class OllamaClient:
                     tool_calls.extend(message.get("tool_calls") or [])
                     chunks.append(chunk)
                     on_chunk(chunk)
+        except urllib.error.HTTPError as error:
+            detail = _http_error_detail(error)
+            message = f"POST /api/chat failed: HTTP {error.code}: {detail}"
+
+            raise OllamaError(message, payload=payload, chunks=chunks) from error
         except (OSError, TimeoutError, urllib.error.URLError, json.JSONDecodeError) as error:
             raise OllamaError(f"POST /api/chat failed: {error}", payload=payload, chunks=chunks) from error
 
@@ -155,6 +180,11 @@ class OllamaClient:
         try:
             with self.opener(request, timeout=timeout) as response:
                 decoded = json.loads(response.read())
+        except urllib.error.HTTPError as error:
+            detail = _http_error_detail(error)
+            message = f"{method} {path} failed: HTTP {error.code}: {detail}"
+
+            raise OllamaError(message) from error
         except (OSError, TimeoutError, urllib.error.URLError, json.JSONDecodeError) as error:
             raise OllamaError(f"{method} {path} failed: {error}") from error
 

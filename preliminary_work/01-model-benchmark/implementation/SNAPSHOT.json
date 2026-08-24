@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "01-model-benchmark",
-  "generated_at": "2026-08-23T15:06:51.031774+00:00",
+  "generated_at": "2026-08-24T15:10:49.563165+00:00",
   "files": [
     {
       "path": "src/pithos_benchmark/__init__.py",
@@ -22,11 +22,11 @@
     },
     {
       "path": "src/pithos_benchmark/engine.py",
-      "sha256": "64f4a2fce020f5a8428ed8f95cf7c6231baeae6e66659773562d90b458b61179"
+      "sha256": "f792315d3c10ac0a84d64bb80e9b7af04932d8f8a998ec0d976e06a8c41fc57d"
     },
     {
       "path": "src/pithos_benchmark/ollama.py",
-      "sha256": "e545863dd7eff5a43fdcd03eecd815538f71e89f258daf8ffefdfbb11e2b7e4c"
+      "sha256": "f0bbeb979451270561026868c78083397f0ce257efba05e6613b73a0f1c45157"
     },
     {
       "path": "src/pithos_benchmark/resources.py",
@@ -42,19 +42,19 @@
     },
     {
       "path": "src/pithos_benchmark/scenario_data/context-004k.yaml",
-      "sha256": "b7eaf0e18cbf2517b3e1220c16e6404bbf4ab804eb3e10c7f10f25a8984d1c26"
+      "sha256": "1bf19fea220c879cc23c452741cf10b79473c7d1de38c4ad0f600810ee627c4a"
     },
     {
       "path": "src/pithos_benchmark/scenario_data/context-008k.yaml",
-      "sha256": "9a87dc659839d9e6e7daf31eab25646b1380f787031f0a9bccf95657aea0f932"
+      "sha256": "02b69240ac5de21cda543c4977dd3eb448a2ebd2ab7bdc6375cab1ffa83f2d29"
     },
     {
       "path": "src/pithos_benchmark/scenario_data/context-016k.yaml",
-      "sha256": "0bbda991ddffa96eea0b4baec77843c206397b99a92f34cb1bfd22444376094d"
+      "sha256": "fa9e93ee0b0421b29f62bdd1ad094f8043561e055131f1fd0e0ebcf8c7a2173f"
     },
     {
       "path": "src/pithos_benchmark/scenario_data/context-032k.yaml",
-      "sha256": "503f77480425df6a9ff9c602c2165c028824ca3cd3e103785e7776bf70c29866"
+      "sha256": "c31b3773a1d03f59438f09683bb6f93d00af244d1c59d6e6af131db16a031c16"
     },
     {
       "path": "src/pithos_benchmark/scenario_data/endurance-micro-rush.yaml",
@@ -102,7 +102,7 @@
     },
     {
       "path": "src/pithos_benchmark/scenarios.py",
-      "sha256": "495905f099ff2df47c005c80f5dc69217360989b4c2923505c14663d6ac0131a"
+      "sha256": "ef53ccd119cc7f88198d66fa2fe1717aa62c4fce10f25d62c0819ade477647ed"
     },
     {
       "path": "src/pithos_benchmark/storage.py",
@@ -146,7 +146,7 @@
     },
     {
       "path": "tests/test_benchmark.py",
-      "sha256": "2c1d09a198e95349e553233303d613f9424d3f311ebaaf1ab7171f8188b2743f"
+      "sha256": "f7d3291506be544b540efcfc2c7e04a1d47eb16531913880a54626b7e8df7d92"
     },
     {
       "path": "tests/test_model_probe.py",

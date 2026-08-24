@@ -1,0 +1,34 @@
+{
+  "attempt_id": "native.developer-role-a3",
+  "scenario_id": "native.developer-role",
+  "scenario_version": 1,
+  "attempt_number": 3,
+  "kind": "native",
+  "passed": false,
+  "error": null,
+  "evidence": {
+    "actual_text": "Sure, I can help with that. Please provide me with the developer instruction so I can assist you accordingly."
+  },
+  "duration_seconds": 1.3576128749991767,
+  "decode_tokens_per_second": 19.886525754780113,
+  "measurements": {
+    "client_duration_seconds": 1.3576128749991767,
+    "time_to_first_chunk_seconds": 0.2005548749875743,
+    "time_to_first_content_seconds": 0.2005548749875743,
+    "stream_chunk_count": 23,
+    "total_duration_seconds": 1.355934417,
+    "load_duration_seconds": 0.140259167,
+    "prompt_eval_count": 34,
+    "prompt_eval_duration_seconds": 0.057523,
+    "eval_count": 23,
+    "eval_duration_seconds": 1.156562,
+    "done_reason": "stop",
+    "decode_tokens_per_second": 19.886525754780113,
+    "prompt_tokens_per_second": 591.0679206578238,
+    "resource_sample_count": 2,
+    "peak_cpu_percent": 17.9,
+    "peak_memory_used_bytes": 10748739584,
+    "minimum_memory_available_bytes": 4107124736,
+    "peak_swap_used_bytes": 1447231488
+  }
+}

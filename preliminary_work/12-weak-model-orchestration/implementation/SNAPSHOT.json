@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "direction": "harness-to-preliminary-snapshot",
+  "project": "12-weak-model-orchestration",
+  "generated_at": "2026-08-24T15:10:49.589966+00:00",
+  "files": [
+    {
+      "path": "src/pithos_orchestrator/__init__.py",
+      "sha256": "953412ef13c25f2e12424009a2a224b9d55776c2384d0dfa795b9f868823cb55"
+    },
+    {
+      "path": "src/pithos_orchestrator/campaign.py",
+      "sha256": "af3b30fc3122175a6351db65acba660739d0720c19c078da1ebe94ee6d4beed1"
+    },
+    {
+      "path": "src/pithos_orchestrator/client.py",
+      "sha256": "1e106cc2ad2452e7afeacb1d3af9e77b6474d2905530ed32b853f2b335d1d295"
+    },
+    {
+      "path": "src/pithos_orchestrator/context.py",
+      "sha256": "48babf12979cbeafe2277a31f8006ac81a3646b9ec0319d12a667a19a689878a"
+    },
+    {
+      "path": "src/pithos_orchestrator/controller.py",
+      "sha256": "5ae79a7ab0e11ff8229dfccf02e5a9e5e67584e14cc8399a919bd3f761e74dfb"
+    },
+    {
+      "path": "src/pithos_orchestrator/launcher.py",
+      "sha256": "bfba8699a0cc5e7d2afcd7e32cb10ed91fe4bca052ece8082a6b8827d581c548"
+    },
+    {
+      "path": "src/pithos_orchestrator/pi_phase.py",
+      "sha256": "1630b4c259b11f2177a92b6ec0be00392423100a2255cd15c646c424adb34219"
+    },
+    {
+      "path": "src/pithos_orchestrator/state.py",
+      "sha256": "579bd6286254492d1df16d15c53e05017821be083237112ef89e3e25580091dd"
+    },
+    {
+      "path": "src/visualizer_acceptance.py",
+      "sha256": "c55d17fc6e05e9ec85fb1f592d06f530a61bb0a4adc0920152619237e8b14e45"
+    },
+    {
+      "path": "tests/test_orchestrator.py",
+      "sha256": "598d54375a0e2087afd56fbbef02a613765101688036480d5f66591c66658008"
+    }
+  ]
+}

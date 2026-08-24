@@ -23,7 +23,7 @@ la session LLM précédente.
 
 ## Critères de succès
 
-- [ ] Une seconde session Pi reprend un fait créé par la première sans lire sa session JSONL.
+- [x] Une seconde session Pi reprend un fait créé par la première sans lire sa session JSONL.
 - [x] Une écriture interrompue ou invalide ne corrompt pas le dernier rapport valide.
 - [x] Les trois sections obligatoires sont contrôlées.
 - [x] Le micro-rush, la branche et la prochaine action sont identifiables.
@@ -32,8 +32,9 @@ la session LLM précédente.
 ## Validation réalisée
 
 Les tests couvrent publication, lecture indépendante, idempotence, collision d'archive, rapport invalide et
-absence de `latest.md`. La validation Pi en deux sessions reste impossible avec la baseline actuelle dans une
-durée exploitable ; elle demeure explicitement ouverte.
+absence de `latest.md`. Le probe réel Ling utilise deux workspaces et deux répertoires de sessions distincts :
+la première session publie le rapport, puis la seconde reçoit uniquement `LATEST.md` et récupère le fait
+durable exact.
 
 ## Dépendances
 

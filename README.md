@@ -20,6 +20,25 @@ pithos-benchmark <ollama_model_name>
 
 Les poids doivent déjà être installés par l'utilisateur. Le benchmark ne pull et ne supprime aucun modèle.
 
+La première vague compare les cinq tags installés suivants :
+
+```text
+qwen2.5-coder:7b
+maternion/ling-3.0-tiny:8b
+qwen3.8:27b-mlx
+qwen3.8:27b
+qwen3.6:35b
+```
+
+Commencer par `--suite smoke`, puis `--suite protocol`, avant une campagne complète sur les candidats dont le
+débit et la stabilité justifient les suites Pi et agentiques.
+
+`maternion/ling-3.0-tiny:8b` nécessite Ollama **0.32.15 ou plus récent** pour le support de l'architecture
+`BailingMoE3`.
+
+Ce modèle est la baseline locale retenue. Le contexte opérationnel est borné à **16k tokens** : le palier
+32k n'a produit aucun token en plus de 15 minutes sur le Mac mini M2 16 Go.
+
 ## Installer le harness
 
 ```bash

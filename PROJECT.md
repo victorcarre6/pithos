@@ -43,7 +43,7 @@ progression doivent rester observables.
 ```text
 ~/code/pithos/
 ├── PROJECT.md
-├── preliminary_work/   # 12 sous-projets autonomes, code et preuves inclus
+├── preliminary_work/   # 13 sous-projets autonomes, code et preuves inclus
 ├── harness/            # distribution consolidée et installable
 │   ├── ground_truth/
 │   ├── config/
@@ -129,10 +129,18 @@ dashboard dockerisé consulte la base et les logs. `~/logs/pithos/live.log` rest
 
 ## Baseline modèle
 
-Le premier candidat dense était `unsloth/Qwen3.8-27B-GGUF`. Sa mesure a motivé un benchmark comparatif d'une
-dizaine de modèles installés manuellement dans Ollama. Le seuil de viabilité permissif est `0,05 token/s` ;
-`1 token/s` reste la frontière d'une utilisation considérée pratique. Aucun modèle n'est sélectionné sur le
+Le premier candidat dense était `unsloth/Qwen3.8-27B-GGUF`. Sa mesure a motivé un benchmark comparatif de
+modèles installés manuellement dans Ollama. La première vague comprend `maternion/ling-3.0-tiny:8b`,
+`qwen3.8:27b-mlx`, `qwen3.6:35b`, `qwen3.8:27b` et `qwen2.5-coder:7b`. Le seuil de viabilité permissif est
+`0,05 token/s` ; `1 token/s` reste la frontière d'une utilisation considérée pratique. Aucun modèle n'est
+sélectionné sur le
 seul débit : protocole, tools Pi, stabilité, mémoire et tâches agentiques restent des gates distinctes.
+
+Au 24/08/2026, `maternion/ling-3.0-tiny:8b` est la baseline retenue pour poursuivre le socle sur Ollama
+0.32.15 : smoke 6/6, protocol 6/6, Pi 18/18 et agentic 4/6. La rétention synthétique passe 3/3 jusqu'à
+16k ; le premier essai 32k a été interrompu après plus de 15 minutes sans premier token. L'endurance passe
+1/3 : les deux échecs exécutent les tests mais omettent le rapport final. Ces limites imposent des runs
+bornés, une reprise par rapport validé et une surveillance explicite de l'achèvement multi-tool.
 
 La piste MoE `unsloth/Qwen3.6-35B-A3B-GGUF` doit également être documentée. Colibri annonce un conteneur int4
 d'environ 20 Go et 24 Go de RAM pour sa pleine résidence : ce chemin n'est donc pas présumé compatible avec
@@ -160,11 +168,12 @@ Ordre initial :
 10. Telegram et reprise locale ;
 11. production et lecture SSH des logs ;
 12. lancement de la campagne du visualiseur audio.
+13. orchestration multi-session spécialisée pour les modèles faibles.
 
 ## Critères de succès du socle
 
-- [ ] Le capability probe prouve que les tool calls sont exécutés et pas seulement imprimés.
-- [ ] Une session neuve reprend correctement depuis le dernier rapport global.
+- [x] Le capability probe prouve que les tool calls sont exécutés et pas seulement imprimés.
+- [x] Une session neuve reprend correctement depuis le dernier rapport global.
 - [ ] Deux réveils ne peuvent pas exécuter Pi simultanément.
 - [ ] Un run est interrompu au plus tard après une heure et une boucle déclenche le protocole prévu.
 - [ ] Un micro-rush incomplet reprend sur sa branche ; un micro-rush terminé produit une pull request.
@@ -175,7 +184,7 @@ Ordre initial :
 
 ## Décisions différées
 
-- Quantification et runtime retenus pour Qwen3.8-27B.
+- Modèle, quantification et runtime retenus après comparaison de la première vague de cinq candidats.
 - Usage éventuel de Qwen3.6-35B-A3B avec Colibri ou d'un MoE plus grand.
 - Templates Node.js, TypeScript et Python du dashboard.
 - Hébergement LAN et règles d'accès au dashboard.

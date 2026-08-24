@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "03-continuity",
-  "generated_at": "2026-08-23T15:06:51.035015+00:00",
+  "generated_at": "2026-08-24T15:10:49.566689+00:00",
   "files": [
     {
       "path": "src/pithos_continuity/__init__.py",
@@ -18,7 +18,11 @@
     },
     {
       "path": "src/pithos_continuity/cli.py",
-      "sha256": "22e6219d5522e269d3279a47447fdba71a6701395fb8433f0a838759a802f2c5"
+      "sha256": "1174f993e7d07b5a1f1d0e164a8dd01bafa76dc1424a84514e90bb115fb017e2"
+    },
+    {
+      "path": "src/pithos_continuity/probe.py",
+      "sha256": "bd2f846662ee301bf552017f88168f14de3c994340c113bde0c53046ab015e33"
     },
     {
       "path": "src/pithos_continuity/reports.py",
@@ -26,7 +30,7 @@
     },
     {
       "path": "tests/test_continuity.py",
-      "sha256": "9abb9ea9592dea3d86572c7133e75c3b5cf1a12e202443ae2ddae8f278b54732"
+      "sha256": "f1dfdea35bcb0924f270831d7cac6d6c6b80ba6238646d8137e3498c3dc0e1b8"
     }
   ]
 }

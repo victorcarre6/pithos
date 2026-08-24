@@ -7,7 +7,8 @@ Le probe crée un workspace et un répertoire de sessions séparés par scénari
 pithos-capability-probe \
   --all \
   --config-dir harness/config/pi \
-  --output-dir ~/logs/pithos/capability-probes/qwen3.8-27b
+  --model maternion/ling-3.0-tiny:8b \
+  --output-dir ~/logs/pithos/capability-probes/ling-3.0-tiny-8b
 ```
 
 Pour limiter un premier essai :
@@ -32,16 +33,12 @@ un échec protocolaire.
 
 ## État de la baseline
 
-Le model probe du 22 août 2026 mesure 0,068–0,088 token/s et des timeouts de cinq minutes sur structured output
-et tool call natif. Le capability probe réel complet n'est donc pas lancé automatiquement : sa limite d'une
-heure risquerait de ne couvrir qu'un ou deux scénarios. Le moteur et ses vérifications externes sont testés avec
-un faux Pi déterministe ; la compatibilité réelle reste à établir.
+La baseline Ling passe les dix scénarios réels, y compris les deux redémarrages nécessaires au skill et à
+l'extension. L'ancienne baseline qwen3.8 reste documentée dans `RESULTS.md` comme résultat négatif historique.
 
 La configuration Pi dédiée porte `httpIdleTimeoutMs` et `retry.provider.timeoutMs` à une heure. Le défaut Pi
 de cinq minutes interrompait les générations locales lentes avant le timeout externe. Les retries agent sont
 désactivés : le runner demeure l'unique limite dure et ne cumule pas plusieurs appels d'une heure.
 
-## Scénarios différés
-
-La création/réutilisation d'un skill et la création/activation d'une extension nécessitent deux processus Pi.
-Ils seront ajoutés avec `06-harness-evolution`, qui définit snapshot, validation et promotion de ces artefacts.
+Les scénarios `skill_reuse` et `extension_reuse` conservent séparément les stdout, stderr et sessions initiales
+et de follow-up. Le second processus partage uniquement le workspace contenant la capacité créée.

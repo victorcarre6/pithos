@@ -1,0 +1,19 @@
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.357931Z","message":{"role":"assistant","content":"","thinking":"The"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.378241Z","message":{"role":"assistant","content":"","thinking":" user"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.396641Z","message":{"role":"assistant","content":"","thinking":" wants"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.415117Z","message":{"role":"assistant","content":"","thinking":" me"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.434973Z","message":{"role":"assistant","content":"","thinking":" to"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.455119Z","message":{"role":"assistant","content":"","thinking":" read"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.473492Z","message":{"role":"assistant","content":"","thinking":" a"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.491893Z","message":{"role":"assistant","content":"","thinking":" file"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.511902Z","message":{"role":"assistant","content":"","thinking":" called"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.531793Z","message":{"role":"assistant","content":"","thinking":" fixture"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.550117Z","message":{"role":"assistant","content":"","thinking":".txt"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.568436Z","message":{"role":"assistant","content":"","thinking":" using"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.588595Z","message":{"role":"assistant","content":"","thinking":" the"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.606964Z","message":{"role":"assistant","content":"","thinking":" read"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.627062Z","message":{"role":"assistant","content":"","thinking":"_f"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.647144Z","message":{"role":"assistant","content":"","thinking":"ixture"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.665718Z","message":{"role":"assistant","content":"","thinking":" tool"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:15.68657Z","message":{"role":"assistant","content":"","thinking":"."},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:16.031305Z","message":{"role":"assistant","content":"","tool_calls":[{"id":"t5BNpRJJTxUZ6WJPRdKdd21KJs8ZKS4g","function":{"index":0,"name":"read_fixture","arguments":{"path":"fixture.txt"}}}]},"done":true,"done_reason":"stop","total_duration":730017250,"load_duration":3974125,"prompt_eval_count":240,"prompt_eval_duration":38690000,"eval_count":36,"eval_duration":673231000}

@@ -1,0 +1,26 @@
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.514646Z","message":{"role":"assistant","content":"","thinking":"The"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.53733Z","message":{"role":"assistant","content":"","thinking":" user"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.557412Z","message":{"role":"assistant","content":"","thinking":" wants"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.579686Z","message":{"role":"assistant","content":"","thinking":" me"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.598466Z","message":{"role":"assistant","content":"","thinking":" to"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.616696Z","message":{"role":"assistant","content":"","thinking":" reply"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.635905Z","message":{"role":"assistant","content":"","thinking":" with"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.65416Z","message":{"role":"assistant","content":"","thinking":" exactly"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.674817Z","message":{"role":"assistant","content":"","thinking":" \""},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.694698Z","message":{"role":"assistant","content":"","thinking":"P"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.713913Z","message":{"role":"assistant","content":"","thinking":"ITH"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.732972Z","message":{"role":"assistant","content":"","thinking":"OS"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.751271Z","message":{"role":"assistant","content":"","thinking":"_TEXT"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.772117Z","message":{"role":"assistant","content":"","thinking":"_OK"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.791975Z","message":{"role":"assistant","content":"","thinking":"\""},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.810862Z","message":{"role":"assistant","content":"","thinking":" and"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.82981Z","message":{"role":"assistant","content":"","thinking":" not"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.848488Z","message":{"role":"assistant","content":"","thinking":" explain"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.867521Z","message":{"role":"assistant","content":"","thinking":" anything"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.889061Z","message":{"role":"assistant","content":"","thinking":"."},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.929747Z","message":{"role":"assistant","content":"P"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.948116Z","message":{"role":"assistant","content":"ITH"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.969794Z","message":{"role":"assistant","content":"OS"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:01.989777Z","message":{"role":"assistant","content":"_TEXT"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:02.008893Z","message":{"role":"assistant","content":"_OK"},"done":false}
+{"model":"maternion/ling-3.0-tiny:8b","created_at":"2026-08-24T08:48:02.029793Z","message":{"role":"assistant","content":""},"done":true,"done_reason":"stop","total_duration":571524167,"load_duration":4769458,"prompt_eval_count":33,"prompt_eval_duration":39220000,"eval_count":27,"eval_duration":515037000}

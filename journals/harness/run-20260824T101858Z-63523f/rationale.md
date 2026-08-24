@@ -1,0 +1,3 @@
+# Rationale
+
+Pending agent rationale.

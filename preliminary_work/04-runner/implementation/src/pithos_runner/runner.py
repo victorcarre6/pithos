@@ -24,23 +24,18 @@ from .state import read_state, write_state
 LOOP_WARNING = "[WARNING] Boucle récursive infinie détectée."
 
 
-def _notify_loop(socket_path: Path | None, run_id: str) -> None:
-    """Best-effort notification before interrupting the process group."""
+def _notify(socket_path: Path | None, request: dict) -> None:
+    """Send one runner-owned Telegram message without affecting the run."""
 
     if socket_path is None:
         return
 
     from pithos_telegram.client import send_request
 
-    send_request(
-        socket_path,
-        {
-            "request_id": f"{run_id}-loop-guard",
-            "run_id": run_id,
-            "kind": "WARNING",
-            "text": "Boucle récursive infinie détectée.",
-        },
-    )
+    try:
+        send_request(socket_path, request)
+    except (OSError, RuntimeError, ValueError):
+        pass
 
 
 @dataclass(frozen=True)
@@ -55,7 +50,7 @@ class RunnerConfiguration:
     runtime: str = "docker"
     docker_image: str = "pithos-agent:local"
     provider: str = "ollama"
-    model: str = "qwen3.8:27b"
+    model: str = "maternion/ling-3.0-tiny:8b"
     timeout_seconds: int = 3600
     repeat_limit: int = 5
     heartbeat_seconds: float = 30
@@ -282,6 +277,15 @@ def run_once(configuration: RunnerConfiguration) -> dict:
                 "model": configuration.model,
             },
         )
+        _notify(
+            configuration.telegram_socket,
+            {
+                "request_id": f"{run_id}-started",
+                "run_id": run_id,
+                "kind": "INFO",
+                "text": f"Run démarré : {configuration.experiment_id} ({run_id}).",
+            },
+        )
 
         latest_path = configuration.logs_root / "latest.md"
         continuity_dir = configuration.workspace / ".pithos"
@@ -295,26 +299,61 @@ def run_once(configuration: RunnerConfiguration) -> dict:
         session_dir = run_dir / "sessions"
         session_dir.mkdir()
         prompt = (
-            "Read .pithos/LATEST.md and .pithos/ANSWERS.jsonl if they exist, continue one micro-rush, "
-            "apply any user answers, then write the validated continuity report to .pithos/report.md "
-            "before finishing."
+            "Read PROJECT.md first, then .pithos/LATEST.md and .pithos/ANSWERS.jsonl only when they exist. "
+            "Implement one TODO micro-rush directly without exhaustive workspace inventory or dependency "
+            "installation. Run its tests, use pithos_git for branch, commit, push and PR, notify meaningful "
+            "outcomes, then write the validated continuity report to .pithos/report.md before finishing."
         )
         command, environment = _runtime_command(configuration, run_id, run_dir, prompt)
-        outcome = run_monitored(
-            command,
-            cwd=configuration.workspace,
-            environment=environment,
-            stdout_path=run_dir / "stdout.jsonl",
-            stderr_path=run_dir / "stderr.log",
-            timeout_seconds=configuration.timeout_seconds,
-            repeat_limit=configuration.repeat_limit,
-            heartbeat_seconds=configuration.heartbeat_seconds,
-            on_heartbeat=lambda: events.append("run.heartbeat", {}),
-            stop_requested=lambda: read_state(state_path)["paused"],
-            on_loop_detected=lambda: _notify_loop(configuration.telegram_socket, run_id),
-            on_stdout_line=pi_adapter.consume_line,
-            on_forced_stop=lambda: _cleanup_runtime(configuration, run_id),
-        )
+        try:
+            outcome = run_monitored(
+                command,
+                cwd=configuration.workspace,
+                environment=environment,
+                stdout_path=run_dir / "stdout.jsonl",
+                stderr_path=run_dir / "stderr.log",
+                timeout_seconds=configuration.timeout_seconds,
+                repeat_limit=configuration.repeat_limit,
+                heartbeat_seconds=configuration.heartbeat_seconds,
+                on_heartbeat=lambda: events.append("run.heartbeat", {}),
+                stop_requested=lambda: read_state(state_path)["paused"],
+                on_loop_detected=lambda: _notify(
+                    configuration.telegram_socket,
+                    {
+                        "request_id": f"{run_id}-loop-guard",
+                        "run_id": run_id,
+                        "kind": "WARNING",
+                        "text": "Boucle récursive infinie détectée.",
+                    },
+                ),
+                on_stdout_line=pi_adapter.consume_line,
+                on_forced_stop=lambda: _cleanup_runtime(configuration, run_id),
+            )
+        except KeyboardInterrupt:
+            run_document["status"] = "interrupted"
+            run_document["finished_at"] = datetime.now(UTC).isoformat()
+            run_document["stop_reason"] = "operator interrupt"
+            run_document["success"] = {
+                "process": False,
+                "protocol": None,
+                "task": None,
+                "report": False,
+            }
+            _write_run(run_dir / "run.json", run_document)
+            events.append("run.finished", {"status": "interrupted", "stop_reason": "operator interrupt"})
+            _notify(
+                configuration.telegram_socket,
+                {
+                    "request_id": f"{run_id}-finished",
+                    "run_id": run_id,
+                    "kind": "WARNING",
+                    "text": (
+                        f"Run terminé : {configuration.experiment_id} ({run_id}), "
+                        "statut=interrupted. Raison : operator interrupt"
+                    ),
+                },
+            )
+            raise
 
         stdout = (run_dir / "stdout.jsonl").read_text(encoding="utf-8")
         pi_events, parse_errors = parse_events(stdout)
@@ -377,6 +416,19 @@ def run_once(configuration: RunnerConfiguration) -> dict:
                 "session_id": run_document["session_id"],
                 "duration_ms": round(outcome.duration_seconds * 1000),
                 **pi_adapter.metrics(),
+            },
+        )
+        completion_kind = "INFO" if status == "completed" else "WARNING"
+        completion_text = f"Run terminé : {configuration.experiment_id} ({run_id}), statut={status}."
+        if stop_reason:
+            completion_text = f"{completion_text} Raison : {stop_reason}"
+        _notify(
+            configuration.telegram_socket,
+            {
+                "request_id": f"{run_id}-finished",
+                "run_id": run_id,
+                "kind": completion_kind,
+                "text": completion_text,
             },
         )
         if harness_manager:

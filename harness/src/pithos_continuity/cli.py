@@ -6,6 +6,7 @@ from pathlib import Path
 from pithos_contracts import ValidationFailure
 
 from .reports import ContinuityError, load_latest_report, publish_report
+from .probe import run_probe
 
 
 def main() -> int:
@@ -18,16 +19,36 @@ def main() -> int:
     publish_parser = subparsers.add_parser("publish")
     publish_parser.add_argument("report", type=Path)
     subparsers.add_parser("latest")
+    probe_parser = subparsers.add_parser("probe")
+    probe_parser.add_argument("--model", required=True)
+    probe_parser.add_argument("--config-dir", type=Path, required=True)
+    probe_parser.add_argument("--output-dir", type=Path, required=True)
+    probe_parser.add_argument("--timeout-seconds", type=int, default=900)
+    probe_parser.add_argument("--pi", default="pi")
+    probe_parser.add_argument("--provider", default="ollama")
     arguments = parser.parse_args()
 
     try:
         if arguments.command == "publish":
             archive_path = publish_report(arguments.report, arguments.logs_root)
             print(f"Published {archive_path}")
-        else:
+        elif arguments.command == "latest":
             metadata, content = load_latest_report(arguments.logs_root)
             print(f"run_id={metadata['run_id']}")
             print(content)
+        else:
+            result = run_probe(
+                arguments.output_dir,
+                arguments.logs_root,
+                arguments.config_dir,
+                arguments.model,
+                arguments.timeout_seconds,
+                arguments.pi,
+                arguments.provider,
+            )
+            print(result)
+            if not all(value for key, value in result.items() if key.endswith("_success") or key == "fact_recovered"):
+                return 1
     except (OSError, ValidationFailure, ContinuityError) as error:
         print(f"Continuity error: {error}")
 
@@ -38,4 +59,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

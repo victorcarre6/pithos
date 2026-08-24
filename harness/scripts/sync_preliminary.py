@@ -58,6 +58,10 @@ PROJECTS = {
         "src": ["scripts/create_experiment.py", "scripts/run_experiment.py", "templates/experiment"],
         "tests": ["tests/test_create_experiment.py", "tests/test_run_experiment.py"],
     },
+    "12-weak-model-orchestration": {
+        "src": ["src/pithos_orchestrator", "fixtures/visualizer_acceptance.py"],
+        "tests": ["tests/test_orchestrator.py"],
+    },
 }
 
 

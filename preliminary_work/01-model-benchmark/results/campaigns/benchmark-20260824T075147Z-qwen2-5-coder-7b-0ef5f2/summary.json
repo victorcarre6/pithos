@@ -1,0 +1,7 @@
+{
+  "attempts": 6,
+  "passed": 3,
+  "failed": 3,
+  "pass_rate": 0.5,
+  "median_decode_tokens_per_second": 19.301200204832632
+}

@@ -1,6 +1,189 @@
 {
   "schema_version": 1,
-  "campaigns": [],
+  "campaigns": [
+    {
+      "campaign_id": "benchmark-20260824T072822Z-qwen2-5-coder-7b-42322c",
+      "model": "qwen2.5-coder:7b",
+      "suite": "smoke",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T072822Z-qwen2-5-coder-7b-42322c",
+      "summary": {
+        "attempts": 6,
+        "passed": 3,
+        "failed": 3,
+        "pass_rate": 0.5,
+        "median_decode_tokens_per_second": 21.388315181279083
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T072841Z-maternion-ling-3-0-tiny-8b-a50c59",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "smoke",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T072841Z-maternion-ling-3-0-tiny-8b-a50c59",
+      "summary": {
+        "attempts": 6,
+        "passed": 0,
+        "failed": 6,
+        "pass_rate": 0.0,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T072923Z-maternion-ling-3-0-tiny-8b-895f92",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "smoke",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T072923Z-maternion-ling-3-0-tiny-8b-895f92",
+      "summary": {
+        "attempts": 6,
+        "passed": 0,
+        "failed": 6,
+        "pass_rate": 0.0,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T072933Z-qwen3-8-27b-mlx-61bebb",
+      "model": "qwen3.8:27b-mlx",
+      "suite": "smoke",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T072933Z-qwen3-8-27b-mlx-61bebb",
+      "summary": {
+        "attempts": 6,
+        "passed": 0,
+        "failed": 6,
+        "pass_rate": 0.0,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T075147Z-qwen2-5-coder-7b-0ef5f2",
+      "model": "qwen2.5-coder:7b",
+      "suite": "protocol",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T075147Z-qwen2-5-coder-7b-0ef5f2",
+      "summary": {
+        "attempts": 6,
+        "passed": 3,
+        "failed": 3,
+        "pass_rate": 0.5,
+        "median_decode_tokens_per_second": 19.301200204832632
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T075210Z-qwen2-5-coder-7b-1b9a5e",
+      "model": "qwen2.5-coder:7b",
+      "suite": "pi",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T075210Z-qwen2-5-coder-7b-1b9a5e",
+      "summary": {
+        "attempts": 18,
+        "passed": 2,
+        "failed": 16,
+        "pass_rate": 0.1111111111111111,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T084751Z-maternion-ling-3-0-tiny-8b-3706ff",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "smoke",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T084751Z-maternion-ling-3-0-tiny-8b-3706ff",
+      "summary": {
+        "attempts": 6,
+        "passed": 6,
+        "failed": 0,
+        "pass_rate": 1.0,
+        "median_decode_tokens_per_second": 52.57301727456404
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T084809Z-maternion-ling-3-0-tiny-8b-45ef2f",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "protocol",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T084809Z-maternion-ling-3-0-tiny-8b-45ef2f",
+      "summary": {
+        "attempts": 6,
+        "passed": 6,
+        "failed": 0,
+        "pass_rate": 1.0,
+        "median_decode_tokens_per_second": 53.16784482522869
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T084824Z-maternion-ling-3-0-tiny-8b-db62eb",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "pi",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T084824Z-maternion-ling-3-0-tiny-8b-db62eb",
+      "summary": {
+        "attempts": 18,
+        "passed": 18,
+        "failed": 0,
+        "pass_rate": 1.0,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T085027Z-maternion-ling-3-0-tiny-8b-bf4fc4",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "agentic",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T085027Z-maternion-ling-3-0-tiny-8b-bf4fc4",
+      "summary": {
+        "attempts": 0,
+        "passed": 0,
+        "failed": 0,
+        "pass_rate": 0,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T085055Z-maternion-ling-3-0-tiny-8b-e61f79",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "agentic",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T085055Z-maternion-ling-3-0-tiny-8b-e61f79",
+      "summary": {
+        "attempts": 6,
+        "passed": 4,
+        "failed": 2,
+        "pass_rate": 0.6666666666666666,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T085617Z-maternion-ling-3-0-tiny-8b-16d695",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "context",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T085617Z-maternion-ling-3-0-tiny-8b-16d695",
+      "summary": {
+        "attempts": 3,
+        "passed": 0,
+        "failed": 3,
+        "pass_rate": 0.0,
+        "median_decode_tokens_per_second": null
+      }
+    },
+    {
+      "campaign_id": "benchmark-20260824T091554Z-maternion-ling-3-0-tiny-8b-7885ee",
+      "model": "maternion/ling-3.0-tiny:8b",
+      "suite": "endurance",
+      "status": "completed",
+      "path": "campaigns/benchmark-20260824T091554Z-maternion-ling-3-0-tiny-8b-7885ee",
+      "summary": {
+        "attempts": 3,
+        "passed": 1,
+        "failed": 2,
+        "pass_rate": 0.3333333333333333,
+        "median_decode_tokens_per_second": null
+      }
+    }
+  ],
   "legacy": [
     {
       "model": "qwen3.8:27b",

@@ -1,0 +1,34 @@
+{
+  "attempt_id": "native.text-exact-a1",
+  "scenario_id": "native.text-exact",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "native",
+  "passed": true,
+  "error": null,
+  "evidence": {
+    "actual_text": "PITHOS_TEXT_OK"
+  },
+  "duration_seconds": 0.765536916005658,
+  "decode_tokens_per_second": 52.55269867839695,
+  "measurements": {
+    "client_duration_seconds": 0.765536916005658,
+    "time_to_first_chunk_seconds": 0.250743708020309,
+    "time_to_first_content_seconds": 0.250743708020309,
+    "stream_chunk_count": 26,
+    "total_duration_seconds": 0.763472625,
+    "load_duration_seconds": 0.004152125,
+    "prompt_eval_count": 33,
+    "prompt_eval_duration_seconds": 0.225118,
+    "eval_count": 27,
+    "eval_duration_seconds": 0.51377,
+    "done_reason": "stop",
+    "decode_tokens_per_second": 52.55269867839695,
+    "prompt_tokens_per_second": 146.58978846649313,
+    "resource_sample_count": 1,
+    "peak_cpu_percent": 57.5,
+    "peak_memory_used_bytes": 11862671360,
+    "minimum_memory_available_bytes": 3999268864,
+    "peak_swap_used_bytes": 2187984896
+  }
+}

@@ -8,7 +8,7 @@ visualiseur audio/VJing.
 ## Livrables
 
 - Vérification des prérequis et versions compatibles.
-- Création locale de l'expérience sous `~/code/pithos/experiments/` à partir du dépôt privé précréé.
+- Création locale de l'expérience sous `~/code/pithos/experiments/`, dans le dépôt privé Pithos existant.
 - Injection initiale contrôlée des instructions et capacités actives.
 - Fiche projet du visualiseur audio reprise depuis la référence `tempo`, puis rendue mesurable.
 - Configuration des domaines documentaires autorisés et de leur journalisation.
@@ -30,10 +30,17 @@ visualiseur audio/VJing.
 - [ ] Un dry-run produit événements, rapport, logs, branche et PR attendus.
 - [ ] Le timeout et le loop-guard ont été testés avant activation.
 - [ ] La reprise depuis `latest.md` fonctionne dans une session neuve.
-- [x] Le générateur crée un dépôt Git isolé sans remplacer une cible existante.
+- [x] Le générateur crée un workspace d'expérience sans dépôt Git imbriqué ni remplacement d'une cible.
 - [x] La ground truth active, les docs et la configuration non secrète sont injectées depuis des templates.
 - [ ] L'activation périodique nécessite une commande humaine explicite.
 - [x] Le dépôt expérimental ne contient aucun credential.
+
+## Résultat du premier dry-run supervisé
+
+- [x] GitHub et Telegram réels sont joignables depuis les brokers hôte.
+- [x] Les échecs Ling à 4k puis 16k sont conservés dans les artefacts de run.
+- [ ] Ling termine le micro-rush, publie un rapport valide et produit une PR.
+- [ ] Le runner finalise proprement `run.json` lors d'une interruption opérateur.
 
 ## Dépendances
 

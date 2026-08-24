@@ -1,0 +1,32 @@
+{
+  "attempt_id": "context.004k-a1",
+  "scenario_id": "context.004k",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "native",
+  "passed": false,
+  "error": "OllamaError: POST /api/chat failed: HTTP 400: {\"error\":{\"code\":400,\"message\":\"request (12045 tokens) exceeds the available context size (4096 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":12045,\"n_ctx\":4096}}",
+  "evidence": {},
+  "duration_seconds": null,
+  "decode_tokens_per_second": null,
+  "measurements": {
+    "client_duration_seconds": null,
+    "time_to_first_chunk_seconds": null,
+    "time_to_first_content_seconds": null,
+    "stream_chunk_count": null,
+    "total_duration_seconds": null,
+    "load_duration_seconds": null,
+    "prompt_eval_count": null,
+    "prompt_eval_duration_seconds": null,
+    "eval_count": null,
+    "eval_duration_seconds": null,
+    "done_reason": null,
+    "decode_tokens_per_second": null,
+    "prompt_tokens_per_second": null,
+    "resource_sample_count": 2,
+    "peak_cpu_percent": 36.7,
+    "peak_memory_used_bytes": 11392335872,
+    "minimum_memory_available_bytes": 4045275136,
+    "peak_swap_used_bytes": 2179596288
+  }
+}

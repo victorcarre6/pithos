@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "campaign_id": "benchmark-20260824T085055Z-maternion-ling-3-0-tiny-8b-e61f79",
+  "model": "maternion/ling-3.0-tiny:8b",
+  "suite": "agentic",
+  "attempts_per_scenario": 3,
+  "minimum_tokens_per_second": 0.05,
+  "timeout_override_seconds": null,
+  "started_at": "2026-08-24T08:50:55.369429+00:00",
+  "finished_at": "2026-08-24T08:52:26.178035+00:00",
+  "status": "completed",
+  "scenario_versions": {
+    "agentic.multi-tool": 1,
+    "agentic.continuity-report": 1
+  },
+  "summary": {
+    "attempts": 6,
+    "passed": 4,
+    "failed": 2,
+    "pass_rate": 0.6666666666666666,
+    "median_decode_tokens_per_second": null
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "attempt_id": "native.developer-role-a1",
+  "scenario_id": "native.developer-role",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "native",
+  "passed": true,
+  "error": null,
+  "evidence": {
+    "actual_text": "PITHOS_DEVELOPER_OK"
+  },
+  "duration_seconds": 7.583235208003316,
+  "decode_tokens_per_second": 50.44725474005061,
+  "measurements": {
+    "client_duration_seconds": 7.583235208003316,
+    "time_to_first_chunk_seconds": 6.829615916009061,
+    "time_to_first_content_seconds": 6.829615916009061,
+    "stream_chunk_count": 37,
+    "total_duration_seconds": 7.582245291,
+    "load_duration_seconds": 6.391140375,
+    "prompt_eval_count": 38,
+    "prompt_eval_duration_seconds": 0.420324,
+    "eval_count": 38,
+    "eval_duration_seconds": 0.753262,
+    "done_reason": "stop",
+    "decode_tokens_per_second": 50.44725474005061,
+    "prompt_tokens_per_second": 90.40644835888506,
+    "resource_sample_count": 8,
+    "peak_cpu_percent": 26.8,
+    "peak_memory_used_bytes": 11867242496,
+    "minimum_memory_available_bytes": 3997990912,
+    "peak_swap_used_bytes": 2187984896
+  }
+}

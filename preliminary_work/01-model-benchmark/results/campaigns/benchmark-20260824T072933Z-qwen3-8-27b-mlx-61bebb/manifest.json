@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "campaign_id": "benchmark-20260824T072933Z-qwen3-8-27b-mlx-61bebb",
+  "model": "qwen3.8:27b-mlx",
+  "suite": "smoke",
+  "attempts_per_scenario": 3,
+  "minimum_tokens_per_second": 0.05,
+  "started_at": "2026-08-24T07:29:33.244191+00:00",
+  "finished_at": "2026-08-24T07:29:33.845179+00:00",
+  "status": "completed",
+  "scenario_versions": {
+    "native.developer-role": 1,
+    "native.text-exact": 1
+  },
+  "summary": {
+    "attempts": 6,
+    "passed": 0,
+    "failed": 6,
+    "pass_rate": 0.0,
+    "median_decode_tokens_per_second": null
+  }
+}

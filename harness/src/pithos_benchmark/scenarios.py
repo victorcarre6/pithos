@@ -58,9 +58,9 @@ def load_scenarios(root: Path, suite: str):
 
 
 def _with_synthetic_context(scenario):
-    """Generate a deterministic long prompt whose actual token count Ollama reports."""
+    """Generate a deterministic long prompt from a broadly single-token filler."""
 
-    filler = "pithos " * scenario.synthetic_tokens
+    filler = "a " * scenario.synthetic_tokens
     prompt = (
         "Remember both boundary markers. START_PITHOS_CONTEXT "
         f"{filler}"

@@ -1,0 +1,32 @@
+{
+  "attempt_id": "native.developer-role-a1",
+  "scenario_id": "native.developer-role",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "native",
+  "passed": false,
+  "error": "OllamaError: POST /api/chat failed: HTTP 500: llama-server process has terminated: exit status 1: error loading model: unknown model architecture: 'bailingmoe3'\nerror loading model: unknown model architecture: 'bailingmoe3'",
+  "evidence": {},
+  "duration_seconds": null,
+  "decode_tokens_per_second": null,
+  "measurements": {
+    "client_duration_seconds": null,
+    "time_to_first_chunk_seconds": null,
+    "time_to_first_content_seconds": null,
+    "stream_chunk_count": null,
+    "total_duration_seconds": null,
+    "load_duration_seconds": null,
+    "prompt_eval_count": null,
+    "prompt_eval_duration_seconds": null,
+    "eval_count": null,
+    "eval_duration_seconds": null,
+    "done_reason": null,
+    "decode_tokens_per_second": null,
+    "prompt_tokens_per_second": null,
+    "resource_sample_count": 1,
+    "peak_cpu_percent": 0.0,
+    "peak_memory_used_bytes": 7910424576,
+    "minimum_memory_available_bytes": 7016251392,
+    "peak_swap_used_bytes": 1447231488
+  }
+}

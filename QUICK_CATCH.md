@@ -1,0 +1,197 @@
+# Pithos — Quick catch
+
+_État vérifié le 24/08/2026 à 17:18 CEST._
+
+## Micro quick catch général
+
+**But.** Construire puis observer une première campagne de développement autonome : Pi, un modèle Ollama
+local et un harness isolé doivent produire un visualiseur audio/VJing tout en conservant la trajectoire
+complète des runs.
+
+**État.** Les **13 chantiers préliminaires (`00` à `12`)** ont une implémentation snapshotée. Le code actif
+est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
+seconde source à modifier. Les snapshots sont synchronisés avec le harness.
+
+**Validation du socle.** **132 tests passent**. Le frontend React/Vite compile et les configurations Compose
+du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
+runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap et intégrations.
+
+**Baseline retenue.** Après mise à jour du serveur Ollama de `0.32.13` vers `0.32.15`,
+`maternion/ling-3.0-tiny:8b` charge correctement : smoke **6/6** à 52,57 tok/s, protocol **6/6** à
+53,17 tok/s, Pi **18/18**, agentic **4/6**, contexte **3/3 jusqu'à 16k** et endurance **1/3**. Le 32k
+n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
+les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
+
+**Prochain chemin critique.** La PR expérimentale `#1` est fusionnée dans `main`. Les changements du harnais
+sont isolés sur `agent/rush-harness-orchestration`, avec **132 tests** verts et aucun secret tracké. Docker
+Desktop est installé mais son daemon est arrêté : ouvrir la PR du harnais, puis construire et smoke tester
+le runtime Docker constitue la prochaine gate avant toute activation périodique.
+
+## Carte du dépôt
+
+| Chemin | Rôle |
+|---|---|
+| `PROJECT.md` | Périmètre et critères de succès canoniques du projet. |
+| `docs/` | Roadmap, ELN, explications et ancien quick catch transversal. |
+| `preliminary_work/00-*` à `12-*` | Sous-projets autonomes, décisions, preuves et snapshots SHA-256. |
+| `harness/` | **Distribution active** : package Python, runtime, dashboard, scripts et templates. |
+| `harness/ground_truth/` | Constitution read-only : `AGENTS.md`, skill de continuité et extensions brokerisées. |
+| `experiments/` | Futurs dépôts Git indépendants générés pour les campagnes ; absent tant qu'aucune campagne n'est créée. |
+| `journals/harness/` | Futurs snapshots de mutations du harness ; alimenté pendant les campagnes. |
+| `~/logs/pithos/` | État mutable hors Git : runs, JSONL, SQLite, rapports, benchmark et `live.log`. |
+
+> Les `__pycache__` présents dans certains snapshots préliminaires sont des artefacts figés. Ne pas les
+> prendre pour une source active ni les éditer à la place de `harness/`.
+
+---
+
+## Scénarios préliminaires
+
+### 00 — Contrats persistants — **DONE**
+
+- **Implémenté :** schémas v1 `run`, `micro-rush`, `event`, métadonnées de rapport, fixtures et CLI de validation.
+- **Garantie :** JSONL append-only, timestamps zonés et rapport `Context / Work / Next items` validable.
+- **Suite :** faire évoluer les schémas uniquement de manière compatible avec les consommateurs existants.
+
+### 01 — Benchmark et sélection du modèle — **DONE**
+
+- **Implémenté :** moteur headless, trois tentatives, métriques ressources, SQLite, export Git, TUI Textual et
+  dashboard localhost.
+- **Scénarios :** 17 workloads répartis entre `smoke`, `protocol`, `pi`, `agentic`, `context` et `endurance`.
+- **Acquis réel :** le probe historique de `qwen3.8:27b` est archivé ; son débit/timeout ne permet pas de le
+  qualifier comme baseline praticable.
+- **Première vague réelle :** les cinq candidats ont atteint la gate `smoke`. Ling devient la baseline
+  retenue après mise à jour du runtime ; les deux grands modèles chargeables mais impraticables ont été
+  interrompus après conservation des streams et métriques ressources.
+- **Meilleur candidat court :** `qwen2.5-coder:7b`, **21,39 tok/s** en smoke et **19,30 tok/s** en protocol.
+  Il échoue cependant les tools natifs 3/3 et les scénarios Pi outillés 15/15.
+- **Ling :** tools Pi réels 15/15 dans la suite Pi ; agentic 4/6, contexte 3/3 à 4k, 8k et 16k ; premier
+  essai 32k interrompu après plus de 15 minutes ; endurance 1/3.
+- **Décision :** poursuivre avec Ling, contexte opérationnel borné à 16k et rapport validé comme condition
+  d'achèvement. Une seconde vague reste possible sans bloquer la suite.
+
+### 02 — Capability probe Pi + modèle — **DONE**
+
+- **Implémenté :** dix capacités, fixtures isolées et classification séparée de `process_success`,
+  `protocol_success`, `task_success` et `report_success`.
+- **Garantie :** un tool call seulement imprimé est un échec ; les effets sont vérifiés hors réponse du modèle.
+- **Preuve réelle Ling :** **10/10**, jusqu'aux multi-tools, rapport, skill réutilisé et extension chargée dans
+  un nouveau processus.
+
+### 03 — Continuité inter-session — **DONE**
+
+- **Implémenté :** publication atomique de `latest.md`, archives immuables, métadonnées et refus des rapports
+  invalides ou interrompus.
+- **Preuve réelle Ling :** deux sessions et workspaces distincts ; la seconde reçoit uniquement `LATEST.md`,
+  le lit avec un tool et restitue exactement le fait durable de la première.
+
+### 04 — Runner autonome — **DONE (simulation)**
+
+- **Implémenté :** verrou anti-chevauchement, récupération de PID mort, heartbeat, timeout de 60 minutes,
+  arrêt d'arbre de processus, loop guard et pause persistante.
+- **Runtime :** Docker par défaut, filesystem racine read-only, workspace ciblé et egress via Squid allowlisté.
+- **À faire :** construire l'image avec un daemon Docker actif, faire un smoke test réel puis installer
+  `launchd` uniquement après validation humaine de la campagne.
+
+### 05 — Git et pull requests — **DONE (réel)**
+
+- **Implémenté :** broker Unix `0600`, policy de dépôt/remote/branche et opérations `status`, `switch`, `commit`,
+  `push`, `pr_create`, `pr_view`, `pr_merge`.
+- **Garantie :** aucun credential dans le workspace, aucun force-push, fusion limitée à la PR autorisée.
+- **Preuve réelle :** la mission `run-20260824T150624Z-fbeb4f` pousse puis réutilise la PR `#1`, fusionnée
+  dans `main` le 24/08/2026.
+
+### 06 — Évolution du harness — **PARTIAL**
+
+- **Implémenté :** snapshots `before/after`, manifests SHA-256, promotion contrôlée, validation TypeScript,
+  diff/restauration et brokers de mutation.
+- **Acquis réel :** Pi RPC charge les trois extensions Pithos et découvre le skill de continuité sans inference.
+- **À faire :** observer la création puis la **réutilisation cognitive** d'une capacité par Pi en campagne.
+
+### 07 — Event store SQLite — **DONE**
+
+- **Implémenté :** projection reconstructible depuis JSONL, migrations, curseurs byte/ligne, ingestion
+  idempotente, quarantaine et refus des troncatures.
+- **Garantie :** Pi ne dépend pas de SQLite ; événements bruts, payloads et relations métier restent consultables.
+- **Commande :** `pithos-events --logs-root ~/logs/pithos once`.
+
+### 08 — Dashboard d'observabilité — **DONE (build/config)**
+
+- **Implémenté :** API FastAPI read-only, pagination, health service/données, frontend React/Vite et Compose.
+- **Validation :** frontend compilé ; SQLite et artefacts sont montés en lecture seule.
+- **À faire :** construire/démarrer les images avec Docker actif et décider explicitement d'une éventuelle
+  publication LAN. Port local par défaut : `1208`.
+
+### 09 — Telegram — **DONE (réel)**
+
+- **Implémenté :** broker Unix `0600`, allowlist utilisateur, rate limiting, idempotence et commandes `/status`,
+  `/latest`, `/pause`, `/stop`, `/answer` ; aucun `/resume` distant.
+- **Garantie :** le loop guard tente `[WARNING] Boucle récursive infinie détectée.` puis interrompt même si
+  Telegram est indisponible.
+- **Preuve réelle :** le probe authentifié atteint `@pithos_workbot`; les credentials ne sont pas persistés.
+- **Cycle de vie :** le runner envoie automatiquement début et fin de run ; une fin non réussie est signalée
+  en `WARNING`. Ces notifications sont idempotentes et n'affectent jamais le statut du run.
+
+### 10 — Live logs — **DONE**
+
+- **Implémenté :** `~/logs/pithos/live.log`, verrou `flock`, flush + `fsync`, rotation par renommage et archives
+  illimitées, indépendamment de SQLite/dashboard.
+- **Acquis réel :** `tail -F` a suivi les lignes avant et après rotation.
+- **Commande :** `tail -F ~/logs/pithos/live.log` ; la commande SSH exacte attend l'hôte et l'utilisateur.
+
+### 11 — Bootstrap de campagne — **DONE**
+
+- **Implémenté :** bootstrap idempotent, installateur, templates d'expérience, création d'un dépôt Git isolé et
+  lanceur d'un run supervisé avec les brokers disponibles.
+- **Validation :** le générateur refuse d'écraser une cible et n'injecte aucun credential.
+- **Dry-run préparé :** `experiments/visualizer-dry-run/` adapte la fiche `tempo` et borne le premier rush à
+  une fonction pure d'agrégation FFT testée. Le dossier reste dans le dépôt Pithos, sans `.git` imbriqué.
+- **Dry-run réel :** le contrôleur multi-session borne Ling, valide hors modèle, publie le rapport, notifie
+  Telegram et finalise Git. La PR `#1` issue du dry-run a été fusionnée.
+
+---
+
+## Commandes de reprise
+
+```bash
+cd ~/code/pithos/harness
+
+# état déterministe du socle
+python -m pip install -e '.[dev]'
+pytest -q -p no:cacheprovider
+python scripts/sync_preliminary.py --check
+npm --prefix dashboard/web run build
+docker compose -f runtime/docker-compose.yml config
+docker compose -f dashboard/docker-compose.yml config
+
+# prérequis et benchmark
+./install.sh --check
+pithos-benchmark list
+pithos-benchmark <ollama_model_name> --suite smoke
+pithos-benchmark <ollama_model_name> --suite protocol
+pithos-benchmark <ollama_model_name> # campagne complète après qualification
+
+# après sélection du modèle et validation des probes
+./install.sh --experiment <experiment-id>
+$EDITOR ../experiments/<experiment-id>/PROJECT.md
+.venv/bin/python scripts/run_experiment.py ../experiments/<experiment-id>
+```
+
+## Gate avant autonomie périodique
+
+- [x] Baseline locale sélectionnée sur résultats réels et limites documentées.
+- [x] Tool calls Pi réellement exécutés dans la suite de qualification.
+- [x] Reprise réussie entre deux sessions neuves via `latest.md`.
+- [ ] Runtime Docker construit et smoke testé avec proxy/brokers.
+- [x] Telegram réel probé avec credentials hors workspace.
+- [x] Branche, push et PR réels produits par un dry-run supervisé.
+- [ ] Événements JSONL, SQLite, dashboard, rapport et live log vérifiés sur ce dry-run.
+- [ ] Activation périodique `launchd` approuvée explicitement par l'utilisateur.
+
+## Références canoniques
+
+- Périmètre : [`PROJECT.md`](PROJECT.md)
+- État détaillé : [`docs/ROADMAP.md`](docs/ROADMAP.md) et [`docs/ELN.md`](docs/ELN.md)
+- Architecture et arbitrages : [`docs/EXPLANATIONS.md`](docs/EXPLANATIONS.md)
+- Installation : [`harness/docs/SETUP.md`](harness/docs/SETUP.md)
+- Détail d'un scénario : `preliminary_work/<id>/PROJECT.md`, puis son `README.md` quand présent.

@@ -135,7 +135,7 @@ class GitBroker:
         if arguments:
             raise PolicyViolation("status accepts no arguments")
 
-        return self._run(["git", "status", "--short", "--branch"])
+        return self._run(["git", "status", "--short", "--branch", "--", "."])
 
     def _switch(self, arguments: dict) -> dict:
         branch = self.policy.validate_branch(arguments.get("branch", ""))
@@ -148,7 +148,7 @@ class GitBroker:
     def _commit(self, arguments: dict) -> dict:
         self._current_branch()
         message = self.policy.validate_commit_message(arguments.get("message", ""))
-        self._run(["git", "add", "--all"])
+        self._run(["git", "add", "--all", "--", "."])
 
         return self._run(["git", "commit", "-m", message])
 

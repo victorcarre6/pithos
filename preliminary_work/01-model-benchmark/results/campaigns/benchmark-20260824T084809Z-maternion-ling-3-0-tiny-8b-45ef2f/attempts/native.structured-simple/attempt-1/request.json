@@ -1,0 +1,30 @@
+{
+  "model": "maternion/ling-3.0-tiny:8b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Return the requested JSON object with status set to ready and count set to 3."
+    }
+  ],
+  "stream": true,
+  "keep_alive": "30m",
+  "options": {
+    "temperature": 0
+  },
+  "format": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "const": "ready"
+      },
+      "count": {
+        "const": 3
+      }
+    },
+    "required": [
+      "status",
+      "count"
+    ]
+  }
+}

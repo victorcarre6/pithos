@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "campaign_id": "benchmark-20260824T085617Z-maternion-ling-3-0-tiny-8b-16d695",
+  "model": "maternion/ling-3.0-tiny:8b",
+  "suite": "context",
+  "attempts_per_scenario": 3,
+  "minimum_tokens_per_second": 0.05,
+  "timeout_override_seconds": null,
+  "started_at": "2026-08-24T08:56:17.842543+00:00",
+  "finished_at": "2026-08-24T08:56:19.024742+00:00",
+  "status": "completed",
+  "scenario_versions": {
+    "context.004k": 1,
+    "context.008k": 1,
+    "context.016k": 1,
+    "context.032k": 1
+  },
+  "summary": {
+    "attempts": 3,
+    "passed": 0,
+    "failed": 3,
+    "pass_rate": 0.0,
+    "median_decode_tokens_per_second": null
+  }
+}

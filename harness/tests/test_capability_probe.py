@@ -1,6 +1,8 @@
 import json
+import sys
 from pathlib import Path
 
+from pithos_capability_probe import cli
 from pithos_capability_probe.runner import (
     PiConfiguration,
     classify_protocol,
@@ -8,7 +10,37 @@ from pithos_capability_probe.runner import (
     run_process_group,
     run_scenario,
 )
-from pithos_capability_probe.scenarios import SCENARIOS
+from pithos_capability_probe.scenarios import SCENARIOS, Scenario
+
+
+def test_cli_all_accepts_no_positional_scenario(monkeypatch, tmp_path):
+    results = []
+
+    def fake_run_scenario(result_dir, scenario, configuration):
+        result_dir.mkdir(parents=True)
+        results.append(scenario.name)
+
+        return {
+            "process_success": True,
+            "protocol_success": True,
+            "task_success": True,
+        }
+
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    arguments = [
+        "pithos-capability-probe",
+        "--all",
+        "--config-dir",
+        str(config_dir),
+        "--output-dir",
+        str(tmp_path / "output"),
+    ]
+    monkeypatch.setattr(sys, "argv", arguments)
+    monkeypatch.setattr(cli, "run_scenario", fake_run_scenario)
+
+    assert cli.main() == 0
+    assert results == list(SCENARIOS)
 
 
 def test_parse_events_preserves_malformed_lines():
@@ -90,6 +122,48 @@ def test_run_scenario_verifies_real_effect(tmp_path):
     assert result["task_success"] is True
     persisted_events = (tmp_path / "result" / "stdout.jsonl").read_text().splitlines()
     assert json.loads(persisted_events[0])["type"] == "session"
+
+
+def test_run_scenario_uses_a_fresh_process_for_follow_up(tmp_path):
+    fake_pi = tmp_path / "fake-pi"
+    fake_pi.write_text(
+        """#!/usr/bin/env python3
+import json
+import sys
+from pathlib import Path
+
+prompt = sys.argv[-1]
+if prompt == 'create':
+    Path('marker.txt').write_text('created')
+text = 'PITHOS_REUSED' if prompt == 'reuse' and Path('marker.txt').exists() else 'initial'
+events = [
+    {'type': 'agent_start'},
+    {'type': 'message_end', 'message': {'role': 'assistant', 'content': [{'type': 'text', 'text': text}]}},
+    {'type': 'agent_end'},
+]
+for event in events:
+    print(json.dumps(event))
+"""
+    )
+    fake_pi.chmod(0o755)
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    configuration = PiConfiguration(str(fake_pi), "fake", "fake", 2, config_dir)
+
+    def verify(workspace, events):
+        assistant = events[1]["message"]["content"][0]["text"]
+
+        return assistant == "PITHOS_REUSED", assistant
+
+    scenario = Scenario("restart", "create", lambda path: path.mkdir(), verify, follow_up_prompt="reuse")
+
+    result = run_scenario(tmp_path / "result", scenario, configuration)
+
+    assert result["process_success"] is True
+    assert result["protocol_success"] is True
+    assert result["task_success"] is True
+    assert (tmp_path / "result" / "stdout.initial.jsonl").is_file()
+    assert (tmp_path / "result" / "stdout.follow-up.jsonl").is_file()
 
 
 def test_process_group_is_terminated_on_timeout(tmp_path):

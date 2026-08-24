@@ -32,9 +32,10 @@ Prouver que le couple Pi + modèle exécute réellement les capacités nécessai
 - [x] Les effets attendus sont vérifiés hors de la réponse du modèle.
 - [x] Deux exécutions simultanées ne partagent pas leurs fixtures.
 - [x] Le probe peut être relancé sans nettoyage manuel dangereux.
+- [x] Les dix capacités passent réellement avec Ling, dont skill et extension dans un nouveau processus.
 
-La conformité de ces invariants est couverte par tests déterministes. Les scénarios réels restent à valider
-avec une baseline capable de terminer les tool calls dans la limite du run ; voir `RESULTS.md`.
+La conformité de ces invariants est couverte par tests déterministes et par un probe réel complet avec
+`maternion/ling-3.0-tiny:8b` ; voir `RESULTS.md`.
 
 ## Dépendances
 

@@ -1,0 +1,285 @@
+{
+  "model": "maternion/ling-3.0-tiny:8b",
+  "created_at": "2026-08-24T08:48:02.600719Z",
+  "message": {
+    "role": "assistant",
+    "content": "PITHOS_TEXT_OK",
+    "thinking": "The user wants me to reply with exactly \"PITHOS_TEXT_OK\" and not explain anything.",
+    "tool_calls": []
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 563550625,
+  "load_duration": 4429500,
+  "prompt_eval_count": 33,
+  "prompt_eval_duration": 40620000,
+  "eval_count": 27,
+  "eval_duration": 506343000,
+  "client_duration_seconds": 0.5654815410089213,
+  "time_to_first_chunk_seconds": 0.05801554099889472,
+  "time_to_first_content_seconds": 0.05801554099889472,
+  "stream_chunk_count": 26,
+  "stream_chunks": [
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.094282Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "The"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.115223Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " user"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.134135Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " wants"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.152369Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " me"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.17147Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " to"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.189679Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " reply"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.210529Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " with"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.23167Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " exactly"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.249841Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " \""
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.268863Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "P"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.287067Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "ITH"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.307901Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "OS"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.328197Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "_TEXT"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.34656Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "_OK"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.365735Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "\""
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.384095Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " and"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.403012Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " not"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.423242Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " explain"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.444378Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " anything"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.463334Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "."
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.500663Z",
+      "message": {
+        "role": "assistant",
+        "content": "P"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.518922Z",
+      "message": {
+        "role": "assistant",
+        "content": "ITH"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.541458Z",
+      "message": {
+        "role": "assistant",
+        "content": "OS"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.56231Z",
+      "message": {
+        "role": "assistant",
+        "content": "_TEXT"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.581534Z",
+      "message": {
+        "role": "assistant",
+        "content": "_OK"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:02.600719Z",
+      "message": {
+        "role": "assistant",
+        "content": ""
+      },
+      "done": true,
+      "done_reason": "stop",
+      "total_duration": 563550625,
+      "load_duration": 4429500,
+      "prompt_eval_count": 33,
+      "prompt_eval_duration": 40620000,
+      "eval_count": 27,
+      "eval_duration": 506343000
+    }
+  ]
+}

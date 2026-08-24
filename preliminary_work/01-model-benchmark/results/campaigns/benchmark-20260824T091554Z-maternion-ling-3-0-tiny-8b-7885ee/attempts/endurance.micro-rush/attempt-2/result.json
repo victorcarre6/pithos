@@ -1,0 +1,39 @@
+{
+  "attempt_id": "endurance.micro-rush-a2",
+  "scenario_id": "endurance.micro-rush",
+  "scenario_version": 1,
+  "attempt_number": 2,
+  "kind": "pi",
+  "passed": false,
+  "error": null,
+  "evidence": {
+    "scenario": "benchmark_endurance",
+    "process_success": true,
+    "protocol_success": true,
+    "task_success": false,
+    "report_success": false,
+    "exit_code": 0,
+    "timed_out": false,
+    "protocol_evidence": "tool_executions=13",
+    "task_evidence": "tests=True, report=False, tools=['bash', 'edit', 'read']",
+    "command": [
+      "pi",
+      "--approve",
+      "--provider",
+      "ollama",
+      "--model",
+      "maternion/ling-3.0-tiny:8b",
+      "--thinking",
+      "off",
+      "--mode",
+      "json",
+      "--print",
+      "--session-dir",
+      "/Users/victorcarre/logs/pithos/benchmarks/benchmark-20260824T091554Z-maternion-ling-3-0-tiny-8b-7885ee/attempts/endurance.micro-rush/attempt-2/sessions",
+      "Read PROJECT.md and the source. Implement only the requested function with edit, run the real tests with bash, then use write to create report.md from REPORT_TEMPLATE.md without changing its metadata."
+    ]
+  },
+  "duration_seconds": null,
+  "decode_tokens_per_second": null,
+  "measurements": {}
+}
