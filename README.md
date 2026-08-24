@@ -52,6 +52,15 @@ Compléter ensuite `experiments/my-first-experiment/PROJECT.md` avant le premier
 harness/.venv/bin/python harness/scripts/run_experiment.py experiments/my-first-experiment
 ```
 
+Après un run supervisé vert, installer les deux LaunchAgents utilisateur avec :
+
+```bash
+harness/.venv/bin/python harness/scripts/install_launchd.py install experiments/my-first-experiment
+```
+
+Le runner se réveille toutes les trois heures ; le collecteur SQLite reste actif. Réexécuter la commande
+remplace idempotemment les plist existants. L'action `uninstall` les décharge puis les supprime.
+
 Voir [`PROJECT.md`](PROJECT.md) pour le protocole global et
 [`preliminary_work/01-model-benchmark/README.md`](preliminary_work/01-model-benchmark/README.md) pour les suites
 de sélection du modèle.

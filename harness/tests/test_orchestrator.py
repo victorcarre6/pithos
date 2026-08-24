@@ -1,4 +1,5 @@
 import json
+import sys
 
 import pytest
 
@@ -172,6 +173,7 @@ def test_campaign_components_build_validate_and_finalize(tmp_path):
 
     assert "VALUE = 1" in context
     assert validation.passed is True
+    assert validation.command.startswith(sys.executable)
     report_path = workspace / ".pithos" / "report.md"
     assert "PASS" in report_path.read_text()
     assert validate_report(report_path)["run_id"] == state.mission_id
@@ -279,7 +281,7 @@ def test_finalizer_uses_allowlisted_git_sequence_after_report(tmp_path):
 
     finalizer(state)
 
-    assert [request["operation"] for request in calls] == ["switch", "commit", "push", "pr_view", "pr_create"]
+    assert [request["operation"] for request in calls] == ["switch", "pr_view", "commit", "push", "pr_create"]
     assert state.artifacts["pull_request"] == "https://github.com/example/pithos/pull/1"
     assert validate_report(workspace / ".pithos" / "report.md")["branch"] == "agent/rush-visualizer"
 
@@ -292,7 +294,10 @@ def test_finalizer_reuses_existing_pull_request(tmp_path):
     def git_send(request):
         calls.append(request)
         if request["operation"] == "pr_view":
-            return {"ok": True, "stdout": '{"url":"https://github.com/example/pithos/pull/1"}\n'}
+            return {
+                "ok": True,
+                "stdout": '{"url":"https://github.com/example/pithos/pull/1","state":"OPEN"}\n',
+            }
 
         return {"ok": True, "stdout": "ok\n"}
 
@@ -312,8 +317,42 @@ def test_finalizer_reuses_existing_pull_request(tmp_path):
     finalizer(state)
 
     operations = [request["operation"] for request in calls]
-    assert operations == ["switch", "commit", "push", "pr_view"]
+    assert operations == ["switch", "pr_view", "commit", "push"]
     assert state.artifacts["pull_request"] == "https://github.com/example/pithos/pull/1"
+
+
+def test_finalizer_refuses_to_push_to_merged_pull_request(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    calls = []
+
+    def git_send(request):
+        calls.append(request)
+        response = {
+            "url": "https://github.com/example/pithos/pull/1",
+            "state": "MERGED",
+        }
+
+        return {"ok": True, "stdout": json.dumps(response)}
+
+    state = MissionState(
+        "run-20260824T145600Z-a1b2c3",
+        "visualizer",
+        micro_rush_id="band-smoothing",
+        phase="finalize",
+        evidence=[{"command": "python acceptance.py", "passed": True}],
+    )
+    finalizer = LocalFinalizer(
+        workspace,
+        tmp_path / "missions" / state.mission_id,
+        tmp_path / "logs",
+        git_send,
+    )
+
+    with pytest.raises(RuntimeError, match="already MERGED"):
+        finalizer(state)
+
+    assert [request["operation"] for request in calls] == ["switch", "pr_view"]
 
 
 def test_finalization_failure_is_persisted(tmp_path):

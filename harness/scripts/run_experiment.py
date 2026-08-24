@@ -9,9 +9,11 @@ import subprocess
 import sys
 import time
 from contextlib import ExitStack
+from datetime import UTC, datetime
 from pathlib import Path
 
 from pithos_orchestrator.launcher import launch as launch_orchestrated
+from pithos_runner.lock import LockHeld, RunLock
 
 
 def launch(workspace: Path, logs_root: Path):
@@ -26,16 +28,30 @@ def launch(workspace: Path, logs_root: Path):
     host_environment = os.environ.copy()
     host_environment["PITHOS_LOGS_ROOT"] = str(logs_root)
     telegram_environment = _environment_for(workspace, logs_root)
-    if project.get("runtime", "docker") == "docker":
-        subprocess.run(
-            ["docker", "compose", "-f", str(harness_root / "runtime" / "docker-compose.yml"), "up", "-d"],
-            check=True,
-            env=host_environment,
-        )
-
     processes = []
     sockets = {}
     with ExitStack() as stack:
+        stack.enter_context(RunLock(runtime_root / f"{project['experiment_id']}.lock"))
+
+        # un micro-rush réussi ne se répète pas à chaque réveil
+        completion_path = runtime_root / f"{project['experiment_id']}-completed.json"
+        if completion_path.is_file():
+            completion = json.loads(completion_path.read_text(encoding="utf-8"))
+            if completion.get("micro_rush_id") == project.get("micro_rush_id"):
+                return {
+                    "status": "skipped",
+                    "reason": "micro-rush already completed",
+                    "micro_rush_id": project.get("micro_rush_id"),
+                    "mission_id": completion.get("mission_id"),
+                }
+
+        if project.get("runtime", "docker") == "docker":
+            subprocess.run(
+                ["docker", "compose", "-f", str(harness_root / "runtime" / "docker-compose.yml"), "up", "-d"],
+                check=True,
+                env=host_environment,
+            )
+
         remote = _git_remote(workspace)
         if remote:
             git_socket = runtime_root / f"{project['experiment_id']}-git.sock"
@@ -82,12 +98,24 @@ def launch(workspace: Path, logs_root: Path):
             sockets["telegram"] = telegram_socket
 
         try:
-            return launch_orchestrated(
+            state = launch_orchestrated(
                 workspace,
                 logs_root,
                 sockets.get("git"),
                 sockets.get("telegram"),
-            ).__dict__
+            )
+            result = state.__dict__
+            if state.status == "completed":
+                completion = {
+                    "micro_rush_id": state.micro_rush_id,
+                    "mission_id": state.mission_id,
+                    "completed_at": datetime.now(UTC).isoformat(),
+                }
+                temporary = completion_path.with_suffix(".tmp")
+                temporary.write_text(json.dumps(completion, indent=2) + "\n", encoding="utf-8")
+                temporary.replace(completion_path)
+
+            return result
         finally:
             for process in reversed(processes):
                 process.terminate()
@@ -177,10 +205,15 @@ def main():
     parser.add_argument("workspace", type=Path)
     parser.add_argument("--logs-root", type=Path, default=Path.home() / "logs" / "pithos")
     arguments = parser.parse_args()
-    result = launch(arguments.workspace, arguments.logs_root)
+    try:
+        result = launch(arguments.workspace, arguments.logs_root)
+    except LockHeld as error:
+        print(f"Run skipped: {error}")
+
+        return 0
     print(json.dumps(result, indent=2))
 
-    return 0 if result["status"] == "completed" else 1
+    return 0 if result["status"] in {"completed", "skipped"} else 1
 
 
 if __name__ == "__main__":

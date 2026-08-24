@@ -59,6 +59,19 @@ Le micro-rush doit :
 - [ ] Les documents de suivi reflètent les changements réellement vérifiés.
 - [ ] `.pithos/report.md` est conforme au contrat Pithos.
 
+## Deuxième micro-rush autonome — lissage temporel
+
+Ajouter une fonction pure `smooth_levels(previous, current, alpha)` qui interpole indépendamment les trois
+niveaux scalaires. Les entrées sont déjà valides et `alpha` est compris entre `0.0` et `1.0`. Le micro-rush
+préserve `split_bands`, n'ajoute aucune dépendance et ne modifie que `src/audio_visualizer.py`.
+
+Critères d'acceptation :
+
+- `alpha=0.0` restitue exactement les niveaux précédents ;
+- `alpha=1.0` restitue exactement les niveaux courants ;
+- une valeur intermédiaire applique l'interpolation aux trois bandes ;
+- les tests du premier micro-rush restent verts.
+
 ## Commandes de vérification
 
 La commande exacte dépend du langage choisi et doit être ajoutée ici ou dans `README.md`. Elle ne doit ni

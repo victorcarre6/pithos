@@ -143,7 +143,9 @@ class GitBroker:
         if existing.returncode == 0:
             return self._run(["git", "switch", branch])
 
-        return self._run(["git", "switch", "-c", branch])
+        self._run(["git", "fetch", "origin", self.policy.main_branch])
+
+        return self._run(["git", "switch", "-c", branch, f"origin/{self.policy.main_branch}"])
 
     def _commit(self, arguments: dict) -> dict:
         self._current_branch()

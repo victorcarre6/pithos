@@ -111,6 +111,21 @@ def test_existing_rush_switches_without_recreation(tmp_path):
     assert ["git", "switch", "-c", "agent/rush-feature"] not in commands.commands
 
 
+def test_new_rush_starts_from_fetched_main(tmp_path):
+    broker, commands = _broker(tmp_path)
+
+    broker.handle(
+        {
+            "operation": "switch",
+            "arguments": {"branch": "agent/rush-new-feature"},
+            "run_id": RUN_ID,
+        }
+    )
+
+    assert ["git", "fetch", "origin", "main"] in commands.commands
+    assert ["git", "switch", "-c", "agent/rush-new-feature", "origin/main"] in commands.commands
+
+
 def test_commit_and_push_never_use_force(tmp_path):
     broker, commands = _broker(tmp_path)
 

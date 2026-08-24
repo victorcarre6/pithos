@@ -2,6 +2,7 @@
 
 import json
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -71,6 +72,8 @@ class CommandValidator:
     def __init__(self, workspace, command, timeout=120):
         self.workspace = Path(workspace)
         self.command = list(command)
+        if self.command[0] == "python":
+            self.command[0] = sys.executable
         self.timeout = timeout
 
     def __call__(self, changed_files):
@@ -108,7 +111,8 @@ class LocalFinalizer:
 
     def __call__(self, state):
         started_at = state.history[0].get("at", state.updated_at) if state.history else state.updated_at
-        branch = f"agent/rush-{state.experiment_id}"
+        branch = f"agent/rush-{state.micro_rush_id or state.experiment_id}"
+        micro_rush_id = state.micro_rush_id or state.experiment_id
         evidence = "; ".join(
             f"{item['command']}: {'PASS' if item['passed'] else 'FAIL'}"
             for item in state.evidence
@@ -118,7 +122,7 @@ class LocalFinalizer:
             'schema_version: "1.0"',
             f"run_id: {state.mission_id}",
             f"experiment_id: {state.experiment_id}",
-            f"micro_rush_id: rush-{state.experiment_id}",
+            f"micro_rush_id: rush-{micro_rush_id}",
             "status: completed",
             f'started_at: "{started_at}"',
             f'finished_at: "{datetime.now(timezone.utc).isoformat()}"',
@@ -157,9 +161,29 @@ class LocalFinalizer:
         state.artifacts["continuity_report"] = str(archive)
 
     def _finalize_git(self, state, branch):
+        micro_rush_id = state.micro_rush_id or state.experiment_id
+        self.git_send(
+            {
+                "operation": "switch",
+                "arguments": {"branch": branch},
+                "run_id": state.mission_id,
+            }
+        )
+
+        pull_request = None
+        try:
+            response = self.git_send(
+                {"operation": "pr_view", "arguments": {}, "run_id": state.mission_id}
+            )
+            pull_request = json.loads(response["stdout"])
+        except RuntimeError:
+            pass
+        if pull_request and pull_request.get("state") != "OPEN":
+            state_name = pull_request.get("state", "unknown")
+            raise RuntimeError(f"micro-rush pull request is already {state_name}")
+
         requests = [
-            ("switch", {"branch": branch}),
-            ("commit", {"message": f"feat: complete {state.experiment_id} rush"}),
+            ("commit", {"message": f"feat: complete {micro_rush_id} rush"}),
             ("push", {}),
         ]
         for operation, arguments in requests:
@@ -171,18 +195,14 @@ class LocalFinalizer:
                 }
             )
 
-        try:
-            response = self.git_send(
-                {"operation": "pr_view", "arguments": {}, "run_id": state.mission_id}
-            )
-            pull_request = json.loads(response["stdout"])
+        if pull_request:
             url = pull_request["url"]
-        except RuntimeError:
+        else:
             response = self.git_send(
                 {
                     "operation": "pr_create",
                     "arguments": {
-                        "title": f"Complete {state.experiment_id} rush",
+                        "title": f"Complete {micro_rush_id} rush",
                         "body": f"Validated by `{state.mission_id}` with the external project oracle.",
                     },
                     "run_id": state.mission_id,

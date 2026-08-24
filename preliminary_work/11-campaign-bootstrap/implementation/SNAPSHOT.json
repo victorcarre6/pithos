@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "11-campaign-bootstrap",
-  "generated_at": "2026-08-24T16:07:22.699152+00:00",
+  "generated_at": "2026-08-24T16:39:49.079323+00:00",
   "files": [
     {
       "path": "src/create_experiment.py",
@@ -37,16 +37,24 @@
       "sha256": "711e16cc1cfd96091b625360d670fe53069a3c0fe4ae5b3a908d9d7177a954eb"
     },
     {
+      "path": "src/install_launchd.py",
+      "sha256": "8b00f207f0d3d8c03d4e8121d945de4e53499c21bb434b68aadccbf57bfb44c4"
+    },
+    {
       "path": "src/run_experiment.py",
-      "sha256": "f30aebd933a67d412e2a426992aaf6c54fd905d20693b37cd1b6492c34972ff7"
+      "sha256": "0b2a7067c0ab62bec400a8595aabd1149048a8a850ab97bcdfce2bf3d6e7d062"
     },
     {
       "path": "tests/test_create_experiment.py",
       "sha256": "47c9122a6d3c29b9a4ff60f35f91dc27281117798d53afadc684b9420fb5d71c"
     },
     {
+      "path": "tests/test_install_launchd.py",
+      "sha256": "24c90d001419579816867f8856e06b4094921a56ea1428ff95bdd19828151435"
+    },
+    {
       "path": "tests/test_run_experiment.py",
-      "sha256": "d86b1d8b81498ea42a0fa128a674cfdda369c52e1014ccea153f9579224ee22e"
+      "sha256": "3b324fbdf94448575754db1b2a28ba13726eb412a4d6a895d31e779c228da19e"
     }
   ]
 }

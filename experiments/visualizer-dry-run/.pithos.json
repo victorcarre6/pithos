@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
   "experiment_id": "visualizer-dry-run",
-  "runtime": "host",
+  "micro_rush_id": "band-smoothing",
+  "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
-  "target_files": ["tests/test_audio_visualizer.py"],
-  "validation_command": ["python", "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_acceptance.py"],
-  "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi",
+  "target_files": ["src/audio_visualizer.py"],
+  "validation_command": ["python", "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_smoothing_acceptance.py"],
+  "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth"
 }

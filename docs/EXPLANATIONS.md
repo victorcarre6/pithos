@@ -62,6 +62,12 @@ Chaque mission émet désormais son propre cycle `run.started` / `run.finished`.
 `runs/*/events.jsonl` et `missions/*/events.jsonl`, et `EventWriter` réplique les deux familles dans
 `live.log`. SQLite et le dashboard restent des projections read-only et reconstructibles.
 
+La planification macOS sépare deux LaunchAgents utilisateur : le collecteur SQLite reste vivant, tandis que
+le launcher d'expérience se réveille toutes les trois heures. Un verrou par expérience couvre proxy, brokers
+et mission. Après succès, un marqueur hors Git associe le `micro_rush_id` au run terminé ; les réveils suivants
+sont des no-op jusqu'à la publication d'un nouvel identifiant. Une nouvelle branche part toujours de
+`origin/main`, et une PR fermée n'est jamais réutilisée.
+
 Les credentials Telegram peuvent être chargés depuis le `.env` ignoré de l'expérience. Le launcher ne lit
 que les deux clés allowlistées et transmet cet environnement au broker hôte ; le modèle, le workspace projeté,
 les événements et les commits ne reçoivent jamais la valeur du token.

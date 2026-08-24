@@ -3,6 +3,10 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
+from pithos_runner.lock import LockHeld, RunLock
+
 
 SCRIPT_PATH = Path(__file__).parents[1] / "scripts" / "run_experiment.py"
 SPEC = importlib.util.spec_from_file_location("pithos_run_experiment", SCRIPT_PATH)
@@ -18,6 +22,7 @@ def test_host_launch_does_not_start_docker(tmp_path, monkeypatch):
     configuration = {
         "schema_version": 1,
         "experiment_id": "audio-lab",
+        "micro_rush_id": "first-task",
         "runtime": "host",
         "pi_config": str(harness / "config" / "pi-host"),
         "ground_truth": str(harness / "ground_truth"),
@@ -43,13 +48,21 @@ def test_host_launch_does_not_start_docker(tmp_path, monkeypatch):
     monkeypatch.setattr(
         run_module,
         "launch_orchestrated",
-        lambda workspace, logs, git, telegram: SimpleNamespace(status="completed"),
+        lambda workspace, logs, git, telegram: SimpleNamespace(
+            status="completed",
+            micro_rush_id="first-task",
+            mission_id="run-20260824T180000Z-a1b2c3",
+        ),
     )
 
     result = run_module.launch(workspace, tmp_path / "logs")
 
-    assert result == {"status": "completed"}
+    assert result["status"] == "completed"
     assert not any(command[:2] == ["docker", "compose"] for command in commands)
+    completion = json.loads(
+        (tmp_path / "logs" / "runtime" / "audio-lab-completed.json").read_text()
+    )
+    assert completion["micro_rush_id"] == "first-task"
 
 
 def test_environment_loads_only_telegram_values_without_overriding_host(tmp_path, monkeypatch):
@@ -67,3 +80,60 @@ def test_environment_loads_only_telegram_values_without_overriding_host(tmp_path
     assert environment["TELEGRAM_BOT_TOKEN"] == "file-token"
     assert environment["TELEGRAM_USER_ID"] == "host-user"
     assert "UNRELATED_SECRET" not in environment
+
+
+def test_launch_refuses_overlapping_experiment(tmp_path):
+    repository = tmp_path / "repository"
+    workspace = repository / "experiments" / "audio-lab"
+    workspace.mkdir(parents=True)
+    harness = repository / "harness"
+    configuration = {
+        "schema_version": 1,
+        "experiment_id": "audio-lab",
+        "runtime": "host",
+        "pi_config": str(harness / "config" / "pi-host"),
+        "ground_truth": str(harness / "ground_truth"),
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(configuration), encoding="utf-8")
+    logs_root = tmp_path / "logs"
+
+    with RunLock(logs_root / "runtime" / "audio-lab.lock"):
+        with pytest.raises(LockHeld, match="live PID"):
+            run_module.launch(workspace, logs_root)
+
+
+def test_completed_micro_rush_is_skipped_until_identity_changes(tmp_path, monkeypatch):
+    repository = tmp_path / "repository"
+    workspace = repository / "experiments" / "audio-lab"
+    workspace.mkdir(parents=True)
+    harness = repository / "harness"
+    configuration = {
+        "schema_version": 1,
+        "experiment_id": "audio-lab",
+        "micro_rush_id": "band-smoothing",
+        "runtime": "host",
+        "pi_config": str(harness / "config" / "pi-host"),
+        "ground_truth": str(harness / "ground_truth"),
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(configuration), encoding="utf-8")
+    logs_root = tmp_path / "logs"
+    completion_path = logs_root / "runtime" / "audio-lab-completed.json"
+    completion_path.parent.mkdir(parents=True)
+    completion_path.write_text(
+        json.dumps(
+            {
+                "micro_rush_id": "band-smoothing",
+                "mission_id": "run-20260824T180000Z-a1b2c3",
+            }
+        )
+    )
+    monkeypatch.setattr(
+        run_module,
+        "launch_orchestrated",
+        lambda *args: pytest.fail("completed task must not launch"),
+    )
+
+    result = run_module.launch(workspace, logs_root)
+
+    assert result["status"] == "skipped"
+    assert result["micro_rush_id"] == "band-smoothing"
