@@ -48,3 +48,30 @@ def split_bands(magnitudes: list[float]) -> tuple[float, float, float]:
     treble_mean = sum(magnitudes[2 * third:]) / (n - 2 * third) if n > 2 * third else 0.0
 
     return bass_mean, mid_mean, treble_mean
+
+
+def smooth_levels(previous: tuple[float, float, float], current: tuple[float, float, float], alpha: float) -> tuple[float, float, float]:
+    """Smooth two level vectors using a weighted exponential blending.
+
+    Each band is applied independently:
+        smoothed[i] = previous[i] * (1 - alpha) + current[i] * alpha
+
+    Parameters
+    ----------
+    previous : tuple[float, float, float]
+        The previous (bass, mid, treble) levels.
+    current : tuple[float, float, float]
+        The current (bass, mid, treble) levels.
+    alpha : float
+        Blend weight in (0.0, 1.0).
+
+    Returns
+    -------
+    tuple[float, float, float]
+        The smoothed (bass, mid, treble) levels.
+    """
+    return (
+        previous[0] * (1 - alpha) + current[0] * alpha,
+        previous[1] * (1 - alpha) + current[1] * alpha,
+        previous[2] * (1 - alpha) + current[2] * alpha,
+    )
