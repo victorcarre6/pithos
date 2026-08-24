@@ -296,3 +296,19 @@
   vert et le nouvel oracle échoue avant inference sur l'absence attendue de `smooth_levels`.
 - La suite complète passe avec **142 tests**. L'installation réelle attend le merge de cette branche afin que
   les futures branches créées depuis `origin/main` contiennent le scheduler validé.
+
+## 24:08 — Premier wake autonome réel
+
+- La PR `#3` est fusionnée dans `main` au commit `33ad4b6`. Les plist privés `0600` sont installés dans
+  `~/Library/LaunchAgents` : collecteur `RunAtLoad`/`KeepAlive` actif et runner toutes les **10 800 s**.
+- Mission `run-20260824T165029Z-dac825` : implement timeout à 300 s sans tool call, première réparation avec
+  3 tools rejetée pour régression de `split_bands`, seconde réparation avec 3 tools acceptée par l'oracle.
+- Le rush termine `completed` après **2 réparations**. Les oracles smoothing et historique passent ; Telegram
+  enregistre les notifications début/fin et Git ouvre https://github.com/victorcarre6/pithos/pull/4 au commit
+  `e4cd83d` sur `agent/rush-band-smoothing`.
+- Le collecteur projette le run en SQLite : **533 278 ms**, **29 313 tokens d'entrée**, **8 230 de sortie**,
+  **6 tool calls**, **3 tool failures**, **2 982 événements** associés et **0 quarantaine** globale.
+- Un second `launchctl kickstart` termine avec exit 0 et `micro-rush already completed`, sans nouvelle mission.
+- Défaut observé : le rapport prenait `updated_at` comme début. Le contrôleur horodate désormais chaque entrée
+  `started`; le test du rapport verrouille cette valeur pour les futurs runs. Le rapport historique reste une
+  preuve non réécrite de ce défaut.
