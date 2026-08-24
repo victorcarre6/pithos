@@ -15,4 +15,4 @@
 - [DONE] 10 — live log compatible `tail -F`.
 - [DONE] 11 — finaliser correctement les interruptions et requalifier Ling sur un dry-run borné.
 - [DONE] 12 — orchestration Ling, preflight, rapport, Telegram, push et PR validés en conditions réelles.
-- [TODO] Activation — merger la PR du harnais puis autoriser explicitement la planification locale `launchd`.
+- [TODO] Activation — merger `agent/launchd-autonomy`, installer les LaunchAgents et vérifier le premier réveil.

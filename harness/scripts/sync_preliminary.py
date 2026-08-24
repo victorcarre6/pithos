@@ -55,11 +55,24 @@ PROJECTS = {
         "tests": ["tests/test_live_log.py"],
     },
     "11-campaign-bootstrap": {
-        "src": ["scripts/create_experiment.py", "scripts/run_experiment.py", "templates/experiment"],
-        "tests": ["tests/test_create_experiment.py", "tests/test_run_experiment.py"],
+        "src": [
+            "scripts/create_experiment.py",
+            "scripts/install_launchd.py",
+            "scripts/run_experiment.py",
+            "templates/experiment",
+        ],
+        "tests": [
+            "tests/test_create_experiment.py",
+            "tests/test_install_launchd.py",
+            "tests/test_run_experiment.py",
+        ],
     },
     "12-weak-model-orchestration": {
-        "src": ["src/pithos_orchestrator", "fixtures/visualizer_acceptance.py"],
+        "src": [
+            "src/pithos_orchestrator",
+            "fixtures/visualizer_acceptance.py",
+            "fixtures/visualizer_smoothing_acceptance.py",
+        ],
         "tests": ["tests/test_orchestrator.py"],
     },
 }

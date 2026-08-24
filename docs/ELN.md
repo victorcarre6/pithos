@@ -278,3 +278,21 @@
   ses métriques nulles attendues sans inference et son rapport.
 - Le run historique `run-20260824T101858Z-63523f`, interrompu avant le correctif KeyboardInterrupt, reste
   honnêtement `running` dans sa source append-only ; aucune projection n'est maquillée.
+
+## 24:08 — Activation périodique préparée
+
+- La PR `#2` est fusionnée dans `main` au commit `de34573`; le raccordement `launchd` est isolé sur
+  `agent/launchd-autonomy`.
+- Le launcher prend désormais un verrou couvrant Docker, brokers et mission. Un second réveil retourne un
+  skip contrôlé ; un verrou de PID mort reste récupérable par le contrat existant.
+- `micro_rush_id` pilote branche, rapport et idempotence. Une nouvelle branche est créée depuis
+  `origin/main`; une PR `MERGED` ou `CLOSED` est refusée avant commit et push.
+- Un marqueur sous `~/logs/pithos/runtime/` empêche de répéter un rush réussi jusqu'au changement de son ID.
+- Le validateur remplace l'alias `python` par l'interpréteur courant du harnais ; la future exécution
+  `launchd` ne dépend donc pas d'un shim `pyenv` interactif.
+- L'installateur produit deux plist privés sans secret : runner toutes les trois heures et collecteur SQLite
+  `RunAtLoad`/`KeepAlive`. Les plist rendus passent `plutil -lint`.
+- Le prochain rush `band-smoothing` cible seulement `src/audio_visualizer.py` en Docker. L'ancien oracle reste
+  vert et le nouvel oracle échoue avant inference sur l'absence attendue de `smooth_levels`.
+- La suite complète passe avec **142 tests**. L'installation réelle attend le merge de cette branche afin que
+  les futures branches créées depuis `origin/main` contiennent le scheduler validé.

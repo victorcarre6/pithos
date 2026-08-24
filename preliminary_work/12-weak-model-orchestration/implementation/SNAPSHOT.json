@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-24T16:07:22.702118+00:00",
+  "generated_at": "2026-08-24T16:39:49.082291+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -10,7 +10,7 @@
     },
     {
       "path": "src/pithos_orchestrator/campaign.py",
-      "sha256": "af3b30fc3122175a6351db65acba660739d0720c19c078da1ebe94ee6d4beed1"
+      "sha256": "63d18953718f39830dfa2aecf9cc501489dd9020e0d96f68041296cd5bb42b48"
     },
     {
       "path": "src/pithos_orchestrator/client.py",
@@ -26,7 +26,7 @@
     },
     {
       "path": "src/pithos_orchestrator/launcher.py",
-      "sha256": "b952d34509b085a87db66f8de9459b8c41b83b7ddc268b3181bf96582c4307db"
+      "sha256": "ed069f85a81a7ddffca4058e912d477c1263a32a65137dd8f5c41be924d6f63f"
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
@@ -34,15 +34,19 @@
     },
     {
       "path": "src/pithos_orchestrator/state.py",
-      "sha256": "579bd6286254492d1df16d15c53e05017821be083237112ef89e3e25580091dd"
+      "sha256": "3d67bfea99df2776054b065b61ae67ed09abf032b64e013061e9692b65160058"
     },
     {
       "path": "src/visualizer_acceptance.py",
       "sha256": "c55d17fc6e05e9ec85fb1f592d06f530a61bb0a4adc0920152619237e8b14e45"
     },
     {
+      "path": "src/visualizer_smoothing_acceptance.py",
+      "sha256": "11311d00730ad2768e85865eb057f673586337f9d6df107d08e6e05877e7d1be"
+    },
+    {
       "path": "tests/test_orchestrator.py",
-      "sha256": "598d54375a0e2087afd56fbbef02a613765101688036480d5f66591c66658008"
+      "sha256": "214d0bda563d78b46da91ff4d4bab93eeab39d49b6a022e47663c67dafdf9958"
     }
   ]
 }

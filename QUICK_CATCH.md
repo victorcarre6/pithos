@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 18:06 CEST._
+_État vérifié le 24/08/2026 à 18:40 CEST._
 
 ## Micro quick catch général
 
@@ -12,7 +12,7 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **135 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **142 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
 runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap et intégrations.
 
@@ -22,10 +22,10 @@ runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstra
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** La PR expérimentale `#1` est fusionnée dans `main`. Le harnais est proposé par
-la PR `#2` depuis `agent/rush-harness-orchestration`. Le runtime Docker et l'observabilité réelle sont validés ;
-la prochaine décision humaine est la fusion de cette PR, puis l'autorisation explicite de l'activation
-périodique `launchd`. Aucun secret n'est tracké.
+**Prochain chemin critique.** Les PR `#1` et `#2` sont fusionnées. La branche `agent/launchd-autonomy` prépare
+le scheduler canonique, son verrou, le collecteur permanent et le micro-rush `band-smoothing`. L'autorisation
+`launchctl` est acquise ; il reste à merger ce raccordement, installer les deux LaunchAgents puis déclencher
+le premier réveil réel. Aucun secret n'est tracké.
 
 ## Carte du dépôt
 
@@ -153,6 +153,10 @@ périodique `launchd`. Aucun secret n'est tracké.
   une fonction pure d'agrégation FFT testée. Le dossier reste dans le dépôt Pithos, sans `.git` imbriqué.
 - **Dry-run réel :** le contrôleur multi-session borne Ling, valide hors modèle, publie le rapport, notifie
   Telegram et finalise Git. La PR `#1` issue du dry-run a été fusionnée.
+- **Activation préparée :** deux LaunchAgents utilisateur séparés exécutent le launcher toutes les trois heures
+  et le collecteur SQLite en continu. Un verrou couvre toute la mission et un micro-rush réussi est ignoré aux
+  réveils suivants jusqu'au changement de son identifiant. Les validations utilisent le Python exact du venv,
+  sans dépendre d'un shim `pyenv` interactif.
 
 ---
 
@@ -180,6 +184,9 @@ pithos-benchmark <ollama_model_name> # campagne complète après qualification
 ./install.sh --experiment <experiment-id>
 $EDITOR ../experiments/<experiment-id>/PROJECT.md
 .venv/bin/python scripts/run_experiment.py ../experiments/<experiment-id>
+
+# activation périodique après merge du code courant
+.venv/bin/python scripts/install_launchd.py install ../experiments/visualizer-dry-run
 ```
 
 ## Gate avant autonomie périodique
@@ -191,7 +198,8 @@ $EDITOR ../experiments/<experiment-id>/PROJECT.md
 - [x] Telegram réel probé avec credentials hors workspace.
 - [x] Branche, push et PR réels produits par un dry-run supervisé.
 - [x] Événements JSONL, SQLite, dashboard, rapport et live log vérifiés sur une mission orchestrée.
-- [ ] Activation périodique `launchd` approuvée explicitement par l'utilisateur.
+- [x] Activation périodique `launchd` approuvée explicitement par l'utilisateur.
+- [ ] LaunchAgents installés et premier réveil autonome vérifié après merge du raccordement.
 
 ## Références canoniques
 

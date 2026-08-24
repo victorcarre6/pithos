@@ -22,6 +22,7 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     workspace = Path(workspace).resolve()
     logs_root = Path(logs_root).expanduser().resolve()
     project = json.loads((workspace / ".pithos.json").read_text(encoding="utf-8"))
+    micro_rush_id = project.get("micro_rush_id", project["experiment_id"])
     validation_command = project.get("validation_command")
     if not isinstance(validation_command, list) or not validation_command:
         raise ValueError(".pithos.json requires a non-empty validation_command list")
@@ -48,13 +49,13 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
         git_send = lambda request: send_request(git_socket, request)
     finalizer = LocalFinalizer(workspace, mission_root, logs_root, git_send)
     orchestrator = Orchestrator(state_store, phase_runner, validator, finalizer)
-    state = MissionState(mission_id, project["experiment_id"])
+    state = MissionState(mission_id, project["experiment_id"], micro_rush_id=micro_rush_id)
     started_monotonic = time.monotonic()
     events.append(
         "run.started",
         {
             "experiment_id": state.experiment_id,
-            "micro_rush_id": f"rush-{state.experiment_id}",
+            "micro_rush_id": f"rush-{state.micro_rush_id}",
             "model": configuration.model,
         },
     )

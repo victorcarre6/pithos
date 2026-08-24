@@ -68,6 +68,17 @@ Le lanceur démarre le proxy et les brokers hôte disponibles, exécute une miss
 services éphémères. Les phases Docker n'accèdent pas directement aux sockets Unix hôte sous macOS ; le
 finalizer appelle les brokers après validation externe.
 
+Après validation de la commande exacte et merge du code du scheduler, activer les réveils avec :
+
+```bash
+harness/.venv/bin/python harness/scripts/install_launchd.py install experiments/<experiment-id>
+launchctl print gui/$(id -u)/dev.pithos.runner.<experiment-id>
+launchctl print gui/$(id -u)/dev.pithos.events
+```
+
+Le runner utilise `StartInterval=10800` sans `RunAtLoad`; le collecteur utilise `RunAtLoad` et `KeepAlive`.
+Les plist ne contiennent aucun credential. Pour revenir en arrière, remplacer `install` par `uninstall`.
+
 ## Bootstrap humain minimal
 
 ### 1. Préparer les emplacements

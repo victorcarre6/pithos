@@ -21,6 +21,7 @@ class MissionState:
 
     mission_id: str
     experiment_id: str
+    micro_rush_id: str = ""
     phase: str = "preflight"
     status: str = "running"
     repair_attempts: int = 0
