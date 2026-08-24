@@ -1,11 +1,11 @@
 ---
 schema_version: "1.0"
-run_id: run-20260824T144826Z-f00869
+run_id: run-20260824T145348Z-c947ce
 experiment_id: visualizer-dry-run
 micro_rush_id: rush-visualizer-dry-run
 status: completed
-started_at: "2026-08-24T14:48:26.433068+00:00"
-finished_at: "2026-08-24T14:48:26.433361+00:00"
+started_at: "2026-08-24T14:53:48.242419+00:00"
+finished_at: "2026-08-24T14:53:48.242654+00:00"
 branch: agent/rush-visualizer-dry-run
 commit_before: null
 commit_after: null
@@ -15,7 +15,7 @@ next_wake: local_resume
 
 ## Context
 
-Mission `run-20260824T144826Z-f00869` for `visualizer-dry-run`.
+Mission `run-20260824T145348Z-c947ce` for `visualizer-dry-run`.
 
 ## Work
 
