@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "experiment_id": "visualizer-dry-run",
+  "runtime": "host",
+  "model": "pithos/ling-3.0-tiny:8b-16k",
+  "target_files": ["tests/test_audio_visualizer.py"],
+  "validation_command": ["python", "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_acceptance.py"],
+  "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi",
+  "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth"
+}
