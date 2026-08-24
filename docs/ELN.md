@@ -325,3 +325,34 @@
   800 caractères, bégaiement et `Oh, punaise`, faits conformes au run `run-20260824T165029Z-dac825`.
 - Le message est envoyé réellement par `@pithos_workbot` avec la requête idempotente
   `run-20260824T165029Z-dac825-morty-recap-smoke-v1`. Le token reste chargé depuis le `.env` ignoré.
+
+## 24:20 — PR `#4` à `#6` fusionnées, campagne en pause
+
+- Les PR `#4` (band-smoothing, commit `e4cd83d`), `#5` (horodatage `started` du rapport, commit `618d0ab`) et
+  `#6` (récap Telegram humain, commit `6cf43c0`) sont fusionnées dans `main`, respectivement aux commits de
+  merge `b69cded`, `02ff9d3` et `34a8ae8`.
+- Le marqueur local `visualizer-dry-run-completed.json` conserve `band-smoothing` comme rush terminé ; les deux
+  LaunchAgents restent actifs et chaque réveil se termine en skip idempotent tant que `micro_rush_id` n'a pas
+  changé dans `experiments/visualizer-dry-run/.pithos.json`.
+- **146 tests passent** sur l'ensemble du dépôt. Aucun nouveau rush n'a encore été défini : la campagne attend
+  une décision explicite sur la tâche suivante avant le prochain réveil utile.
+
+## 24:35 — Oracle auto-généré par le modèle
+
+- Nouvelle phase `author_oracle`, placée avant `preflight` dans la machine à états (`controller.py`), activée
+  uniquement quand `.pithos.json` omet `validation_command`. Le contrat manuel reste prioritaire et inchangé
+  pour toute expérience qui le fournit déjà.
+- Le modèle ne choisit jamais de code : seulement une fonction déjà présente dans `target_files` et 1 à 4 cas
+  d'entrée/sortie numériques. Le harnais (`oracle.py`) rend le script exécuté, exige l'accord de deux
+  générations indépendantes à températures différentes, vérifie la fonction par regex dans la source approuvée,
+  puis exige que l'oracle rendu échoue sur le code actuel avant de l'accepter (jusqu'à 3 tentatives).
+- L'oracle rendu est archivé hors Git dans `~/logs/pithos/missions/<mission_id>/oracle.py`, jamais dans le
+  workspace projeté au modèle ni dans le diff Git du rush.
+- **Preuve réelle Ling** : demander un oracle pour « normaliser `split_bands` pour que la somme des trois
+  bandes vaille 1.0 » a produit un cas confirmé rouge sur le code réel de `visualizer-dry-run`, mais avec une
+  valeur `expect` incorrecte au regard du comportement attendu — une erreur arithmétique reproduite de façon
+  cohérente sur les deux générations. Le double-vote filtre le bruit aléatoire, pas une incompréhension
+  systématique du contrat.
+- **158 tests passent** (146 + 12 nouveaux : `test_oracle.py`, phase `author_oracle` du contrôleur, lancement
+  sans `validation_command`). Voir [`RUN_GUIDE.md`](../RUN_GUIDE.md) pour le protocole de relance à jour et les
+  limites connues.

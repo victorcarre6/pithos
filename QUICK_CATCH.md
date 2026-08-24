@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 19:44 CEST._
+_État vérifié le 24/08/2026 à 22:13 CEST._
 
 ## Micro quick catch général
 
@@ -12,9 +12,10 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **146 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **158 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
-runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap et intégrations.
+runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré et
+intégrations.
 
 **Baseline retenue.** Après mise à jour du serveur Ollama de `0.32.13` vers `0.32.15`,
 `maternion/ling-3.0-tiny:8b` charge correctement : smoke **6/6** à 52,57 tok/s, protocol **6/6** à
@@ -22,10 +23,13 @@ runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstra
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** Les PR `#1` à `#3` sont fusionnées et les deux LaunchAgents sont actifs. Le
-premier wake Ling a terminé le rush `band-smoothing`, créé le commit `e4cd83d` et ouvert la PR `#4`. Un second
-wake a confirmé le skip idempotent. Il reste à merger la PR `#4`, puis définir un nouvel identifiant de rush
-pour autoriser la tâche suivante. Aucun secret n'est tracké.
+**Prochain chemin critique.** Les PR `#1` à `#6` sont toutes fusionnées dans `main` et les deux LaunchAgents
+restent actifs. Le rush `band-smoothing` est `completed` (commit `e4cd83d`, PR `#4`) et un marqueur local
+empêche toute répétition. Les PR `#5` (horodatage `started` du rapport) et `#6` (récap Telegram humain) sont
+également fusionnées. Il reste à choisir le prochain micro-rush pour `experiments/visualizer-dry-run/` et à
+changer `micro_rush_id` dans `.pithos.json` pour le libérer ; jusque-là, chaque réveil du runner se termine en
+skip idempotent. Le harnais peut désormais générer l'oracle du prochain rush lui-même (`.pithos.json` sans
+`validation_command`) — voir [`RUN_GUIDE.md`](RUN_GUIDE.md). Aucun secret n'est tracké.
 
 ## Protocole de collecte — semaine autonome
 
@@ -46,10 +50,9 @@ unique**, **un titre** et **une description courte** human-readable dans `.pitho
 6. Contrôler chaque jour : état des deux LaunchAgents, espace disque, `pithos.db`, quarantaine, dernière mission,
    PR ouverte et présence des notifications Telegram début/fin/récap. Noter toute intervention humaine.
 
-Contrat Telegram implémenté au commit `6cf43c0` dans la PR `#6`, empilée sur `#5` : les messages statiques
-restent autoritaires et
-exposent le titre, la
-description, le statut, la durée, les réparations et la PR. Après chaque mission complète, une session Ling
+Contrat Telegram implémenté au commit `6cf43c0`, fusionné dans `main` via la PR `#6` (empilée sur `#5`) : les
+messages statiques restent autoritaires et exposent le titre, la description, le statut, la durée, les
+réparations et la PR. Après chaque mission complète, une session Ling
 sans tool choisit des fragments de voix autour de phrases factuelles immuables et produit quelques lignes dans une
 voix de sidekick paniqué : léger bégaiement, hésitations (`Euh`, `Hum`, `Genre`), expressions fréquentes
 `Oh, punaise`, `Oh, mince` ou `Oh, mec`, langage parlé imparfait, phrases interrompues et brusques pointes de
@@ -240,6 +243,7 @@ $EDITOR ../experiments/<experiment-id>/PROJECT.md
 
 ## Références canoniques
 
+- Relancer un micro-rush : [`RUN_GUIDE.md`](RUN_GUIDE.md) — protocole à jour, oracle auto-généré et ses limites.
 - Périmètre : [`PROJECT.md`](PROJECT.md)
 - État détaillé : [`docs/ROADMAP.md`](docs/ROADMAP.md) et [`docs/ELN.md`](docs/ELN.md)
 - Architecture et arbitrages : [`docs/EXPLANATIONS.md`](docs/EXPLANATIONS.md)

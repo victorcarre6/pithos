@@ -1,4 +1,7 @@
-# Quick catch
+# Quick catch (archivé)
+
+> Instantané figé du socle avant la campagne du visualiseur audio (chantiers `00` à `08`, PR GitHub `#1`
+> seule). Pour l'état courant du projet, voir [`../QUICK_CATCH.md`](../QUICK_CATCH.md) à la racine du dépôt.
 
 ## État
 

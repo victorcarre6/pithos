@@ -73,7 +73,7 @@ PROJECTS = {
             "fixtures/visualizer_acceptance.py",
             "fixtures/visualizer_smoothing_acceptance.py",
         ],
-        "tests": ["tests/test_orchestrator.py", "tests/test_run_orchestrated.py"],
+        "tests": ["tests/test_orchestrator.py", "tests/test_run_orchestrated.py", "tests/test_oracle.py"],
     },
 }
 

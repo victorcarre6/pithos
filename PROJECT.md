@@ -175,13 +175,14 @@ Ordre initial :
 
 - [x] Le capability probe prouve que les tool calls sont exécutés et pas seulement imprimés.
 - [x] Une session neuve reprend correctement depuis le dernier rapport global.
-- [ ] Deux réveils ne peuvent pas exécuter Pi simultanément.
-- [ ] Un run est interrompu au plus tard après une heure et une boucle déclenche le protocole prévu.
-- [ ] Un micro-rush incomplet reprend sur sa branche ; un micro-rush terminé produit une pull request.
-- [ ] Une capacité créée par l'agent est archivée, activée et réutilisée lors d'un run observable.
-- [ ] Les événements complets sont conservés en JSONL, ingérés dans SQLite et visibles dans le dashboard.
-- [ ] `tail -F ~/logs/pithos/live.log` permet de suivre l'activité sans dépendre du dashboard.
-- [ ] L'agent peut signaler un blocage et proposer l'arrêt via Telegram sans exposer les credentials.
+- [x] Deux réveils ne peuvent pas exécuter Pi simultanément.
+- [x] Un run est interrompu au plus tard après une heure et une boucle déclenche le protocole prévu.
+- [x] Un micro-rush incomplet reprend sur sa branche ; un micro-rush terminé produit une pull request.
+- [ ] Une capacité créée par l'agent est archivée, activée et réutilisée lors d'un run observable (campagne
+      réelle ; les capacités probe restent validées hors campagne, voir chantier `06`).
+- [x] Les événements complets sont conservés en JSONL, ingérés dans SQLite et visibles dans le dashboard.
+- [x] `tail -F ~/logs/pithos/live.log` permet de suivre l'activité sans dépendre du dashboard.
+- [x] L'agent peut signaler un blocage et proposer l'arrêt via Telegram sans exposer les credentials.
 
 ## Décisions différées
 

@@ -17,4 +17,7 @@
 - [DONE] 11 — finaliser correctement les interruptions et requalifier Ling sur un dry-run borné.
 - [DONE] 12 — orchestration Ling, preflight, rapport, Telegram, push et PR validés en conditions réelles.
 - [DONE] Activation — LaunchAgents installés, premier wake Ling terminé et second wake ignoré idempotemment.
-- [TODO] Campagne — merger la PR `#4`, choisir le prochain micro-rush et changer son identifiant pour le libérer.
+- [DONE] Campagne — PR `#4` (band-smoothing), `#5` (horodatage `started`) et `#6` (récap Telegram humain)
+  fusionnées dans `main`.
+- [TODO] Campagne — choisir le prochain micro-rush pour `visualizer-dry-run` et changer `micro_rush_id` dans
+  `.pithos.json` pour le libérer ; sans ce changement, chaque réveil du runner reste un skip idempotent.

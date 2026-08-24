@@ -6,7 +6,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-PHASES = {"preflight", "implement", "test", "repair", "review", "finalize", "done", "failed", "interrupted"}
+PHASES = {
+    "author_oracle",
+    "preflight",
+    "implement",
+    "test",
+    "repair",
+    "review",
+    "finalize",
+    "done",
+    "failed",
+    "interrupted",
+}
 
 
 def now():

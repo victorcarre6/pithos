@@ -225,6 +225,57 @@ def test_launch_writes_observable_mission_lifecycle(tmp_path, monkeypatch):
     assert events[1]["payload"]["status"] == "completed"
 
 
+def test_launch_requires_target_files_when_validation_command_is_absent(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    project = {
+        "experiment_id": "observable",
+        "title": "Sans oracle",
+        "description": "Aucun fichier cible fourni.",
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    with pytest.raises(ValueError, match="target_files to auto-author"):
+        run_module.launch(workspace, tmp_path / "logs")
+
+
+def test_launch_without_validation_command_starts_at_author_oracle(tmp_path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    config = tmp_path / "pi-config"
+    config.mkdir()
+    project = {
+        "experiment_id": "observable",
+        "title": "Contrat généré",
+        "description": "Le harnais génère l'oracle depuis la description.",
+        "runtime": "host",
+        "model": "pithos/ling",
+        "pi_config": str(config),
+        "target_files": ["src/module.py"],
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    seen_phase = {}
+
+    def complete(orchestrator, state, context_factory):
+        seen_phase["initial"] = state.phase
+        assert orchestrator.oracle_author is not None
+        state.status = "completed"
+        state.phase = "done"
+
+        return state
+
+    monkeypatch.setattr(run_module.Orchestrator, "run", complete)
+
+    result = run_module.launch(workspace, tmp_path / "logs")
+
+    events_path = next((tmp_path / "logs" / "missions").glob("*/events.jsonl"))
+    events = [json.loads(line) for line in events_path.read_text().splitlines()]
+    assert seen_phase["initial"] == "author_oracle"
+    assert result.status == "completed"
+    assert events[0]["payload"]["oracle"] == "generated"
+
+
 def test_finish_payload_aggregates_all_phase_metrics(tmp_path):
     phases = tmp_path / "phases"
     for number, total_tokens in enumerate((13, 21), start=1):

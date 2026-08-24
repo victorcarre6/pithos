@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "06-harness-evolution",
-  "generated_at": "2026-08-24T17:41:32.984844+00:00",
+  "generated_at": "2026-08-24T20:12:16.246350+00:00",
   "files": [
     {
       "path": "src/pithos_harness/__init__.py",

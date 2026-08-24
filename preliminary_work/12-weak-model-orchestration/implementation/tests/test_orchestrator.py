@@ -102,6 +102,56 @@ def test_orchestrator_stops_before_finalization_after_repair_budget(tmp_path):
     assert finalized == []
 
 
+def test_author_oracle_phase_hands_off_to_preflight_on_success(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+
+    def oracle_author(state):
+        return True, "oracle authored"
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "generated oracle"),
+        lambda state: None,
+        oracle_author=oracle_author,
+    )
+    state = MissionState("mission-oracle", "visualizer", phase="author_oracle")
+
+    result = orchestrator.run(state, lambda current: current.failure_summary)
+
+    assert result.phase == "done"
+    assert result.status == "completed"
+    assert result.history[1]["phase"] == "author_oracle"
+    assert result.history[1]["success"] is True
+
+
+def test_author_oracle_phase_fails_the_mission_when_no_red_oracle_is_found(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+
+    def oracle_author(state):
+        return False, "no attempt produced a usable oracle"
+
+    orchestrator = Orchestrator(store, None, None, None, oracle_author=oracle_author)
+    state = MissionState("mission-oracle-2", "visualizer", phase="author_oracle")
+
+    result = orchestrator.run(state, lambda current: current.failure_summary)
+
+    assert result.phase == "failed"
+    assert result.status == "failed"
+    assert result.failure_summary == "no attempt produced a usable oracle"
+
+
+def test_author_oracle_phase_without_an_oracle_author_fails_clearly(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    orchestrator = Orchestrator(store, None, None, None)
+    state = MissionState("mission-oracle-3", "visualizer", phase="author_oracle")
+
+    result = orchestrator.run(state, lambda current: current.failure_summary)
+
+    assert result.phase == "failed"
+    assert "requires an oracle_author" in result.failure_summary
+
+
 def test_interruption_is_persisted_and_resumable(tmp_path):
     store = StateStore(tmp_path / "mission.json")
     orchestrator = Orchestrator(store, None, None, None)

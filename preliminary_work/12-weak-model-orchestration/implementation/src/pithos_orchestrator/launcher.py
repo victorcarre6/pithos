@@ -12,6 +12,7 @@ from pithos_runner.runner import RunnerConfiguration
 from .campaign import CommandValidator, ContextFactory, LocalFinalizer
 from .client import send_request
 from .controller import Orchestrator
+from .oracle import OracleAuthor
 from .pi_phase import PiPhaseRunner
 from .recap import generate_recap
 from .state import MissionState, StateStore
@@ -25,8 +26,11 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     project = json.loads((workspace / ".pithos.json").read_text(encoding="utf-8"))
     micro_rush_id = project.get("micro_rush_id", project["experiment_id"])
     validation_command = project.get("validation_command")
-    if not isinstance(validation_command, list) or not validation_command:
-        raise ValueError(".pithos.json requires a non-empty validation_command list")
+    auto_oracle = not validation_command
+    if auto_oracle and not project.get("target_files"):
+        raise ValueError(
+            ".pithos.json requires target_files to auto-author an oracle when validation_command is absent"
+        )
     for field in ("title", "description"):
         if not isinstance(project.get(field), str) or not project[field].strip():
             raise ValueError(f".pithos.json requires a non-empty {field}")
@@ -47,13 +51,28 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
         repeat_limit=3,
     )
     phase_runner = PiPhaseRunner(configuration, mission_root, events)
-    validator = CommandValidator(workspace, validation_command)
+    # placeholder command, replaced by OracleAuthor before the preflight gate ever runs it
+    validator = CommandValidator(workspace, validation_command or ["python", "-c", "raise SystemExit(1)"])
+    oracle_author = None
+    if auto_oracle:
+        oracle_author = OracleAuthor(
+            configuration.model,
+            project,
+            workspace,
+            mission_root / "oracle.py",
+            validator,
+        )
     git_send = None
     if git_socket:
         git_send = lambda request: send_request(git_socket, request)
     finalizer = LocalFinalizer(workspace, mission_root, logs_root, git_send)
-    orchestrator = Orchestrator(state_store, phase_runner, validator, finalizer)
-    state = MissionState(mission_id, project["experiment_id"], micro_rush_id=micro_rush_id)
+    orchestrator = Orchestrator(state_store, phase_runner, validator, finalizer, oracle_author=oracle_author)
+    state = MissionState(
+        mission_id,
+        project["experiment_id"],
+        micro_rush_id=micro_rush_id,
+        phase="author_oracle" if auto_oracle else "preflight",
+    )
     started_monotonic = time.monotonic()
     events.append(
         "run.started",
@@ -61,6 +80,7 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
             "experiment_id": state.experiment_id,
             "micro_rush_id": f"rush-{state.micro_rush_id}",
             "model": configuration.model,
+            "oracle": "generated" if auto_oracle else "manual",
         },
     )
     _notify(telegram_socket, project, state, "started")

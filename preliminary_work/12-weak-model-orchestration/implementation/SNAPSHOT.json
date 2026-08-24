@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-24T17:41:33.001773+00:00",
+  "generated_at": "2026-08-24T20:12:16.277002+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -22,11 +22,15 @@
     },
     {
       "path": "src/pithos_orchestrator/controller.py",
-      "sha256": "7f20edc35cb99d494c3150473ba2888c1953024a51620bd752efd1c7315079a4"
+      "sha256": "a528125cfba439f9a80956754cbe41f6e502fb146a485d15f35af2d810862d48"
     },
     {
       "path": "src/pithos_orchestrator/launcher.py",
-      "sha256": "dc0d7ef10644a8adde89ee742fe733fc425143efaa4dfc8a68c2c8bf7783f5ef"
+      "sha256": "8515ed1b40e3da73b5a589c83f475b836dc04952c5dee4d11af7ff660dcd89b8"
+    },
+    {
+      "path": "src/pithos_orchestrator/oracle.py",
+      "sha256": "56b1edabffef768e4f9eed7a57bd815bf7bd714990036938b4bdaaec63cacfc2"
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
@@ -38,7 +42,7 @@
     },
     {
       "path": "src/pithos_orchestrator/state.py",
-      "sha256": "3d67bfea99df2776054b065b61ae67ed09abf032b64e013061e9692b65160058"
+      "sha256": "ac489486129932f25289b32d811f1451f93499c61918c28ff4b18fef9d6299fd"
     },
     {
       "path": "src/visualizer_acceptance.py",
@@ -49,12 +53,16 @@
       "sha256": "11311d00730ad2768e85865eb057f673586337f9d6df107d08e6e05877e7d1be"
     },
     {
+      "path": "tests/test_oracle.py",
+      "sha256": "c046e50616f07b7ba4f1d5d06ef901c832fc34930383f2012ce365e4b1d967dc"
+    },
+    {
       "path": "tests/test_orchestrator.py",
-      "sha256": "830518424a93c759351db7995a7abac4e424cb267a2907d3e994d85fd29e4b08"
+      "sha256": "2a366446e8c2d55226283faf061551c822ff81733560dab3292510d5209ec3d3"
     },
     {
       "path": "tests/test_run_orchestrated.py",
-      "sha256": "85088f78ad567a738c6ef60ffd218c13a43f4c06f4108a2e02bd5526df5b8998"
+      "sha256": "601cfb09162c4d20480cbb160e37ecc5893397d49138e5e5a25e618d45fe532a"
     }
   ]
 }

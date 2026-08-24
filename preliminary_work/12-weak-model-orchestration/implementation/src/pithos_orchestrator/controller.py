@@ -27,11 +27,12 @@ class ValidationResult:
 class Orchestrator:
     """Drive one mission through bounded fresh-session phases."""
 
-    def __init__(self, store, phase_runner, validator, finalizer):
+    def __init__(self, store, phase_runner, validator, finalizer, oracle_author=None):
         self.store = store
         self.phase_runner = phase_runner
         self.validator = validator
         self.finalizer = finalizer
+        self.oracle_author = oracle_author
 
     def run(self, state, context_for, max_steps=20):
         """Continue from persisted state until terminal or step budget exhaustion."""
@@ -71,6 +72,9 @@ class Orchestrator:
         return state
 
     def _step(self, state, context_for):
+        if state.phase == "author_oracle":
+            self._run_oracle_authoring(state)
+            return
         if state.phase == "preflight":
             self._run_validation(state)
             return
@@ -95,6 +99,27 @@ class Orchestrator:
             return
 
         raise ValueError(f"unsupported active phase: {state.phase}")
+
+    def _run_oracle_authoring(self, state):
+        if self.oracle_author is None:
+            state.phase = "failed"
+            state.status = "failed"
+            state.failure_summary = "author_oracle phase requires an oracle_author"
+            return
+
+        try:
+            success, reason = self.oracle_author(state)
+        except (OSError, RuntimeError, ValueError) as error:
+            success, reason = False, f"oracle authoring crashed: {error}"
+
+        state.history.append({"phase": "author_oracle", "event": reason, "success": success})
+        if not success:
+            state.phase = "failed"
+            state.status = "failed"
+            state.failure_summary = reason
+            return
+
+        state.phase = "preflight"
 
     def _run_model_phase(self, state, context_for):
         phase = state.phase
