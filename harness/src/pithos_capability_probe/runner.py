@@ -138,12 +138,16 @@ def run_process_group(
         return ProcessOutcome(None, stdout, stderr, True)
 
 
-def run_scenario(root: Path, scenario: Scenario, configuration: PiConfiguration) -> dict:
-    """Run one isolated Pi process and verify its effects externally."""
+def _run_pi(
+    root: Path,
+    workspace: Path,
+    prompt: str,
+    session_name: str,
+    configuration: PiConfiguration,
+) -> tuple[ProcessOutcome, list[str]]:
+    """Run one fresh Pi process and return its command with captured output."""
 
-    root.mkdir(parents=True, exist_ok=True)
-    workspace = _prepare_workspace(root, scenario)
-    session_dir = root / "sessions"
+    session_dir = root / session_name
     session_dir.mkdir(exist_ok=True)
     command = [
         configuration.executable,
@@ -159,17 +163,26 @@ def run_scenario(root: Path, scenario: Scenario, configuration: PiConfiguration)
         "--print",
         "--session-dir",
         str(session_dir),
-        scenario.prompt,
+        prompt,
     ]
     environment = os.environ.copy()
     environment["PI_CODING_AGENT_DIR"] = str(configuration.config_dir)
-
     outcome = run_process_group(
         command,
         cwd=workspace,
         environment=environment,
         timeout_seconds=configuration.timeout_seconds,
     )
+
+    return outcome, command
+
+
+def run_scenario(root: Path, scenario: Scenario, configuration: PiConfiguration) -> dict:
+    """Run one isolated Pi process and verify its effects externally."""
+
+    root.mkdir(parents=True, exist_ok=True)
+    workspace = _prepare_workspace(root, scenario)
+    outcome, command = _run_pi(root, workspace, scenario.prompt, "sessions", configuration)
     exit_code = outcome.exit_code
     stdout = outcome.stdout
     stderr = outcome.stderr
@@ -179,6 +192,28 @@ def run_scenario(root: Path, scenario: Scenario, configuration: PiConfiguration)
     (root / "stderr.log").write_text(stderr, encoding="utf-8")
     events, parse_errors = parse_events(stdout)
     protocol_success, protocol_evidence = classify_protocol(events, parse_errors)
+
+    follow_up_command = None
+    if scenario.follow_up_prompt and exit_code == 0 and not timed_out:
+        (root / "stdout.initial.jsonl").write_text(stdout, encoding="utf-8")
+        (root / "stderr.initial.log").write_text(stderr, encoding="utf-8")
+        follow_up, follow_up_command = _run_pi(
+            root,
+            workspace,
+            scenario.follow_up_prompt,
+            "sessions-follow-up",
+            configuration,
+        )
+        (root / "stdout.follow-up.jsonl").write_text(follow_up.stdout, encoding="utf-8")
+        (root / "stderr.follow-up.log").write_text(follow_up.stderr, encoding="utf-8")
+        follow_up_events, follow_up_errors = parse_events(follow_up.stdout)
+        follow_up_protocol, follow_up_evidence = classify_protocol(follow_up_events, follow_up_errors)
+        protocol_success = protocol_success and follow_up_protocol
+        protocol_evidence = f"initial={protocol_evidence}; follow_up={follow_up_evidence}"
+        exit_code = follow_up.exit_code
+        timed_out = follow_up.timed_out
+        events = follow_up_events
+
     task_success, task_evidence = scenario.verify(workspace, events)
     report_success = task_success if scenario.report_expected else None
 
@@ -193,4 +228,5 @@ def run_scenario(root: Path, scenario: Scenario, configuration: PiConfiguration)
         "protocol_evidence": protocol_evidence,
         "task_evidence": task_evidence,
         "command": command,
+        "follow_up_command": follow_up_command,
     }

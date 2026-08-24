@@ -1,6 +1,7 @@
 """Validate repository, branches and operations before any Git mutation."""
 
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -23,7 +24,14 @@ class GitPolicy:
 
     def validate_repository(self) -> Path:
         resolved = self.repository.resolve()
-        if not (resolved / ".git").exists():
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=resolved,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
             raise PolicyViolation(f"not a Git repository: {resolved}")
 
         return resolved
@@ -39,4 +47,3 @@ class GitPolicy:
             raise PolicyViolation("commit message must be one line and at most 120 characters")
 
         return message
-

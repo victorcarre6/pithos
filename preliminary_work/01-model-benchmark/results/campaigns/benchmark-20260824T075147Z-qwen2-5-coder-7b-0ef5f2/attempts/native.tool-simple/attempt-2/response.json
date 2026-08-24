@@ -1,0 +1,193 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-24T07:52:00.859303Z",
+  "message": {
+    "role": "assistant",
+    "content": "{\"name\": \"read_fixture\", \"arguments\": {\"path\": \"fixture.txt\"}}",
+    "thinking": "",
+    "tool_calls": []
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1109993416,
+  "load_duration": 118631583,
+  "prompt_eval_count": 169,
+  "prompt_eval_duration": 58000000,
+  "eval_count": 18,
+  "eval_duration": 931522000,
+  "client_duration_seconds": 1.1112551249971148,
+  "time_to_first_chunk_seconds": 0.17910737497732043,
+  "time_to_first_content_seconds": 0.17910737497732043,
+  "stream_chunk_count": 18,
+  "stream_chunks": [
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:51:59.927355Z",
+      "message": {
+        "role": "assistant",
+        "content": "{\""
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:51:59.978935Z",
+      "message": {
+        "role": "assistant",
+        "content": "name"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.036301Z",
+      "message": {
+        "role": "assistant",
+        "content": "\":"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.090692Z",
+      "message": {
+        "role": "assistant",
+        "content": " \""
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.144052Z",
+      "message": {
+        "role": "assistant",
+        "content": "read"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.198317Z",
+      "message": {
+        "role": "assistant",
+        "content": "_fixture"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.254561Z",
+      "message": {
+        "role": "assistant",
+        "content": "\","
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.306019Z",
+      "message": {
+        "role": "assistant",
+        "content": " \""
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.362267Z",
+      "message": {
+        "role": "assistant",
+        "content": "arguments"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.414366Z",
+      "message": {
+        "role": "assistant",
+        "content": "\":"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.474578Z",
+      "message": {
+        "role": "assistant",
+        "content": " {\""
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.527774Z",
+      "message": {
+        "role": "assistant",
+        "content": "path"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.586796Z",
+      "message": {
+        "role": "assistant",
+        "content": "\":"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.639462Z",
+      "message": {
+        "role": "assistant",
+        "content": " \""
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.696046Z",
+      "message": {
+        "role": "assistant",
+        "content": "fixture"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.750957Z",
+      "message": {
+        "role": "assistant",
+        "content": ".txt"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.807482Z",
+      "message": {
+        "role": "assistant",
+        "content": "\"}}"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:52:00.859303Z",
+      "message": {
+        "role": "assistant",
+        "content": ""
+      },
+      "done": true,
+      "done_reason": "stop",
+      "total_duration": 1109993416,
+      "load_duration": 118631583,
+      "prompt_eval_count": 169,
+      "prompt_eval_duration": 58000000,
+      "eval_count": 18,
+      "eval_duration": 931522000
+    }
+  ]
+}

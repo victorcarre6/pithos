@@ -1,0 +1,18 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "messages": [
+    {
+      "role": "developer",
+      "content": "Reply with exactly PITHOS_DEVELOPER_OK."
+    },
+    {
+      "role": "user",
+      "content": "Follow the developer instruction."
+    }
+  ],
+  "stream": true,
+  "keep_alive": "30m",
+  "options": {
+    "temperature": 0
+  }
+}

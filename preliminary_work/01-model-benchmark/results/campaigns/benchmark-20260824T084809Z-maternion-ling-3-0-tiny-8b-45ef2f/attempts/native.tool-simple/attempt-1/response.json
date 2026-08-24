@@ -1,0 +1,243 @@
+{
+  "model": "maternion/ling-3.0-tiny:8b",
+  "created_at": "2026-08-24T08:48:15.294808Z",
+  "message": {
+    "role": "assistant",
+    "content": "",
+    "thinking": "The user wants me to read a file called fixture.txt using the read_fixture tool.",
+    "tool_calls": [
+      {
+        "id": "52RDt23sHY7YDXNlSWmM5CkvXhRy8olm",
+        "function": {
+          "index": 0,
+          "name": "read_fixture",
+          "arguments": {
+            "path": "fixture.txt"
+          }
+        }
+      }
+    ]
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1325178167,
+  "load_duration": 4200709,
+  "prompt_eval_count": 240,
+  "prompt_eval_duration": 628526000,
+  "eval_count": 36,
+  "eval_duration": 677208000,
+  "client_duration_seconds": 1.326502709009219,
+  "time_to_first_chunk_seconds": 0.6486538749886677,
+  "time_to_first_content_seconds": 0.6486538749886677,
+  "stream_chunk_count": 19,
+  "stream_chunks": [
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.617515Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "The"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.637166Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " user"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.655552Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " wants"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.673954Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " me"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.696398Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " to"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.714663Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " read"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.73312Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " a"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.751367Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " file"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.770332Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " called"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.795325Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " fixture"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.814872Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": ".txt"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.834198Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " using"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.853089Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " the"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.87175Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " read"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.892027Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "_f"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.912224Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "ixture"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.930603Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": " tool"
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:14.951145Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "thinking": "."
+      },
+      "done": false
+    },
+    {
+      "model": "maternion/ling-3.0-tiny:8b",
+      "created_at": "2026-08-24T08:48:15.294808Z",
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "52RDt23sHY7YDXNlSWmM5CkvXhRy8olm",
+            "function": {
+              "index": 0,
+              "name": "read_fixture",
+              "arguments": {
+                "path": "fixture.txt"
+              }
+            }
+          }
+        ]
+      },
+      "done": true,
+      "done_reason": "stop",
+      "total_duration": 1325178167,
+      "load_duration": 4200709,
+      "prompt_eval_count": 240,
+      "prompt_eval_duration": 628526000,
+      "eval_count": 36,
+      "eval_duration": 677208000
+    }
+  ]
+}

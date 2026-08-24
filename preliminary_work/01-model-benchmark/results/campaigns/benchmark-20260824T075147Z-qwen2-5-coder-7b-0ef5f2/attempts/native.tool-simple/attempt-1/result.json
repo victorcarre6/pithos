@@ -1,0 +1,34 @@
+{
+  "attempt_id": "native.tool-simple-a1",
+  "scenario_id": "native.tool-simple",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "native",
+  "passed": false,
+  "error": null,
+  "evidence": {
+    "tool_calls": []
+  },
+  "duration_seconds": 2.07585370799643,
+  "decode_tokens_per_second": 19.08945424310844,
+  "measurements": {
+    "client_duration_seconds": 2.07585370799643,
+    "time_to_first_chunk_seconds": 1.0065010830003303,
+    "time_to_first_content_seconds": 1.0065010830003303,
+    "stream_chunk_count": 18,
+    "total_duration_seconds": 1.948444459,
+    "load_duration_seconds": 0.12118475,
+    "prompt_eval_count": 169,
+    "prompt_eval_duration_seconds": 0.879846,
+    "eval_count": 18,
+    "eval_duration_seconds": 0.942929,
+    "done_reason": "stop",
+    "decode_tokens_per_second": 19.08945424310844,
+    "prompt_tokens_per_second": 192.07906838242147,
+    "resource_sample_count": 3,
+    "peak_cpu_percent": 47.0,
+    "peak_memory_used_bytes": 8359002112,
+    "minimum_memory_available_bytes": 7638614016,
+    "peak_swap_used_bytes": 3121152000
+  }
+}

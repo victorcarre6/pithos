@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "10-live-logs",
-  "generated_at": "2026-08-23T15:06:51.052164+00:00",
+  "generated_at": "2026-08-24T16:07:22.695871+00:00",
   "files": [
     {
       "path": "src/pithos_live_log/__init__.py",
@@ -26,7 +26,7 @@
     },
     {
       "path": "tests/test_live_log.py",
-      "sha256": "ee02f0c0b5ab4ad0c5319c7d1b23fdea6921ef490f58d5fd00d27ca4ac24e25e"
+      "sha256": "a265f544cfb3e9b880c9b06fb6fe7dc85d621bb67ffe05cfb6a7050b6e337135"
     }
   ]
 }

@@ -1,0 +1,4 @@
+{"schema_version":1,"benchmark_id":"benchmark-20260824T085027Z-maternion-ling-3-0-tiny-8b-bf4fc4","timestamp":"2026-08-24T08:50:27.580721+00:00","type":"campaign.started","payload":{"model":"maternion/ling-3.0-tiny:8b","scenario_count":2}}
+{"schema_version":1,"benchmark_id":"benchmark-20260824T085027Z-maternion-ling-3-0-tiny-8b-bf4fc4","timestamp":"2026-08-24T08:50:27.580837+00:00","type":"scenario.skipped","payload":{"scenario_id":"agentic.multi-tool","reason":"speed gate"}}
+{"schema_version":1,"benchmark_id":"benchmark-20260824T085027Z-maternion-ling-3-0-tiny-8b-bf4fc4","timestamp":"2026-08-24T08:50:27.580901+00:00","type":"scenario.skipped","payload":{"scenario_id":"agentic.continuity-report","reason":"speed gate"}}
+{"schema_version":1,"benchmark_id":"benchmark-20260824T085027Z-maternion-ling-3-0-tiny-8b-bf4fc4","timestamp":"2026-08-24T08:50:27.581235+00:00","type":"campaign.finished","payload":{"status":"completed"}}

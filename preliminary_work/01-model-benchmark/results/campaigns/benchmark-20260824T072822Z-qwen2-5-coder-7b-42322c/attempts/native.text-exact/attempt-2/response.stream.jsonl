@@ -1,0 +1,6 @@
+{"model":"qwen2.5-coder:7b","created_at":"2026-08-24T07:28:33.26714Z","message":{"role":"assistant","content":"P"},"done":false}
+{"model":"qwen2.5-coder:7b","created_at":"2026-08-24T07:28:33.3192Z","message":{"role":"assistant","content":"ITH"},"done":false}
+{"model":"qwen2.5-coder:7b","created_at":"2026-08-24T07:28:33.371532Z","message":{"role":"assistant","content":"OS"},"done":false}
+{"model":"qwen2.5-coder:7b","created_at":"2026-08-24T07:28:33.421722Z","message":{"role":"assistant","content":"_TEXT"},"done":false}
+{"model":"qwen2.5-coder:7b","created_at":"2026-08-24T07:28:33.475507Z","message":{"role":"assistant","content":"_OK"},"done":false}
+{"model":"qwen2.5-coder:7b","created_at":"2026-08-24T07:28:33.52774Z","message":{"role":"assistant","content":""},"done":true,"done_reason":"stop","total_duration":424760875,"load_duration":106539666,"prompt_eval_count":42,"prompt_eval_duration":56358000,"eval_count":6,"eval_duration":260461000}

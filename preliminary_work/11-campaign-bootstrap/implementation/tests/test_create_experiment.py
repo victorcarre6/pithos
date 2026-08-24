@@ -12,9 +12,10 @@ create_module = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(create_module)
 
 
-def test_create_experiment_injects_active_ground_truth_and_git(tmp_path):
+def test_create_experiment_injects_active_ground_truth_in_parent_git_repository(tmp_path):
     source_harness = Path(__file__).parents[1]
     experiments = tmp_path / "experiments"
+    subprocess.run(["git", "init", "-b", "main"], cwd=tmp_path, check=True, capture_output=True)
 
     target = create_module.create_experiment(source_harness, experiments, "audio-lab")
     configuration = json.loads((target / ".pithos.json").read_text(encoding="utf-8"))
@@ -25,13 +26,14 @@ def test_create_experiment_injects_active_ground_truth_and_git(tmp_path):
     assert configuration["experiment_id"] == "audio-lab"
     assert configuration["runtime"] == "docker"
     branch = subprocess.run(
-        ["git", "branch", "--show-current"],
+        ["git", "rev-parse", "--show-toplevel"],
         cwd=target,
         check=True,
         capture_output=True,
         text=True,
     )
-    assert branch.stdout.strip() == "main"
+    assert Path(branch.stdout.strip()) == tmp_path
+    assert not (target / ".git").exists()
 
 
 def test_create_experiment_refuses_invalid_or_existing_target(tmp_path):

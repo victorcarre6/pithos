@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from pithos_event_store import EventStore, IngestionError
+from pithos_event_store.cli import _collect
 from pithos_event_store.migrations import MIGRATIONS
 
 
@@ -50,6 +51,26 @@ def test_ingestion_is_idempotent_and_resumes_from_committed_offset(tmp_path):
     assert resumed["ingested"] == 1
     assert _count(store, "events") == 2
     assert _count(store, "tool_calls") == 1
+    store.close()
+
+
+def test_collector_discovers_runner_and_orchestrated_events(tmp_path):
+    run_events = tmp_path / "runs" / RUN_ID / "events.jsonl"
+    mission_id = "run-20260823T130000Z-d4e5f6"
+    mission_events = tmp_path / "missions" / mission_id / "events.jsonl"
+    run_events.parent.mkdir(parents=True)
+    mission_events.parent.mkdir(parents=True)
+    _append(run_events, _event(0, "run.started"))
+    mission_event = _event(1, "run.started")
+    mission_event["event_id"] = "evt-20260823T130001.000000Z-d4e5f6"
+    mission_event["run_id"] = mission_id
+    _append(mission_events, mission_event)
+    store = EventStore(tmp_path / "pithos.db")
+
+    results = _collect(store, tmp_path)
+
+    assert len(results) == 2
+    assert _count(store, "runs") == 2
     store.close()
 
 

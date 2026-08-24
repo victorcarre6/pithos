@@ -171,7 +171,7 @@ def test_docker_runtime_mounts_only_scoped_paths_and_forwards_no_secrets(tmp_pat
     assert command[:2] == ["docker", "run"]
     assert "--network pithos-agent" in rendered
     assert f"src={workspace},dst=/workspace" in rendered
-    assert f"http://{RUN_ID}@pithos-egress:3128" in rendered
+    assert f"http://{RUN_ID}:pithos@pithos-egress:3128" in rendered
     assert "must-not-leak" not in rendered
     assert "OPENAI_API_KEY" not in environment
     assert "HOME" not in environment
@@ -195,7 +195,7 @@ def test_docker_runtime_rejects_secret_bearing_pi_config(tmp_path):
         _runtime_command(configuration, RUN_ID, run_dir, "work")
 
 
-def test_runner_completes_only_with_valid_report(tmp_path):
+def test_runner_completes_only_with_valid_report(tmp_path, monkeypatch):
     executable = _executable(
         tmp_path / "fake-pi",
         """
@@ -237,6 +237,12 @@ for event in ({'type': 'agent_start'}, {'type': 'agent_end', 'messages': []}):
 """,
     )
     configuration = _configuration(tmp_path, executable)
+    configuration = replace(configuration, telegram_socket=tmp_path / "telegram.sock")
+    notifications = []
+    monkeypatch.setattr(
+        "pithos_telegram.client.send_request",
+        lambda socket_path, request: notifications.append((socket_path, request)),
+    )
 
     result = run_once(configuration)
 
@@ -247,6 +253,13 @@ for event in ({'type': 'agent_start'}, {'type': 'agent_end', 'messages': []}):
     validate_document(json.loads((run_dir / "run.json").read_text()), "run")
     assert validate_events(run_dir / "events.jsonl") == 4
     assert (configuration.logs_root / "latest.md").exists()
+    assert [request["request_id"].rsplit("-", 1)[-1] for _, request in notifications] == [
+        "started",
+        "finished",
+    ]
+    assert notifications[0][1]["kind"] == "INFO"
+    assert notifications[1][1]["kind"] == "INFO"
+    assert "statut=completed" in notifications[1][1]["text"]
 
 
 def test_runner_times_out_process_group(tmp_path):
@@ -269,6 +282,25 @@ time.sleep(30)
     run_dir = configuration.logs_root / "runs" / result["run_id"]
     events = [json.loads(line) for line in (run_dir / "events.jsonl").read_text().splitlines()]
     assert "run.heartbeat" in {event["type"] for event in events}
+
+
+def test_keyboard_interrupt_finalizes_run_document(tmp_path, monkeypatch):
+    executable = _executable(tmp_path / "unused-pi", "pass\n")
+    configuration = _configuration(tmp_path, executable)
+
+    def interrupt(*args, **kwargs):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr("pithos_runner.runner.run_monitored", interrupt)
+
+    with pytest.raises(KeyboardInterrupt):
+        run_once(configuration)
+
+    run_documents = list((configuration.logs_root / "runs").glob("*/run.json"))
+    document = json.loads(run_documents[0].read_text())
+    assert document["status"] == "interrupted"
+    assert document["finished_at"] is not None
+    assert document["stop_reason"] == "operator interrupt"
 
 
 def test_loop_guard_notifies_then_pauses_even_if_notification_fails(tmp_path, monkeypatch):
@@ -299,7 +331,11 @@ time.sleep(30)
 
     result = run_once(configuration)
 
-    assert attempts[0][1]["text"] == "Boucle récursive infinie détectée."
+    loop_notifications = [
+        request for _, request in attempts if request["request_id"].endswith("-loop-guard")
+    ]
+    loop_notification = loop_notifications[0]
+    assert loop_notification["text"] == "Boucle récursive infinie détectée."
     assert result["status"] == "paused"
     assert result["stop_reason"] == LOOP_WARNING
     assert read_state(configuration.logs_root / "runtime" / "state.json")["paused"] is True

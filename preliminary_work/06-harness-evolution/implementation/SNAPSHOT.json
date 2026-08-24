@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "06-harness-evolution",
-  "generated_at": "2026-08-23T15:06:51.042406+00:00",
+  "generated_at": "2026-08-24T16:07:22.684000+00:00",
   "files": [
     {
       "path": "src/pithos_harness/__init__.py",
@@ -42,7 +42,7 @@
     },
     {
       "path": "src/pithos_harness/server.py",
-      "sha256": "ea85fdc3745c112d023d49848b9ec49117d3d2a4f396444f45c5048fd550d1a2"
+      "sha256": "0951ff05e6364ccdceed6966449213fbc8539b2894aa7352dc42500d8d0d080c"
     },
     {
       "path": "src/pithos_harness/validation.py",

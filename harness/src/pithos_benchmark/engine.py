@@ -248,7 +248,7 @@ class BenchmarkEngine:
             if result["scenario_id"] == "native.text-exact" and result["decode_tokens_per_second"] is not None
         ]
         if not speeds:
-            return True
+            return False
 
         return statistics.median(speeds) < self.configuration.minimum_tokens_per_second
 
@@ -347,6 +347,7 @@ class BenchmarkEngine:
             "suite": self.configuration.suite,
             "attempts_per_scenario": self.configuration.attempts,
             "minimum_tokens_per_second": self.configuration.minimum_tokens_per_second,
+            "timeout_override_seconds": self.configuration.timeout_override_seconds,
             "started_at": started_at,
             "finished_at": _utc_now(),
             "status": "stopped" if self._stop.is_set() else "completed",

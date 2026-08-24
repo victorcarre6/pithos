@@ -5,7 +5,6 @@ import argparse
 import json
 import re
 import shutil
-import subprocess
 from pathlib import Path
 
 
@@ -13,7 +12,7 @@ EXPERIMENT_ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 
 
 def create_experiment(harness_root: Path, experiments_root: Path, experiment_id: str, remote=None):
-    """Create a new Git repository without replacing an existing directory."""
+    """Create one experiment inside the repository containing experiments_root."""
 
     if not EXPERIMENT_ID.fullmatch(experiment_id):
         raise ValueError("experiment id must be a lowercase slug of 2 to 63 characters")
@@ -37,9 +36,8 @@ def create_experiment(harness_root: Path, experiments_root: Path, experiment_id:
         "ground_truth": str(ground_truth),
     }
     (target / ".pithos.json").write_text(json.dumps(configuration, indent=2) + "\n", encoding="utf-8")
-    subprocess.run(["git", "init", "-b", "main"], cwd=target, check=True, capture_output=True)
     if remote:
-        subprocess.run(["git", "remote", "add", "origin", remote], cwd=target, check=True, capture_output=True)
+        raise ValueError("experiments use the parent repository remote")
 
     return target
 

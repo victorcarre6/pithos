@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "campaign_id": "benchmark-20260824T075147Z-qwen2-5-coder-7b-0ef5f2",
+  "model": "qwen2.5-coder:7b",
+  "suite": "protocol",
+  "attempts_per_scenario": 3,
+  "minimum_tokens_per_second": 0.05,
+  "timeout_override_seconds": null,
+  "started_at": "2026-08-24T07:51:47.664962+00:00",
+  "finished_at": "2026-08-24T07:52:01.974265+00:00",
+  "status": "completed",
+  "scenario_versions": {
+    "native.structured-simple": 1,
+    "native.tool-simple": 1
+  },
+  "summary": {
+    "attempts": 6,
+    "passed": 3,
+    "failed": 3,
+    "pass_rate": 0.5,
+    "median_decode_tokens_per_second": 19.301200204832632
+  }
+}

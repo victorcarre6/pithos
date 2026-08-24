@@ -11,29 +11,7 @@ import time
 from contextlib import ExitStack
 from pathlib import Path
 
-from pithos_runner.runner import RunnerConfiguration, run_once
-
-
-def configuration_for(workspace: Path, logs_root: Path, sockets: dict):
-    """Build the runner configuration from one generated experiment."""
-
-    project = json.loads((workspace / ".pithos.json").read_text(encoding="utf-8"))
-    ground_truth = Path(project["ground_truth"]).resolve()
-    harness_root = ground_truth.parent
-    repository_root = workspace.parent.parent
-
-    return RunnerConfiguration(
-        experiment_id=project["experiment_id"],
-        workspace=workspace,
-        logs_root=logs_root,
-        pi_config_dir=Path(project["pi_config"]).resolve(),
-        runtime=project.get("runtime", "docker"),
-        git_socket=sockets.get("git"),
-        harness_socket=sockets.get("harness"),
-        telegram_socket=sockets.get("telegram"),
-        ground_truth_root=ground_truth,
-        harness_journals_root=repository_root / "journals" / "harness",
-    )
+from pithos_orchestrator.launcher import launch as launch_orchestrated
 
 
 def launch(workspace: Path, logs_root: Path):
@@ -45,37 +23,19 @@ def launch(workspace: Path, logs_root: Path):
     harness_root = Path(project["ground_truth"]).resolve().parent
     runtime_root = logs_root / "runtime"
     runtime_root.mkdir(parents=True, exist_ok=True)
-    environment = os.environ.copy()
-    environment["PITHOS_LOGS_ROOT"] = str(logs_root)
-    subprocess.run(
-        ["docker", "compose", "-f", str(harness_root / "runtime" / "docker-compose.yml"), "up", "-d"],
-        check=True,
-        env=environment,
-    )
+    host_environment = os.environ.copy()
+    host_environment["PITHOS_LOGS_ROOT"] = str(logs_root)
+    telegram_environment = _environment_for(workspace, logs_root)
+    if project.get("runtime", "docker") == "docker":
+        subprocess.run(
+            ["docker", "compose", "-f", str(harness_root / "runtime" / "docker-compose.yml"), "up", "-d"],
+            check=True,
+            env=host_environment,
+        )
 
     processes = []
     sockets = {}
     with ExitStack() as stack:
-        harness_socket = runtime_root / f"{project['experiment_id']}-harness.sock"
-        harness_command = [
-            sys.executable,
-            "-m",
-            "pithos_harness.cli",
-            "--active-root",
-            str(workspace),
-            "--ground-truth-root",
-            str(harness_root / "ground_truth"),
-            "--journals-root",
-            str(workspace.parent.parent / "journals" / "harness"),
-            "--logs-root",
-            str(logs_root),
-            "serve",
-            "--socket",
-            str(harness_socket),
-        ]
-        processes.append(_start_broker(harness_command, harness_socket, runtime_root, "harness", stack))
-        sockets["harness"] = harness_socket
-
         remote = _git_remote(workspace)
         if remote:
             git_socket = runtime_root / f"{project['experiment_id']}-git.sock"
@@ -92,10 +52,12 @@ def launch(workspace: Path, logs_root: Path):
                 "--logs-root",
                 str(logs_root),
             ]
-            processes.append(_start_broker(git_command, git_socket, runtime_root, "git", stack))
+            processes.append(
+                _start_broker(git_command, git_socket, runtime_root, "git", stack, host_environment)
+            )
             sockets["git"] = git_socket
 
-        if os.getenv("TELEGRAM_BOT_TOKEN") and os.getenv("TELEGRAM_USER_ID"):
+        if telegram_environment.get("TELEGRAM_BOT_TOKEN") and telegram_environment.get("TELEGRAM_USER_ID"):
             telegram_socket = runtime_root / f"{project['experiment_id']}-telegram.sock"
             telegram_command = [
                 sys.executable,
@@ -107,11 +69,25 @@ def launch(workspace: Path, logs_root: Path):
                 "--logs-root",
                 str(logs_root),
             ]
-            processes.append(_start_broker(telegram_command, telegram_socket, runtime_root, "telegram", stack))
+            processes.append(
+                _start_broker(
+                    telegram_command,
+                    telegram_socket,
+                    runtime_root,
+                    "telegram",
+                    stack,
+                    telegram_environment,
+                )
+            )
             sockets["telegram"] = telegram_socket
 
         try:
-            return run_once(configuration_for(workspace, logs_root, sockets))
+            return launch_orchestrated(
+                workspace,
+                logs_root,
+                sockets.get("git"),
+                sockets.get("telegram"),
+            ).__dict__
         finally:
             for process in reversed(processes):
                 process.terminate()
@@ -122,14 +98,37 @@ def launch(workspace: Path, logs_root: Path):
                     process.kill()
 
 
-def _start_broker(command, socket_path, runtime_root, name, stack):
+def _environment_for(workspace, logs_root):
+    """Load only the two Telegram credentials from the ignored workspace file."""
+
+    # environnement hôte + chemin d'état
+    environment = os.environ.copy()
+    environment["PITHOS_LOGS_ROOT"] = str(logs_root)
+
+    # valeurs Telegram explicites, sans écraser l'environnement hôte
+    dotenv_path = Path(workspace) / ".env"
+    if not dotenv_path.is_file():
+        return environment
+
+    allowed = {"TELEGRAM_BOT_TOKEN", "TELEGRAM_USER_ID"}
+    for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
+        name, separator, raw_value = raw_line.strip().partition("=")
+        if not separator or name not in allowed:
+            continue
+        value = raw_value.strip().strip("'\"")
+        environment.setdefault(name, value)
+
+    return environment
+
+
+def _start_broker(command, socket_path, runtime_root, name, stack, environment):
     """Start one broker and wait until its private socket accepts connections."""
 
     if socket_path.exists():
         socket_path.unlink()
     stdout = stack.enter_context((runtime_root / f"{name}.stdout.log").open("a", encoding="utf-8"))
     stderr = stack.enter_context((runtime_root / f"{name}.stderr.log").open("a", encoding="utf-8"))
-    process = subprocess.Popen(command, stdout=stdout, stderr=stderr, text=True)
+    process = subprocess.Popen(command, stdout=stdout, stderr=stderr, text=True, env=environment)
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
         if process.poll() is not None:

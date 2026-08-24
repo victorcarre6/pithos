@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "02-capability-probe",
-  "generated_at": "2026-08-23T15:06:51.033617+00:00",
+  "generated_at": "2026-08-24T16:07:22.671925+00:00",
   "files": [
     {
       "path": "src/pithos_capability_probe/__init__.py",
@@ -26,19 +26,19 @@
     },
     {
       "path": "src/pithos_capability_probe/cli.py",
-      "sha256": "6a0378c07500535d15072624d7d79dd6787267e914d6e78bb5b046d146ce7ddf"
+      "sha256": "3b81e73cfb4743a3102b3ceaec30452b56d9756aa95213e762b24b54e97ad048"
     },
     {
       "path": "src/pithos_capability_probe/runner.py",
-      "sha256": "eb8d6e4d2e80e8ef0def2549eb301e41ba8e9c3592be5074affbd2c66c4438d7"
+      "sha256": "8d5310a93d510bf7f0c2ee5289dd99da28e285f6bb7f4990ef9e97c62495c5ad"
     },
     {
       "path": "src/pithos_capability_probe/scenarios.py",
-      "sha256": "700d7a01dc20e38f52c9c23650ce97df022b3caae794863a66b377366e64ea0f"
+      "sha256": "e7a37c664008059c6633486f421f7bd1dea9a08c6f355c1f1e2047e77d9fbb70"
     },
     {
       "path": "tests/test_capability_probe.py",
-      "sha256": "f5d126957e06a48cdfc6f3f9e24c99a0d6a3508786818adf8a1a7a848c83c5dd"
+      "sha256": "0b4092567b9c66044094d91a5e9b6992869e0fe43f694cc5d9199cc2015a1dc7"
     }
   ]
 }

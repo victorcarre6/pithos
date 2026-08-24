@@ -11,8 +11,8 @@ validés avant que Pi devienne le sujet de l'expérience autonome.
 - macOS sur Mac mini M2, 16 Go de mémoire unifiée ;
 - Node.js `26.7.0` ;
 - Pi `0.84.2` installé dans `~/.npm-global/bin/pi` ;
-- Docker CLI disponible, mais daemon actuellement arrêté ;
-- Ollama `0.32.13` actif avec les trois modèles locaux attendus ;
+- Docker Desktop `28.5.1` actif ; image arm64 `pithos-agent:local` construite et smoke testée ;
+- Ollama `0.32.15` actif avec Ling 3.0 Tiny comme baseline locale ;
 - extensions et skill Pithos dédiés sous `harness/ground_truth/.pi/`, chargés par Pi RPC ;
 - QEMU/Gondolin absent et non requis pour la baseline Docker.
 
@@ -64,7 +64,9 @@ Après édition de la fiche projet, un run supervisé se lance avec :
 harness/.venv/bin/python harness/scripts/run_experiment.py experiments/<experiment-id>
 ```
 
-Le lanceur démarre le proxy et les brokers disponibles, exécute un run puis termine ses services éphémères.
+Le lanceur démarre le proxy et les brokers hôte disponibles, exécute une mission bornée puis termine ses
+services éphémères. Les phases Docker n'accèdent pas directement aux sockets Unix hôte sous macOS ; le
+finalizer appelle les brokers après validation externe.
 
 ## Bootstrap humain minimal
 
@@ -179,15 +181,15 @@ dans `~/logs/pithos/live.log`.
 
 ## Conditions avant le premier réveil automatique
 
-- [ ] modèle chargé et débit mesuré ;
-- [ ] tool calls exécutés correctement ;
-- [ ] rapport de continuité validé ;
+- [x] modèle chargé et débit mesuré ;
+- [x] tool calls exécutés correctement ;
+- [x] rapport de continuité validé ;
 - [x] verrou et récupération d'un PID mort testés ;
 - [x] timeout et arbre de processus testés avec une limite réduite déterministe ;
 - [x] arrêt sur boucle testé ;
 - [x] reprise automatique désactivée après loop-guard ;
 - [x] credentials absents du workspace agent et des fixtures ;
-- [ ] première pull request créée lors d'un run supervisé ;
+- [x] première pull request créée lors d'un run supervisé ;
 - [x] `tail -F ~/logs/pithos/live.log` testé à travers une rotation.
 
 ## Sources techniques

@@ -10,7 +10,11 @@ from .store import EventStore, IngestionError
 
 def _collect(store: EventStore, logs_root: Path) -> list[dict]:
     results = []
-    for path in sorted((logs_root / "runs").glob("*/events.jsonl")):
+    event_paths = [
+        *(logs_root / "runs").glob("*/events.jsonl"),
+        *(logs_root / "missions").glob("*/events.jsonl"),
+    ]
+    for path in sorted(event_paths):
         results.append(store.ingest(path))
     network_log = logs_root / "network" / "access.log"
     if network_log.exists():

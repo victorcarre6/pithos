@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "07-event-store",
-  "generated_at": "2026-08-23T15:06:51.044325+00:00",
+  "generated_at": "2026-08-24T16:07:22.686371+00:00",
   "files": [
     {
       "path": "src/pithos_event_store/__init__.py",
@@ -22,7 +22,7 @@
     },
     {
       "path": "src/pithos_event_store/cli.py",
-      "sha256": "56448a3d37ff2222a92110e38b3b9a102f8afb3140863dad66e7f579924241db"
+      "sha256": "b8e4d34ca9301462bea63b129054248633e0b1911a589bb89a055a2f38841eea"
     },
     {
       "path": "src/pithos_event_store/migrations.py",
@@ -34,7 +34,7 @@
     },
     {
       "path": "tests/test_event_store.py",
-      "sha256": "b182de59648f8e821f64c80ddea861a93cecea0771495aaff45a55347fca761d"
+      "sha256": "16186ea6a6231919463a382c3e3b6c9df2db586b4a086e9109c9e9d0508bd682"
     },
     {
       "path": "tests/test_observability_integration.py",

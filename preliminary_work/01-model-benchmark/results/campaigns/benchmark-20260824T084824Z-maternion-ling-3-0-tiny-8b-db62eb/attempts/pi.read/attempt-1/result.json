@@ -1,0 +1,39 @@
+{
+  "attempt_id": "pi.read-a1",
+  "scenario_id": "pi.read",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "pi",
+  "passed": true,
+  "error": null,
+  "evidence": {
+    "scenario": "read",
+    "process_success": true,
+    "protocol_success": true,
+    "task_success": true,
+    "report_success": null,
+    "exit_code": 0,
+    "timed_out": false,
+    "protocol_evidence": "tool_executions=1",
+    "task_evidence": "tools=['read'], secret_returned=True",
+    "command": [
+      "pi",
+      "--approve",
+      "--provider",
+      "ollama",
+      "--model",
+      "maternion/ling-3.0-tiny:8b",
+      "--thinking",
+      "off",
+      "--mode",
+      "json",
+      "--print",
+      "--session-dir",
+      "/Users/victorcarre/logs/pithos/benchmarks/benchmark-20260824T084824Z-maternion-ling-3-0-tiny-8b-db62eb/attempts/pi.read/attempt-1/sessions",
+      "Use the read tool on input.txt, then reply with its exact content."
+    ]
+  },
+  "duration_seconds": null,
+  "decode_tokens_per_second": null,
+  "measurements": {}
+}

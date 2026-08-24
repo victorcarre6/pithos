@@ -19,6 +19,7 @@ class Scenario:
     prepare: Callable[[Path], None]
     verify: Verifier
     report_expected: bool = False
+    follow_up_prompt: str | None = None
 
 
 def _empty_prepare(workspace: Path) -> None:
@@ -134,6 +135,23 @@ def _verify_report(workspace: Path, events: list[dict]) -> tuple[bool, str]:
     return "write" in _tool_names(events), "report contract is valid"
 
 
+def _verify_skill_reuse(workspace: Path, events: list[dict]) -> tuple[bool, str]:
+    skill_path = workspace / ".pi" / "skills" / "probe-skill" / "SKILL.md"
+    content = skill_path.read_text(encoding="utf-8") if skill_path.exists() else ""
+    assistant = _assistant_text(events).strip()
+    passed = "name: probe-skill" in content and assistant == "PITHOS_SKILL_REUSED"
+
+    return passed, f"skill_exists={skill_path.exists()}, assistant={assistant!r}"
+
+
+def _verify_extension_reuse(workspace: Path, events: list[dict]) -> tuple[bool, str]:
+    extension_path = workspace / ".pi" / "extensions" / "probe-extension.ts"
+    tool_names = _tool_names(events)
+    passed = extension_path.exists() and "probe_marker" in tool_names
+
+    return passed, f"extension_exists={extension_path.exists()}, tools={tool_names}"
+
+
 SCENARIOS = {
     "text": Scenario(
         name="text",
@@ -190,6 +208,38 @@ SCENARIOS = {
         verify=_verify_report,
         report_expected=True,
     ),
+    "skill_reuse": Scenario(
+        name="skill_reuse",
+        prompt=(
+            "Use write to create .pi/skills/probe-skill/SKILL.md with exactly this content:\n"
+            "---\nname: probe-skill\ndescription: Return the deterministic capability marker.\n---\n\n"
+            "# Probe skill\n\nWhen asked for the skill marker, reply exactly PITHOS_SKILL_REUSED.\n"
+        ),
+        prepare=_empty_prepare,
+        verify=_verify_skill_reuse,
+        follow_up_prompt="Use the probe-skill skill to provide its marker.",
+    ),
+    "extension_reuse": Scenario(
+        name="extension_reuse",
+        prompt=(
+            "Use write to create .pi/extensions/probe-extension.ts with exactly this content:\n"
+            "import { Type } from \"@earendil-works/pi-ai\";\n\n"
+            "export default function probe(pi) {\n"
+            "  pi.registerTool({\n"
+            "    name: \"probe_marker\",\n"
+            "    label: \"Probe Marker\",\n"
+            "    description: \"Return the deterministic extension marker.\",\n"
+            "    parameters: Type.Object({}),\n"
+            "    async execute() {\n"
+            "      return { content: [{ type: \"text\", text: \"PITHOS_EXTENSION_REUSED\" }], details: {} };\n"
+            "    },\n"
+            "  });\n"
+            "}\n"
+        ),
+        prepare=_empty_prepare,
+        verify=_verify_extension_reuse,
+        follow_up_prompt="Use the probe_marker tool exactly once, then report its result.",
+    ),
 }
 
 
@@ -198,4 +248,3 @@ def prepare_report_template(workspace: Path) -> None:
 
     template = Path(__file__).resolve().parents[2] / "contracts" / "fixtures" / "valid" / "report.md"
     (workspace / "REPORT_TEMPLATE.md").write_text(template.read_text(encoding="utf-8"), encoding="utf-8")
-

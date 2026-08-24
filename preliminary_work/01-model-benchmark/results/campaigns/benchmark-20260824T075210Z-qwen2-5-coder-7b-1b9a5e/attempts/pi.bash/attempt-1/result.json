@@ -1,0 +1,39 @@
+{
+  "attempt_id": "pi.bash-a1",
+  "scenario_id": "pi.bash",
+  "scenario_version": 1,
+  "attempt_number": 1,
+  "kind": "pi",
+  "passed": false,
+  "error": null,
+  "evidence": {
+    "scenario": "bash",
+    "process_success": true,
+    "protocol_success": false,
+    "task_success": false,
+    "report_success": null,
+    "exit_code": 0,
+    "timed_out": false,
+    "protocol_evidence": "assistant serialized a tool call as text",
+    "task_evidence": "tools=[], content=None",
+    "command": [
+      "pi",
+      "--approve",
+      "--provider",
+      "ollama",
+      "--model",
+      "qwen2.5-coder:7b",
+      "--thinking",
+      "off",
+      "--mode",
+      "json",
+      "--print",
+      "--session-dir",
+      "/Users/victorcarre/logs/pithos/benchmarks/benchmark-20260824T075210Z-qwen2-5-coder-7b-1b9a5e/attempts/pi.bash/attempt-1/sessions",
+      "Use bash to run: printf 'PITHOS_BASH_OK\\n' > bash.txt"
+    ]
+  },
+  "duration_seconds": null,
+  "decode_tokens_per_second": null,
+  "measurements": {}
+}

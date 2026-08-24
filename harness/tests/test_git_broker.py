@@ -46,7 +46,8 @@ class FakeCommands:
 
 def _broker(tmp_path):
     repository = tmp_path / "repo"
-    (repository / ".git").mkdir(parents=True)
+    repository.mkdir()
+    subprocess.run(["git", "init", "-b", "main"], cwd=repository, check=True, capture_output=True)
     commands = FakeCommands()
     policy = GitPolicy(repository, REMOTE)
 
@@ -121,6 +122,7 @@ def test_commit_and_push_never_use_force(tmp_path):
     flattened = " ".join(part for command in commands.commands for part in command)
     assert "--force" not in flattened
     assert "TOKEN" not in flattened
+    assert ["git", "add", "--all", "--", "."] in commands.commands
 
 
 def test_completed_rush_can_commit_push_and_create_pr(tmp_path):

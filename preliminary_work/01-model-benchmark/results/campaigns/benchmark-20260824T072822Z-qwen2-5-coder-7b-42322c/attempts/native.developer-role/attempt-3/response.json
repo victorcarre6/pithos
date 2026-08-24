@@ -1,0 +1,238 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-24T07:28:32.486404Z",
+  "message": {
+    "role": "assistant",
+    "content": "Sure, I can help with that. Please provide me with the developer instruction so I can assist you accordingly.",
+    "thinking": "",
+    "tool_calls": []
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1355934417,
+  "load_duration": 140259167,
+  "prompt_eval_count": 34,
+  "prompt_eval_duration": 57523000,
+  "eval_count": 23,
+  "eval_duration": 1156562000,
+  "client_duration_seconds": 1.3576128749991767,
+  "time_to_first_chunk_seconds": 0.2005548749875743,
+  "time_to_first_content_seconds": 0.2005548749875743,
+  "stream_chunk_count": 23,
+  "stream_chunks": [
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.329496Z",
+      "message": {
+        "role": "assistant",
+        "content": "Sure"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.384382Z",
+      "message": {
+        "role": "assistant",
+        "content": ","
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.434139Z",
+      "message": {
+        "role": "assistant",
+        "content": " I"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.488248Z",
+      "message": {
+        "role": "assistant",
+        "content": " can"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.53794Z",
+      "message": {
+        "role": "assistant",
+        "content": " help"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.592904Z",
+      "message": {
+        "role": "assistant",
+        "content": " with"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.642735Z",
+      "message": {
+        "role": "assistant",
+        "content": " that"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.695192Z",
+      "message": {
+        "role": "assistant",
+        "content": "."
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.746456Z",
+      "message": {
+        "role": "assistant",
+        "content": " Please"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.798705Z",
+      "message": {
+        "role": "assistant",
+        "content": " provide"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.852884Z",
+      "message": {
+        "role": "assistant",
+        "content": " me"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.905071Z",
+      "message": {
+        "role": "assistant",
+        "content": " with"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:31.957408Z",
+      "message": {
+        "role": "assistant",
+        "content": " the"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.010294Z",
+      "message": {
+        "role": "assistant",
+        "content": " developer"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.064689Z",
+      "message": {
+        "role": "assistant",
+        "content": " instruction"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.11501Z",
+      "message": {
+        "role": "assistant",
+        "content": " so"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.167795Z",
+      "message": {
+        "role": "assistant",
+        "content": " I"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.219318Z",
+      "message": {
+        "role": "assistant",
+        "content": " can"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.274529Z",
+      "message": {
+        "role": "assistant",
+        "content": " assist"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.325671Z",
+      "message": {
+        "role": "assistant",
+        "content": " you"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.380371Z",
+      "message": {
+        "role": "assistant",
+        "content": " accordingly"
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.430799Z",
+      "message": {
+        "role": "assistant",
+        "content": "."
+      },
+      "done": false
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "created_at": "2026-08-24T07:28:32.486404Z",
+      "message": {
+        "role": "assistant",
+        "content": ""
+      },
+      "done": true,
+      "done_reason": "stop",
+      "total_duration": 1355934417,
+      "load_duration": 140259167,
+      "prompt_eval_count": 34,
+      "prompt_eval_duration": 57523000,
+      "eval_count": 23,
+      "eval_duration": 1156562000
+    }
+  ]
+}

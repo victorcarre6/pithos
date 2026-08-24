@@ -1,0 +1,35 @@
+{
+  "model": "maternion/ling-3.0-tiny:8b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Use read_fixture to read fixture.txt. Do not answer without calling the tool."
+    }
+  ],
+  "stream": true,
+  "keep_alive": "30m",
+  "options": {
+    "temperature": 0
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_fixture",
+        "description": "Read one benchmark fixture.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -6,11 +6,11 @@
       "apiKey": "ollama-local",
       "models": [
         {
-          "id": "qwen3.8:27b",
-          "name": "Qwen3.8 27B local baseline",
+          "id": "pithos/ling-3.0-tiny:8b-16k",
+          "name": "Ling 3.0 Tiny 8B local baseline",
           "reasoning": false,
           "input": ["text"],
-          "contextWindow": 4096,
+          "contextWindow": 16384,
           "maxTokens": 1024,
           "cost": {
             "input": 0,
@@ -23,4 +23,3 @@
     }
   }
 }
-

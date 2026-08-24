@@ -22,6 +22,7 @@ class MonitoredOutcome:
     externally_stopped: bool
     repeated_signature: str | None
     duration_seconds: float
+    tool_limit_exceeded: bool = False
 
 
 def _stream_reader(name: str, stream, output_queue: queue.Queue) -> None:
@@ -74,6 +75,7 @@ def run_monitored(
     on_loop_detected: Callable[[], None] | None = None,
     on_stdout_line: Callable[[str], None] | None = None,
     on_forced_stop: Callable[[], None] | None = None,
+    max_tool_calls: int | None = None,
 ) -> MonitoredOutcome:
     """Stream a child group until completion, timeout or repeated identical tools."""
 
@@ -105,6 +107,8 @@ def run_monitored(
     loop_detected = False
     externally_stopped = False
     cleanup_done = False
+    tool_calls = 0
+    tool_limit_exceeded = False
 
     def force_stop() -> None:
         nonlocal cleanup_done
@@ -122,57 +126,66 @@ def run_monitored(
     with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
         files = {"stdout": stdout_file, "stderr": stderr_file}
 
-        while len(closed_streams) < len(streams):
-            now = time.monotonic()
-            if on_heartbeat and now >= next_heartbeat and process.poll() is None:
-                on_heartbeat()
-                next_heartbeat = now + heartbeat_seconds
-            if now - started_at >= timeout_seconds:
-                timed_out = True
-                force_stop()
-            if stop_requested and stop_requested() and process.poll() is None:
-                externally_stopped = True
-                force_stop()
+        try:
+            while len(closed_streams) < len(streams):
+                now = time.monotonic()
+                if on_heartbeat and now >= next_heartbeat and process.poll() is None:
+                    on_heartbeat()
+                    next_heartbeat = now + heartbeat_seconds
+                if now - started_at >= timeout_seconds:
+                    timed_out = True
+                    force_stop()
+                if stop_requested and stop_requested() and process.poll() is None:
+                    externally_stopped = True
+                    force_stop()
 
-            try:
-                name, line = output_queue.get(timeout=0.25)
-            except queue.Empty:
-                if process.poll() is not None and timed_out:
+                try:
+                    name, line = output_queue.get(timeout=0.25)
+                except queue.Empty:
+                    if process.poll() is not None and timed_out:
+                        continue
                     continue
-                continue
 
-            if line is None:
-                closed_streams.add(name)
-                continue
+                if line is None:
+                    closed_streams.add(name)
+                    continue
 
-            files[name].write(line)
-            files[name].flush()
+                files[name].write(line)
+                files[name].flush()
 
-            if name != "stdout":
-                continue
-            if on_stdout_line:
-                on_stdout_line(line)
-            signature = _tool_signature(line)
-            if signature is None:
-                continue
-            if signature == last_signature:
-                repeat_count += 1
-            else:
-                last_signature = signature
-                repeat_count = 1
-            if repeat_count >= repeat_limit:
-                loop_detected = True
-                if on_loop_detected:
-                    try:
-                        on_loop_detected()
-                    except (OSError, RuntimeError):
-                        pass
-                force_stop()
+                if name != "stdout":
+                    continue
+                if on_stdout_line:
+                    on_stdout_line(line)
+                signature = _tool_signature(line)
+                if signature is None:
+                    continue
+                tool_calls += 1
+                if max_tool_calls is not None and tool_calls > max_tool_calls:
+                    tool_limit_exceeded = True
+                    force_stop()
+                    continue
+                if signature == last_signature:
+                    repeat_count += 1
+                else:
+                    last_signature = signature
+                    repeat_count = 1
+                if repeat_count >= repeat_limit:
+                    loop_detected = True
+                    if on_loop_detected:
+                        try:
+                            on_loop_detected()
+                        except (OSError, RuntimeError):
+                            pass
+                    force_stop()
+        except KeyboardInterrupt:
+            force_stop()
+            raise
 
     if process.poll() is None:
         process.wait()
 
-    interrupted = timed_out or loop_detected or externally_stopped
+    interrupted = timed_out or loop_detected or externally_stopped or tool_limit_exceeded
     exit_code = None if interrupted else process.returncode
 
     return MonitoredOutcome(
@@ -182,4 +195,5 @@ def run_monitored(
         externally_stopped,
         last_signature if loop_detected else None,
         time.monotonic() - started_at,
+        tool_limit_exceeded,
     )

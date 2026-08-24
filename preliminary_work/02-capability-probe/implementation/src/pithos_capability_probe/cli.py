@@ -12,7 +12,7 @@ def main() -> int:
     """Run selected scenarios and persist one result per directory."""
 
     parser = argparse.ArgumentParser(description="Probe Pi capabilities with external effect verification")
-    parser.add_argument("scenarios", nargs="*", choices=sorted(SCENARIOS), default=[])
+    parser.add_argument("scenarios", nargs="*", choices=sorted(SCENARIOS), default=None)
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--pi", default="pi")
     parser.add_argument("--provider", default="ollama")
@@ -22,7 +22,7 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     arguments = parser.parse_args()
 
-    selected_names = list(SCENARIOS) if arguments.all else arguments.scenarios
+    selected_names = list(SCENARIOS) if arguments.all else arguments.scenarios or []
     if not selected_names:
         parser.error("select at least one scenario or pass --all")
 
@@ -51,4 +51,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

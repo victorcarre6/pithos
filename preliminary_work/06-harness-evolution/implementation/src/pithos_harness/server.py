@@ -12,8 +12,12 @@ from .validation import ResourceValidationError
 
 class RequestHandler(socketserver.StreamRequestHandler):
     def handle(self) -> None:
+        line = self.rfile.readline()
+        if not line:
+            return
+
         try:
-            request = json.loads(self.rfile.readline())
+            request = json.loads(line)
             response = self.server.broker.handle(request)
         except (json.JSONDecodeError, HarnessError, OSError, ResourceValidationError) as error:
             response = {"ok": False, "error": str(error)}

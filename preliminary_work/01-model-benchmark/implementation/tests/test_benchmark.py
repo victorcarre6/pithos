@@ -1,11 +1,14 @@
 import json
 import asyncio
 import sqlite3
+import urllib.error
+from io import BytesIO
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+import pithos_benchmark.ollama as ollama_module
 from pithos_benchmark.dashboard import create_app
 from pithos_benchmark.engine import BenchmarkConfiguration, BenchmarkEngine, _native_measurements
 from pithos_benchmark.ollama import OllamaClient, OllamaError
@@ -134,6 +137,35 @@ def test_ollama_client_aggregates_stream_and_preserves_chunks():
     assert response["stream_chunks"] == chunks
 
 
+def test_ollama_client_preserves_http_error_detail():
+    def fail(request, timeout):
+        raise urllib.error.HTTPError(
+            request.full_url,
+            500,
+            "Internal Server Error",
+            {},
+            BytesIO(b'{"error":"model architecture is unsupported"}'),
+        )
+
+    client = OllamaClient(opener=fail)
+
+    with pytest.raises(OllamaError, match="HTTP 500: model architecture is unsupported"):
+        client.chat("fixture", [{"role": "user", "content": "test"}], 10)
+
+
+def test_ollama_client_enforces_wall_clock_timeout(monkeypatch):
+    chunks = [
+        {"message": {"thinking": "still working"}, "done": False},
+        {"message": {"content": "too late"}, "done": True},
+    ]
+    times = iter((0.0, 0.5))
+    monkeypatch.setattr(ollama_module, "monotonic", lambda: next(times))
+    client = OllamaClient(opener=lambda request, timeout: StreamResponse(chunks))
+
+    with pytest.raises(OllamaError, match="exceeded 0.5 second wall-clock timeout"):
+        client.chat("fixture", [{"role": "user", "content": "test"}], 0.5)
+
+
 def test_scenario_evaluates_exact_json_and_native_tool():
     structured = Scenario("json", "JSON", "protocol", "native", 10, [], {"json": {"status": "ok"}})
     tool = Scenario(
@@ -175,6 +207,7 @@ def test_engine_runs_three_attempts_projects_and_exports(tmp_path):
 
     assert manifest["summary"]["attempts"] == 3
     assert manifest["summary"]["passed"] == 3
+    assert "timeout_override_seconds" in manifest
     assert client.unloads == ["fixture:latest"]
     assert len(list(campaign_root.glob("attempts/*/*/result.json"))) == 3
     pi_models = json.loads((campaign_root / "pi-config" / "models.json").read_text(encoding="utf-8"))
@@ -209,6 +242,14 @@ def test_engine_retains_failed_attempts(tmp_path):
     manifest = BenchmarkEngine(configuration, client=client).run()
 
     assert manifest["summary"]["failed"] == 3
+
+
+def test_expensive_suite_is_not_skipped_without_a_speed_measurement(tmp_path):
+    configuration = BenchmarkConfiguration("fixture:latest", tmp_path / "logs", tmp_path)
+    engine = BenchmarkEngine(configuration, client=FakeOllama())
+    scenario = Scenario("agentic.test", "Agentic", "agentic", "pi", 10, [], {})
+
+    assert engine._should_skip(scenario) is False
 
 
 def test_dashboard_lists_attempts_and_rejects_traversal(tmp_path):
@@ -279,7 +320,7 @@ def test_context_suite_generates_payload_and_stays_out_of_standard_full(tmp_path
     context = load_scenarios(tmp_path, "context")
 
     assert load_scenarios(tmp_path, "full") == []
-    assert context[0].messages[0]["content"].count("pithos ") == 10
+    assert context[0].messages[0]["content"].count("a ") == 10
     assert context[0].options == {"num_ctx": 4096}
 
 
