@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 18:40 CEST._
+_État vérifié le 24/08/2026 à 18:45 CEST._
 
 ## Micro quick catch général
 
@@ -24,8 +24,8 @@ les deux échecs d'endurance exécutent les tests mais omettent le rapport final
 
 **Prochain chemin critique.** Les PR `#1` et `#2` sont fusionnées. La branche `agent/launchd-autonomy` prépare
 le scheduler canonique, son verrou, le collecteur permanent et le micro-rush `band-smoothing`. L'autorisation
-`launchctl` est acquise ; il reste à merger ce raccordement, installer les deux LaunchAgents puis déclencher
-le premier réveil réel. Aucun secret n'est tracké.
+`launchctl` est acquise et la PR `#3` est ouverte ; il reste à la merger, installer les deux LaunchAgents puis
+déclencher le premier réveil réel. Aucun secret n'est tracké.
 
 ## Carte du dépôt
 

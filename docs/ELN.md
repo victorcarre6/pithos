@@ -296,3 +296,5 @@
   vert et le nouvel oracle échoue avant inference sur l'absence attendue de `smooth_levels`.
 - La suite complète passe avec **142 tests**. L'installation réelle attend le merge de cette branche afin que
   les futures branches créées depuis `origin/main` contiennent le scheduler validé.
+- Le lot est publié au commit `1eb8db5` dans la PR GitHub `#3`, ouverte vers `main` :
+  https://github.com/victorcarre6/pithos/pull/3. Le check GitGuardian est vert.
