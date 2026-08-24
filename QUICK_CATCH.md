@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 19:14 CEST._
+_État vérifié le 24/08/2026 à 19:44 CEST._
 
 ## Micro quick catch général
 
@@ -46,7 +46,8 @@ unique**, **un titre** et **une description courte** human-readable dans `.pitho
 6. Contrôler chaque jour : état des deux LaunchAgents, espace disque, `pithos.db`, quarantaine, dernière mission,
    PR ouverte et présence des notifications Telegram début/fin/récap. Noter toute intervention humaine.
 
-Contrat Telegram implémenté sur `agent/telegram-human-recaps` : les messages statiques restent autoritaires et
+Contrat Telegram implémenté au commit `6cf43c0` dans la PR `#6`, empilée sur `#5` : les messages statiques
+restent autoritaires et
 exposent le titre, la
 description, le statut, la durée, les réparations et la PR. Après chaque mission complète, une session Ling
 sans tool choisit des fragments de voix autour de phrases factuelles immuables et produit quelques lignes dans une
