@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 18:40 CEST._
+_État vérifié le 24/08/2026 à 19:03 CEST._
 
 ## Micro quick catch général
 
@@ -22,10 +22,10 @@ runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstra
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** Les PR `#1` et `#2` sont fusionnées. La branche `agent/launchd-autonomy` prépare
-le scheduler canonique, son verrou, le collecteur permanent et le micro-rush `band-smoothing`. L'autorisation
-`launchctl` est acquise ; il reste à merger ce raccordement, installer les deux LaunchAgents puis déclencher
-le premier réveil réel. Aucun secret n'est tracké.
+**Prochain chemin critique.** Les PR `#1` à `#3` sont fusionnées et les deux LaunchAgents sont actifs. Le
+premier wake Ling a terminé le rush `band-smoothing`, créé le commit `e4cd83d` et ouvert la PR `#4`. Un second
+wake a confirmé le skip idempotent. Il reste à merger la PR `#4`, puis définir un nouvel identifiant de rush
+pour autoriser la tâche suivante. Aucun secret n'est tracké.
 
 ## Carte du dépôt
 
@@ -153,10 +153,14 @@ le premier réveil réel. Aucun secret n'est tracké.
   une fonction pure d'agrégation FFT testée. Le dossier reste dans le dépôt Pithos, sans `.git` imbriqué.
 - **Dry-run réel :** le contrôleur multi-session borne Ling, valide hors modèle, publie le rapport, notifie
   Telegram et finalise Git. La PR `#1` issue du dry-run a été fusionnée.
-- **Activation préparée :** deux LaunchAgents utilisateur séparés exécutent le launcher toutes les trois heures
+- **Activation réelle :** deux LaunchAgents utilisateur séparés exécutent le launcher toutes les trois heures
   et le collecteur SQLite en continu. Un verrou couvre toute la mission et un micro-rush réussi est ignoré aux
   réveils suivants jusqu'au changement de son identifiant. Les validations utilisent le Python exact du venv,
   sans dépendre d'un shim `pyenv` interactif.
+- **Premier wake :** `run-20260824T165029Z-dac825` termine après un timeout, deux réparations et un oracle final
+  vert : **533 278 ms**, **37 543 tokens**, **6 tool calls**, dont 3 en échec récupéré. Telegram envoie
+  début/fin, Git pousse `agent/rush-band-smoothing` et ouvre la PR `#4`. Le wake suivant retourne
+  `micro-rush already completed`, sans nouvelle mission.
 
 ---
 
@@ -199,7 +203,7 @@ $EDITOR ../experiments/<experiment-id>/PROJECT.md
 - [x] Branche, push et PR réels produits par un dry-run supervisé.
 - [x] Événements JSONL, SQLite, dashboard, rapport et live log vérifiés sur une mission orchestrée.
 - [x] Activation périodique `launchd` approuvée explicitement par l'utilisateur.
-- [ ] LaunchAgents installés et premier réveil autonome vérifié après merge du raccordement.
+- [x] LaunchAgents installés et premier réveil autonome vérifié après merge du raccordement.
 
 ## Références canoniques
 

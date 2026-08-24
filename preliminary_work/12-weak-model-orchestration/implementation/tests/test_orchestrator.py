@@ -72,6 +72,7 @@ def test_orchestrator_repairs_then_finalizes(tmp_path):
     assert [phase for phase, _ in phase_calls] == ["implement", "repair"]
     assert phase_calls[1][1] == "FAILED test_bass"
     assert finalized == ["mission-1"]
+    assert result.history[0]["at"].endswith("+00:00")
     assert json.loads(store.path.read_text())["phase"] == "done"
 
 
@@ -162,6 +163,13 @@ def test_campaign_components_build_validate_and_finalize(tmp_path):
         "visualizer",
         phase="finalize",
         changed_files=["src/feature.py"],
+        history=[
+            {
+                "phase": "preflight",
+                "event": "started",
+                "at": "2026-08-24T14:00:00+00:00",
+            }
+        ],
     )
 
     context = ContextFactory(workspace)(state)
@@ -176,6 +184,7 @@ def test_campaign_components_build_validate_and_finalize(tmp_path):
     assert validation.command.startswith(sys.executable)
     report_path = workspace / ".pithos" / "report.md"
     assert "PASS" in report_path.read_text()
+    assert 'started_at: "2026-08-24T14:00:00+00:00"' in report_path.read_text()
     assert validate_report(report_path)["run_id"] == state.mission_id
     assert (tmp_path / "logs" / "latest.md").exists()
 

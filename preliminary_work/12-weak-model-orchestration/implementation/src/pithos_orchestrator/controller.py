@@ -41,7 +41,13 @@ class Orchestrator:
             if state.phase in {"done", "failed", "interrupted"}:
                 return state
 
-            state.history.append({"phase": state.phase, "event": "started"})
+            state.history.append(
+                {
+                    "phase": state.phase,
+                    "event": "started",
+                    "at": state.updated_at,
+                }
+            )
             self.store.save(state)
             self._step(state, context_for)
             self.store.save(state)

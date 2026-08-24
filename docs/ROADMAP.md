@@ -15,4 +15,5 @@
 - [DONE] 10 — live log compatible `tail -F`.
 - [DONE] 11 — finaliser correctement les interruptions et requalifier Ling sur un dry-run borné.
 - [DONE] 12 — orchestration Ling, preflight, rapport, Telegram, push et PR validés en conditions réelles.
-- [TODO] Activation — merger `agent/launchd-autonomy`, installer les LaunchAgents et vérifier le premier réveil.
+- [DONE] Activation — LaunchAgents installés, premier wake Ling terminé et second wake ignoré idempotemment.
+- [TODO] Campagne — merger la PR `#4`, choisir le prochain micro-rush et changer son identifiant pour le libérer.

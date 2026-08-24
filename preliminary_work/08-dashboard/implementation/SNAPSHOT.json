@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "08-dashboard",
-  "generated_at": "2026-08-24T16:39:49.071557+00:00",
+  "generated_at": "2026-08-24T17:04:28.702644+00:00",
   "files": [
     {
       "path": "src/dashboard/api/Dockerfile",
