@@ -117,6 +117,10 @@ peut ensuite créer des branches, pousser, ouvrir des pull requests et les fusio
 Ne placer aucun token GitHub ou Telegram dans le dépôt, les rapports ou la configuration lisible par Pi. Les
 opérations distantes devront passer par un tool ou un service local brokerisé.
 
+Chaque `.pithos.json` doit définir un `title` et une `description` courts destinés aux notifications Telegram.
+Après chaque mission terminale, le modèle local choisit la voix du récap sans recevoir de tool ni de fichier ;
+les faits sont composés par le harnais et le texte est conservé dans le dossier de mission.
+
 ### 4. Micro-projets d'infrastructure
 
 Les projets `00` à `10` disposent chacun d'un `PROJECT.md` autonome et de leur implémentation. Leur état

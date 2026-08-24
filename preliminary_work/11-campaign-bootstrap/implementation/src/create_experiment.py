@@ -31,6 +31,8 @@ def create_experiment(harness_root: Path, experiments_root: Path, experiment_id:
     configuration = {
         "schema_version": 1,
         "experiment_id": experiment_id,
+        "title": experiment_id.replace("-", " ").capitalize(),
+        "description": "Décrire ici le prochain micro-rush en une phrase.",
         "runtime": "docker",
         "pi_config": str(harness_root / "config" / "pi-docker"),
         "ground_truth": str(ground_truth),

@@ -28,7 +28,8 @@ progression doivent rester observables.
 - Une branche, des commits, un push et une pull request par micro-rush terminé.
 - La création et l'activation autonomes de skills, scripts, extensions, tools et sous-agents.
 - La conservation complète des prompts, réponses, sessions, commandes, sorties et métriques.
-- Une communication exceptionnelle avec l'utilisateur par Telegram.
+- Des notifications Telegram human-readable au début et à la fin des missions, complétées par un récapitulatif
+  local amusant dont la voix est générée sans donner au modèle le contrôle des faits opérationnels.
 
 ## Hors périmètre initial
 

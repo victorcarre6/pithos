@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-24T17:04:28.718763+00:00",
+  "generated_at": "2026-08-24T17:41:33.001773+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -26,11 +26,15 @@
     },
     {
       "path": "src/pithos_orchestrator/launcher.py",
-      "sha256": "ed069f85a81a7ddffca4058e912d477c1263a32a65137dd8f5c41be924d6f63f"
+      "sha256": "dc0d7ef10644a8adde89ee742fe733fc425143efaa4dfc8a68c2c8bf7783f5ef"
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
       "sha256": "1630b4c259b11f2177a92b6ec0be00392423100a2255cd15c646c424adb34219"
+    },
+    {
+      "path": "src/pithos_orchestrator/recap.py",
+      "sha256": "7a992e8484eaed99250f181116b926c35140b688f7ba53f22036db74691a832b"
     },
     {
       "path": "src/pithos_orchestrator/state.py",
@@ -47,6 +51,10 @@
     {
       "path": "tests/test_orchestrator.py",
       "sha256": "830518424a93c759351db7995a7abac4e424cb267a2907d3e994d85fd29e4b08"
+    },
+    {
+      "path": "tests/test_run_orchestrated.py",
+      "sha256": "85088f78ad567a738c6ef60ffd218c13a43f4c06f4108a2e02bd5526df5b8998"
     }
   ]
 }

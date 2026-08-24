@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "10-live-logs",
-  "generated_at": "2026-08-24T17:04:28.709094+00:00",
+  "generated_at": "2026-08-24T17:41:32.994638+00:00",
   "files": [
     {
       "path": "src/pithos_live_log/__init__.py",

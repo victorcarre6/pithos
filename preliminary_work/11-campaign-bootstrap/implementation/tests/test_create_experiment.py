@@ -24,6 +24,8 @@ def test_create_experiment_injects_active_ground_truth_in_parent_git_repository(
     assert (target / "AGENTS.md").read_bytes() == (source_harness / "ground_truth" / "AGENTS.md").read_bytes()
     assert (target / ".pi" / "skills" / "pithos-continuity" / "SKILL.md").is_file()
     assert configuration["experiment_id"] == "audio-lab"
+    assert configuration["title"] == "Audio lab"
+    assert configuration["description"]
     assert configuration["runtime"] == "docker"
     branch = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],

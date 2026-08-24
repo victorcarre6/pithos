@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 19:03 CEST._
+_État vérifié le 24/08/2026 à 19:44 CEST._
 
 ## Micro quick catch général
 
@@ -12,7 +12,7 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **142 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **146 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
 runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap et intégrations.
 
@@ -26,6 +26,36 @@ les deux échecs d'endurance exécutent les tests mais omettent le rapport final
 premier wake Ling a terminé le rush `band-smoothing`, créé le commit `e4cd83d` et ouvert la PR `#4`. Un second
 wake a confirmé le skip idempotent. Il reste à merger la PR `#4`, puis définir un nouvel identifiant de rush
 pour autoriser la tâche suivante. Aucun secret n'est tracké.
+
+## Protocole de collecte — semaine autonome
+
+Objectif : accumuler des trajectoires Ling comparables sans perdre les échecs intermédiaires. Pour chaque
+nouveau rush, conserver **un objectif borné**, **un oracle externe rouge avant inference**, **un identifiant
+unique**, **un titre** et **une description courte** human-readable dans `.pithos.json`.
+
+1. Merger la PR du rush précédent avant de préparer le suivant, puis repartir de `origin/main`.
+2. Changer `micro_rush_id` uniquement quand le nouveau contrat, les fichiers cibles et l'oracle sont prêts ;
+   ne jamais supprimer manuellement le marqueur `~/logs/pithos/runtime/*-completed.json` pour forcer un run.
+3. Laisser les LaunchAgents et Docker/Ollama actifs. Le runner se réveille toutes les **10 800 s** ; un rush
+   terminé doit produire uniquement des skips jusqu'au changement explicite de son identifiant.
+4. Ne supprimer ni JSONL, sessions Pi, rapports, streams, logs Squid, SQLite, échecs, timeouts ou tool failures.
+   Le collecteur doit rester `RunAtLoad`/`KeepAlive` et la quarantaine doit rester visible, jamais maquillée.
+5. N'accepter une PR autonome qu'après oracle vert, rapport conforme, notifications Telegram, commit, push et
+   URL de PR observés. Une régression ou un timeout est une donnée à conserver, pas un résultat à corriger à la
+   main dans la branche du modèle.
+6. Contrôler chaque jour : état des deux LaunchAgents, espace disque, `pithos.db`, quarantaine, dernière mission,
+   PR ouverte et présence des notifications Telegram début/fin/récap. Noter toute intervention humaine.
+
+Contrat Telegram implémenté au commit `6cf43c0` dans la PR `#6`, empilée sur `#5` : les messages statiques
+restent autoritaires et
+exposent le titre, la
+description, le statut, la durée, les réparations et la PR. Après chaque mission complète, une session Ling
+sans tool choisit des fragments de voix autour de phrases factuelles immuables et produit quelques lignes dans une
+voix de sidekick paniqué : léger bégaiement, hésitations (`Euh`, `Hum`, `Genre`), expressions fréquentes
+`Oh, punaise`, `Oh, mince` ou `Oh, mec`, langage parlé imparfait, phrases interrompues et brusques pointes de
+colère ou de lassitude. Le prénom `Rick` n'est répété que si le message s'adresse réellement à Rick. Ce bonus
+est borné à 45 s, 100 tokens et 800 caractères, journalisé et best-effort : aucune invention, aucun tool,
+aucun effet sur le statut du run. Un smoke Ling local puis un envoi Telegram réel ont réussi.
 
 ## Carte du dépôt
 
@@ -135,6 +165,9 @@ pour autoriser la tâche suivante. Aucun secret n'est tracké.
 - **Preuve réelle :** le probe authentifié atteint `@pithos_workbot`; les credentials ne sont pas persistés.
 - **Cycle de vie :** le runner envoie automatiquement début et fin de run ; une fin non réussie est signalée
   en `WARNING`. Ces notifications sont idempotentes et n'affectent jamais le statut du run.
+- **Récap humain :** `title` et `description` sont obligatoires. Après la preuve terminale, Ling choisit trois
+  fragments de voix sidekick dans des allowlists ; le harnais insère objectif, fichiers, réparations, tools,
+  durée, validation et PR sans laisser le modèle les reformuler. Le texte est archivé hors Git avant envoi.
 
 ### 10 — Live logs — **DONE**
 

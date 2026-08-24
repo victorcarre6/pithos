@@ -71,3 +71,10 @@ sont des no-op jusqu'à la publication d'un nouvel identifiant. Une nouvelle bra
 Les credentials Telegram peuvent être chargés depuis le `.env` ignoré de l'expérience. Le launcher ne lit
 que les deux clés allowlistées et transmet cet environnement au broker hôte ; le modèle, le workspace projeté,
 les événements et les commits ne reçoivent jamais la valeur du token.
+
+Les notifications de cycle de vie utilisent le `title` et la `description` obligatoires du rush. Le message
+de fin reste entièrement déterministe : statut, durée, réparations et PR viennent de l'état et des événements.
+Après `run.finished`, un appel Ollama sans tool choisit seulement trois fragments de voix dans des enums JSON
+contraints. Le harnais insère ensuite les phrases factuelles exactes, archive `telegram-recap.txt` hors Git et
+envoie une requête idempotente `orchestrated-recap`. Timeout, JSON invalide ou broker indisponible sont
+journalisés sans modifier le résultat de mission.
