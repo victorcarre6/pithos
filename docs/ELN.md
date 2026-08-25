@@ -474,3 +474,30 @@
      décrire une tâche figée.
 - **199 tests passent** (195 + 4 nouveaux : rejet d'un cas qui crashe au lieu d'assert, section `Current task`
   avec/sans plan, absence de la section sans `project`).
+
+## 25:10 — Troisième échec de `level-clamping` : cause différente, échappatoire manuelle activée
+
+- **Run `run-20260825T100711Z-884d3b`** : le correctif n°1 ci-dessus fonctionne comme prévu — `author_oracle`
+  échoue **vite et proprement** (~20 s, `failed` avant `preflight`) au lieu de laisser 4 sessions Pi tourner à
+  vide pendant 26 min. Mais la cause de fond ressort : `attempt 1`/`attempt 2` → *"two independent generations
+  disagreed on the target function"*, `attempt 3` → *"no case survived cross-generation agreement"*. C'est la
+  même limite déjà documentée (arithmétique/contrat non fiable pour un petit modèle) que celle du tout premier
+  échec (`run-20260825T023932Z-c637a7`), reconfirmée sur ce même rush après deux correctifs orthogonaux.
+- **Diagnostic** : `level-clamping` demande d'ajouter une fonction qui **n'existe pas encore** pour un
+  comportement (clamp) qui n'a par ailleurs aucun cas numérique canonique évident à partir de `smooth_levels`
+  seul (qui ne clampe rien lui-même) — un contrat plus difficile à inventer correctement pour un modèle 8B que
+  « vérifie la valeur de retour d'une fonction déjà là ». Trois tentatives réelles échouées sur exactement ce
+  rush, deux d'entre elles pour des raisons différentes : ce n'est plus du bruit aléatoire.
+- **Décision** : plutôt que de complexifier encore l'auto-génération d'oracle, activer l'échappatoire manuelle
+  que `RUN_GUIDE.md` documente déjà pour ce cas précis. Nouvelle fixture `harness/fixtures/
+  visualizer_level_clamping_acceptance.py` (même convention que `visualizer_smoothing_acceptance.py` :
+  import qui échoue tant que `clamp_levels` n'existe pas → rouge mécanique, cas numériques couvrant valeurs
+  déjà dans `[0, 1]` et hors bornes des deux côtés). Vérifiée rouge avant (`ImportError`) et verte après
+  (implémentation de référence testée manuellement, retirée ensuite). `.pithos.json` reprend
+  `validation_command` ; `auto_oracle` redevient `False` pour ce rush, donc `plan_todo` ne s'exécute pas non
+  plus (cohérent : sa condition d'activation a toujours été liée à l'oracle auto-généré). La `description` est
+  réécrite pour nommer explicitement `clamp_levels(levels)` et sa signature exacte, réutilisée telle quelle
+  par la nouvelle section `## Current task`.
+- **199 tests inchangés** (pas de changement de code, seulement fixture + config). À observer : si
+  l'implémentation elle-même échoue maintenant malgré un contrat fiable, ce serait un signal différent —
+  faiblesse d'exécution de Ling plutôt que faiblesse de génération de contrat.
