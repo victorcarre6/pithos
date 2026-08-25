@@ -7,11 +7,7 @@
   "seed": "Construire un visualiseur audio destin\u00e9 au VJing.",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
-  "target_files": [
-    "src/audio_visualizer.py",
-    "tests/audio_visualizer_test.py",
-    "docs/audio_visualizer_api.md"
-  ],
+  "target_files": ["src/audio_visualizer.py"],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth"
 }

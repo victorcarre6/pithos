@@ -176,6 +176,34 @@ def test_matching_open_pull_request_can_merge(tmp_path):
     assert any(command[:3] == ["gh", "pr", "merge"] for command in commands.commands)
 
 
+def test_merge_switches_back_to_main_and_pulls_afterward(tmp_path):
+    broker, commands = _broker(tmp_path)
+
+    broker.handle({"operation": "pr_merge", "arguments": {}, "run_id": RUN_ID})
+
+    assert ["git", "switch", "main"] in commands.commands
+    assert ["git", "pull", "origin", "main"] in commands.commands
+    merge_index = next(i for i, c in enumerate(commands.commands) if c[:3] == ["gh", "pr", "merge"])
+    switch_index = commands.commands.index(["git", "switch", "main"])
+    assert merge_index < switch_index
+
+
+def test_a_failed_post_merge_switch_does_not_fail_the_merge(tmp_path):
+    broker, commands = _broker(tmp_path)
+    original_runner = commands.__call__
+
+    def flaky_switch(command, cwd):
+        if command[:2] == ["git", "switch"]:
+            return subprocess.CompletedProcess(command, 1, "", "local changes would be overwritten")
+        return original_runner(command, cwd)
+
+    broker.command_runner = flaky_switch
+
+    result = broker.handle({"operation": "pr_merge", "arguments": {}, "run_id": RUN_ID})
+
+    assert result["ok"] is True
+
+
 def test_remote_must_match_policy(tmp_path):
     broker, commands = _broker(tmp_path)
 

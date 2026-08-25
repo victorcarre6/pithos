@@ -97,7 +97,9 @@ def _request_next_rush(model, facts, timeout, opener):
         "`existing_functions` liste les fonctions déjà définies dans les fichiers qui viennent d'être "
         "modifiés : préfère un rush qui change le comportement d'une de ces fonctions existantes, plutôt "
         "qu'un rush qui n'a de sens qu'en ajoutant une fonction encore inexistante -- le contrat de test "
-        "généré ensuite par le harnais ne peut viser qu'une fonction déjà présente dans le fichier cible.\n\n"
+        "généré ensuite par le harnais ne peut viser qu'une fonction déjà présente dans le fichier cible. "
+        "`target_files` doit lister uniquement des fichiers `.py` : le harnais ne sait générer un contrat "
+        "que sur du code Python, jamais sur de la documentation ou de la configuration.\n\n"
         f"Faits : {json.dumps(facts, ensure_ascii=False, sort_keys=True)}"
     )
     payload = {
@@ -181,6 +183,11 @@ def _validate_relative_path(path, workspace):
         raise NextRushSpecError(f"next-rush target file {path!r} is not a safe relative path")
     if path.startswith("/") or ".." in Path(path).parts:
         raise NextRushSpecError(f"next-rush target file {path!r} escapes the workspace")
+    if not path.endswith(".py"):
+        # the downstream pipeline is Python-only end to end: author_oracle looks for `def <name>(`
+        # and its new-file fallback does importlib.import_module -- a doc or config path there is
+        # either meaningless or mechanically broken, never a real check
+        raise NextRushSpecError(f"next-rush target file {path!r} must be a Python file")
 
     workspace_root = workspace.resolve()
     resolved = (workspace_root / path).resolve()

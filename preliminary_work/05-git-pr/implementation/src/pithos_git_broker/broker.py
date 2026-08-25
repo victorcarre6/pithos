@@ -208,6 +208,17 @@ class GitBroker:
         if metadata.get("state") != "OPEN":
             raise PolicyViolation("only an open PR can be merged")
 
-        return self._run(
+        result = self._run(
             ["gh", "pr", "merge", branch, "--repo", self.policy.remote_url, "--merge", "--delete-branch"]
         )
+        # best-effort: the merge itself already succeeded above, so a local housekeeping hiccup here
+        # must never be reported as a merge failure -- but left unattended, the checkout stays on the
+        # now-deleted rush branch, and the next mission's branch is always cut from origin/main, which
+        # needs this checkout back on it (observed twice: gh's own post-delete switch isn't reliable)
+        try:
+            self._run(["git", "switch", self.policy.main_branch])
+            self._run(["git", "pull", "origin", self.policy.main_branch])
+        except RuntimeError:
+            pass
+
+        return result

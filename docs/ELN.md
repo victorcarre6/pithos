@@ -501,3 +501,32 @@
 - **199 tests inchangés** (pas de changement de code, seulement fixture + config). À observer : si
   l'implémentation elle-même échoue maintenant malgré un contrat fiable, ce serait un signal différent —
   faiblesse d'exécution de Ling plutôt que faiblesse de génération de contrat.
+
+## 25:11 — `level-clamping` réussit vraiment (PR #8), deux défauts trouvés dans ce qu'il a déclenché
+
+- **`run-20260825T113201Z-123463`** : succès **réel**, pas un raccourci — vérifié en relisant le diff produit
+  (`clamp_levels` correctement implémenté, style cohérent avec le reste du fichier, testé manuellement) et en
+  ré-exécutant la fixture après coup. `preflight` rouge (import échoue), **1 seul tool call** en `implement`
+  (5564 tokens), vert, PR `#8` créée et auto-mergée. Rapide (~35 s) parce que la tâche était enfin petite et
+  précisément spécifiée grâce à `validation_command` + la section `## Current task` — pas un signe de travail
+  bâclé.
+- **Défaut n°1, dans la proposition auto-générée qui a suivi (`level-clamping-2`)** : `target_files` listait
+  deux fichiers neufs sans rapport avec la description (`docs/audio_visualizer_api.md`,
+  `tests/audio_visualizer_test.py` — nom qui ne correspond même pas à la convention réelle du projet,
+  `tests/test_audio_visualizer.py`). `next_rush.py` ne validait que la sécurité des chemins, jamais leur
+  pertinence ni leur type. Un `.md` en `target_files` avec oracle auto-généré est mécaniquement cassé : le
+  repli « nouveau fichier » d'`oracle.py` fait `importlib.import_module` dessus sans condition, donc
+  échouerait toujours, pour une raison qui ne dit rien du contenu attendu. **Corrigé** :
+  `_validate_relative_path` exige maintenant une extension `.py` ; prompt de `_request_next_rush` mis à jour
+  en conséquence. `.pithos.json` corrigé à la main pour ce cycle (`target_files` réduit à
+  `src/audio_visualizer.py`, seul fichier que la description mentionne réellement).
+- **Défaut n°2, retrouvé en préparant le relance** : après le merge auto de la PR `#8`, le checkout local est
+  resté sur la branche `agent/rush-level-clamping` (supprimée côté remote par `--delete-branch`, mais
+  toujours là en local, working directory pas rebasculé sur `main`) — exactement le risque déjà documenté en
+  `RUN_GUIDE.md` (« vérifie quand même avec `git branch --show-current` »), maintenant observé une seconde
+  fois (la première avec `agent/rush-setup`). **Corrigé à la racine plutôt que par vigilance manuelle** :
+  `GitBroker._pr_merge` (`pithos_git_broker/broker.py`) enchaîne désormais `git switch main` + `git pull
+  origin main` juste après un merge réussi, en best-effort (un échec de ce rattrapage ne doit jamais
+  transformer un merge réussi en `merge_failed` signalé).
+- **204 tests passent** (199 + 5 nouveaux : rejet d'un `target_files` non-`.py` dans `next_rush.py`,
+  bascule + pull post-merge dans le broker Git, non-régression si ce rattrapage échoue).

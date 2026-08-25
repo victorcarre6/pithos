@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "05-git-pr",
-  "generated_at": "2026-08-25T10:04:22.983480+00:00",
+  "generated_at": "2026-08-25T11:41:58.015612+00:00",
   "files": [
     {
       "path": "src/pithos_git_broker/__init__.py",
@@ -26,7 +26,7 @@
     },
     {
       "path": "src/pithos_git_broker/broker.py",
-      "sha256": "8a74c39f31a37ba43ba02d19d49a7b2e38d2332ef1b09b1991a3dd2cf9537097"
+      "sha256": "9a25d1cbe865778005f1107da541064948e55bb650b8dfaa038c4e4ed1c20e5d"
     },
     {
       "path": "src/pithos_git_broker/cli.py",
@@ -42,7 +42,7 @@
     },
     {
       "path": "tests/test_git_broker.py",
-      "sha256": "8b237e2fb753635d9d6431b460edd9b561a17e32ece11d23dce15d1623485775"
+      "sha256": "70623afbf692c6e2688d929aaee8e9c12f4d7ad443e352f2a23731ec04325180"
     }
   ]
 }

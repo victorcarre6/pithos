@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "00-contracts",
-  "generated_at": "2026-08-25T10:04:22.952131+00:00",
+  "generated_at": "2026-08-25T11:41:57.996198+00:00",
   "files": [
     {
       "path": "src/contracts/fixtures/invalid/event-bad-timestamp.jsonl",

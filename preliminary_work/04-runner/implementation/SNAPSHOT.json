@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "04-runner",
-  "generated_at": "2026-08-25T10:04:22.980235+00:00",
+  "generated_at": "2026-08-25T11:41:58.013521+00:00",
   "files": [
     {
       "path": "src/pithos_runner/__init__.py",

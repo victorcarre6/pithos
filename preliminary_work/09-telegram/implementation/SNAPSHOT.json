@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "09-telegram",
-  "generated_at": "2026-08-25T10:04:23.002086+00:00",
+  "generated_at": "2026-08-25T11:41:58.026707+00:00",
   "files": [
     {
       "path": "src/pithos_telegram/__init__.py",

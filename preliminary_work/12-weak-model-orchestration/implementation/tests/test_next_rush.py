@@ -130,6 +130,21 @@ def test_rejects_target_files_that_escape_the_workspace(tmp_path, path):
         )
 
 
+@pytest.mark.parametrize("path", ["docs/api.md", "tests/fixture.json", "src/module.pyc"])
+def test_rejects_a_non_python_target_file(tmp_path, path):
+    with pytest.raises(NextRushSpecError, match="must be a Python file"):
+        _validate_proposal(
+            {
+                "micro_rush_id": "audio-source",
+                "title": "Titre",
+                "description": "Description valide.",
+                "target_files": [path],
+            },
+            "band-smoothing",
+            tmp_path,
+        )
+
+
 def test_facts_list_functions_already_defined_in_the_changed_files(tmp_path):
     project = _project()
     changed = tmp_path / "src" / "audio_visualizer.py"
