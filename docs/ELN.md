@@ -530,3 +530,27 @@
   transformer un merge réussi en `merge_failed` signalé).
 - **204 tests passent** (199 + 5 nouveaux : rejet d'un `target_files` non-`.py` dans `next_rush.py`,
   bascule + pull post-merge dans le broker Git, non-régression si ce rattrapage échoue).
+
+## 25:12 — Réveils toutes les 15 min, verrou anti-chevauchement vérifié, `level-clamping-2` remplacé
+
+- **Intervalle de réveil réduit à 900 s (15 min)**, à la demande explicite de l'opérateur, via l'installeur
+  existant (`install_launchd.py --interval-seconds 900`, plancher 300 s) plutôt qu'en éditant le plist à la
+  main. Confirmé côté `plutil`/`launchctl print`.
+- **Le garde-fou « skip si en cours » existait déjà** (`pithos_runner.lock.RunLock`, verrou-répertoire
+  atomique + PID vivant, acquis avant tout effet de bord dans `run_experiment.py`) — aucun code à écrire.
+  Vérifié pour de vrai avec un PID réellement vivant (`sleep 300 &`) : skip propre, aucun conteneur Docker ni
+  broker démarré. Un premier essai de vérification, avec un PID déjà mort (sous-processus `python3 -c`
+  éphémère), a fait passer le verrou pour périmé au lieu de le trouver tenu — a déclenché une mission réelle
+  par effet de bord (voir plus bas), pas un problème du mécanisme lui-même, juste un test mal conçu.
+- **Effet de bord** : mission réelle sur `level-clamping-2` (le rush auto-proposé après `level-clamping`, qui
+  demandait NaN/Inf handling) — échec, même fragilité déjà documentée sur ce type de tâche (les deux items de
+  `plan_todo` ratent la génération d'oracle). En creusant, `clamp_levels` gère déjà `+Inf`/`-Inf` correctement
+  par construction (`min`/`max` les clampent mécaniquement) et `NaN` retombe déterministiquement sur `1.0` —
+  le rush était en grande partie redondant, pas seulement fragile.
+- **Décision de l'opérateur** : remplacer plutôt que retenter ou fermer avec un oracle manuel qui ne ferait
+  que verrouiller un comportement déjà là. Nouveau micro-rush `frame-pipeline` : assembler
+  `process_frame(previous, magnitudes, alpha)` = `split_bands` → `smooth_levels` → `clamp_levels`, la
+  composition qui manquait encore pour boucler la pile pure existante. Oracle manuel écrit directement
+  (`harness/fixtures/visualizer_frame_pipeline_acceptance.py`, même convention), vérifié rouge avant
+  (`ImportError`) et vert après (implémentation de référence jetable, 3 cas dont un calcul à la main).
+- **204 tests inchangés** (fixture + config uniquement, pas de code touché).
