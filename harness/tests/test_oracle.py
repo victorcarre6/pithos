@@ -138,6 +138,25 @@ def test_author_oracle_retries_when_generated_case_already_passes(tmp_path):
     assert "confirmed red" in reason
 
 
+def test_author_oracle_rejects_a_case_that_crashes_instead_of_asserting(tmp_path):
+    sources = _write_module(tmp_path, "def divide(a, b):\n    return a / b\n")
+    payload = {"target_file": "src/module.py", "target_function": "divide", "cases": [{"args": [1], "expect": 1}]}
+    opener = _opener_yielding([payload, payload])
+
+    with pytest.raises(OracleSpecError, match="crashed instead of failing its own assertion"):
+        author_oracle(
+            "fake-model",
+            "Divide",
+            "Fix divide",
+            sources,
+            [],
+            tmp_path / "oracle.py",
+            tmp_path,
+            attempts=1,
+            opener=opener,
+        )
+
+
 def test_author_oracle_rejects_a_function_absent_from_target_files(tmp_path):
     sources = _write_module(tmp_path, "def add_one(x):\n    return x\n")
     payload = {"target_file": "src/module.py", "target_function": "os.system", "cases": [{"args": [2], "expect": 3}]}

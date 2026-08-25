@@ -446,3 +446,31 @@
   complet, échec partiel, échec total, réinitialisation des réparations entre étapes —, ciblage de l'étape
   active par `OracleAuthor`/`ContextFactory`, faits `existing_functions` de `next_rush.py`).
   `RUN_GUIDE.md` documente la décomposition sous « Décomposition en micro-passes (`plan_todo`) ».
+
+## 25:09 — Premier run réel avec `plan_todo`, deux causes racines trouvées et corrigées
+
+- **Run `run-20260825T091327Z-e39243`** (`level-clamping`, réveil autonome, première mission réelle sous
+  `plan_todo`) : `plan_todo` a correctement jugé la tâche minimale (1 étape) ; `author_oracle` a réussi (2 cas
+  d'accord inter-générations, confirmé rouge sur `smooth_levels`) ; mission `failed` après 3 réparations
+  épuisées, `implement` et les 3 `repair` tournant chacun ~300-390 s avec **0 tool call, 0 token** avant timeout.
+- **Cause racine n°1** : l'oracle généré appelait `smooth_levels(0.0, 0.0, 0.0)` (trois scalaires) alors que la
+  vraie signature attend `(previous: tuple, current: tuple, alpha: float)` — rouge confirmé, mais par un
+  `TypeError: 'float' object is not subscriptable` (mauvaise arité), pas par le mécanisme d'assertion prévu.
+  `_run_script`/le red-check ne vérifiaient que le code de retour, jamais la nature de l'échec.
+- **Cause racine n°2**, trouvée en lisant le flux brut du stream Pi (`stdout.jsonl`, 12 419 `thinking_delta`
+  consécutifs, jamais un seul tool call) : `.pithos-task.md` — lu en priorité par `ContextFactory`, jamais mis
+  à jour par `propose_next_rush` ni par rien d'autre — décrivait encore la tâche `band-smoothing` (« ajoute
+  `smooth_levels` »), une fonction déjà mergée. Le modèle recevait donc une consigne contradictoire (ajouter
+  ce qui existe déjà) en même temps qu'un crash sans rapport, et restait bloqué en réflexion sans jamais agir.
+- **Correctifs :**
+  1. `oracle.py` : `_is_assertion_failure(stderr)` — un rouge confirmé n'est accepté que si la dernière
+     exception de la trace est bien notre propre `AssertionError` ; tout autre type (`TypeError`,
+     `AttributeError`...) est traité comme un cas mal formé et retente (même quota `attempts`). Repro directe
+     sur `smooth_levels` avec le payload fautif observé en prod : correctement rejeté.
+  2. `campaign.py`/`launcher.py` : `ContextFactory` reçoit maintenant `project` et injecte une section
+     `## Current task` (titre + description de l'étape active — `state.todo` si présent, sinon le rush) entre
+     `Contract` et `Validation failure`. `.pithos-task.md` réécrit en brief vraiment durable (les deux
+     fonctions déjà présentes et leur contrat), qui renvoie explicitement vers `## Current task` plutôt que de
+     décrire une tâche figée.
+- **199 tests passent** (195 + 4 nouveaux : rejet d'un cas qui crashe au lieu d'assert, section `Current task`
+  avec/sans plan, absence de la section sans `project`).

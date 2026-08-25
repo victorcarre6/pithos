@@ -120,7 +120,7 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     _notify(telegram_socket, project, state, "started")
 
     try:
-        context_factory = ContextFactory(workspace, target_paths=project.get("target_files"))
+        context_factory = ContextFactory(workspace, target_paths=project.get("target_files"), project=project)
         result = orchestrator.run(state, context_factory, max_steps=_MAX_ORCHESTRATOR_STEPS)
     except KeyboardInterrupt:
         orchestrator.interrupt(state, "operator interrupt")

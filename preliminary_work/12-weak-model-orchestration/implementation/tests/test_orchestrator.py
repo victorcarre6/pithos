@@ -519,6 +519,45 @@ def test_context_can_target_one_test_file_explicitly(tmp_path):
     assert "VALUE = 3" not in context
 
 
+def test_context_includes_the_rush_level_task_when_no_plan_exists(tmp_path):
+    (tmp_path / "PROJECT.md").write_text("# Contract\n")
+    project = {"title": "Borner les niveaux", "description": "Clamper smooth_levels dans [0, 1]."}
+
+    context = ContextFactory(tmp_path, project=project)(MissionState("mission-6", "visualizer"))
+
+    assert "## Current task" in context
+    assert "Borner les niveaux" in context
+    assert "Clamper smooth_levels dans [0, 1]." in context
+
+
+def test_context_includes_the_active_todo_items_task_not_the_rushs(tmp_path):
+    (tmp_path / "PROJECT.md").write_text("# Contract\n")
+    project = {"title": "Rush title", "description": "Rush description"}
+    state = MissionState(
+        "mission-7",
+        "visualizer",
+        todo=[
+            {"title": "Item A", "description": "First step", "target_files": [], "status": "done"},
+            {"title": "Item B", "description": "Second step", "target_files": [], "status": "pending"},
+        ],
+        todo_index=1,
+    )
+
+    context = ContextFactory(tmp_path, project=project)(state)
+
+    assert "Item B" in context
+    assert "Second step" in context
+    assert "Rush title" not in context
+
+
+def test_context_omits_the_current_task_section_without_a_project(tmp_path):
+    (tmp_path / "PROJECT.md").write_text("# Contract\n")
+
+    context = ContextFactory(tmp_path)(MissionState("mission-8", "visualizer"))
+
+    assert "## Current task" not in context
+
+
 def test_preflight_finalizes_without_calling_model(tmp_path):
     store = StateStore(tmp_path / "state.json")
     phase_calls = []

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "05-git-pr",
-  "generated_at": "2026-08-25T08:16:01.582428+00:00",
+  "generated_at": "2026-08-25T10:04:22.983480+00:00",
   "files": [
     {
       "path": "src/pithos_git_broker/__init__.py",

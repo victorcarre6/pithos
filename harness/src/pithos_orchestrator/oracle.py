@@ -104,6 +104,8 @@ def author_oracle(
         red = _run_script(output_path, workspace, timeout)
         if red.returncode == 0:
             raise OracleSpecError("generated oracle already passes on current code (not red)")
+        if not _is_assertion_failure(red.stderr):
+            raise OracleSpecError("generated oracle crashed instead of failing its own assertion (not usable red)")
 
         return output_path, (
             f"oracle authored as file-creation checks only for {len(new_files)} new file(s), confirmed red"
@@ -132,6 +134,9 @@ def author_oracle(
         red = _run_script(output_path, workspace, timeout)
         if red.returncode == 0:
             reasons.append(f"attempt {attempt}: generated oracle already passes on current code (not red)")
+            continue
+        if not _is_assertion_failure(red.stderr):
+            reasons.append(f"attempt {attempt}: oracle crashed instead of failing its own assertion (invalid case)")
             continue
 
         extra = f", plus {len(new_files)} new file check(s)" if new_files else ""
@@ -372,3 +377,17 @@ def _run_script(path, workspace, timeout):
     command = [sys.executable, str(path)]
 
     return subprocess.run(command, cwd=workspace, capture_output=True, text=True, timeout=timeout, check=False)
+
+
+def _is_assertion_failure(stderr):
+    """Return True only when the oracle's own `AssertionError` is the last raised exception.
+
+    Any other exception (`TypeError`, `AttributeError`, `ImportError`...) means the case itself is
+    malformed -- e.g. wrong call arity for the target function -- not a genuine behavioural mismatch.
+    A malformed case is still "red" (non-zero exit code) but proves nothing about the requested change,
+    and would leave `implement`/`repair` chasing a contract they can never satisfy.
+    """
+
+    lines = [line for line in stderr.strip().splitlines() if line.strip()]
+
+    return bool(lines) and lines[-1].lstrip().startswith("AssertionError")

@@ -10,21 +10,31 @@ from pithos_continuity import publish_report
 
 from .context import ContextSection, build_context
 from .controller import ValidationResult
+from .state import current_item
 
 
 class ContextFactory:
     """Build one phase context from durable project facts and targeted files."""
 
-    def __init__(self, workspace, limit=40_000, target_paths=None):
+    def __init__(self, workspace, limit=40_000, target_paths=None, project=None):
         self.workspace = Path(workspace)
         self.limit = limit
         self.target_paths = list(target_paths or [])
+        self.project = project
 
     def __call__(self, state):
         brief_path = self.workspace / ".pithos-task.md"
         contract_path = brief_path if brief_path.is_file() else self.workspace / "PROJECT.md"
         contract = contract_path.read_text(encoding="utf-8")
         sections = [ContextSection("Contract", contract, required=True)]
+        # `.pithos-task.md`/`PROJECT.md` is a durable, human-authored brief that nothing keeps in sync
+        # with the current rush or todo item -- without this, a session can be told to add something
+        # that a prior rush already implemented, with no way to notice the contradiction
+        if self.project is not None:
+            item = current_item(self.project, state)
+            task = f"{item['title']}\n\n{item['description']}".strip()
+            if task:
+                sections.append(ContextSection("Current task", task, required=True))
         if state.failure_summary:
             sections.append(ContextSection("Validation failure", state.failure_summary, required=True))
 
