@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
   "experiment_id": "visualizer-dry-run",
-  "title": "Assembler le pipeline de frame (split -> smooth -> clamp)",
-  "description": "Ajouter la fonction pure process_frame(previous, magnitudes, alpha) dans src/audio_visualizer.py qui enchaine split_bands(magnitudes) pour obtenir les niveaux courants, smooth_levels(previous, current, alpha) pour les lisser, puis clamp_levels(...) pour les borner dans [0, 1] ; retourne le triplet (bass, mid, treble) resultant, sans modifier split_bands, smooth_levels ni clamp_levels.",
-  "micro_rush_id": "frame-pipeline",
+  "title": "Refactor du pipeline de frame en fonction pure process_frame",
+  "description": "Remplacer la logique de assemblage du frame (split -> smooth -> clamp) par une fonction pure process_frame(previous, magnitudes, alpha) dans src/audio_visualizer.py, qui encha\u00eene split_bands(magnitudes), smooth_levels(previous, current, alpha) et clamp_levels(...) pour retourner le triplet (bass, mid, treble).",
+  "micro_rush_id": "frame-pipeline-v2",
   "seed": "Construire un visualiseur audio destin\u00e9 au VJing.",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
-  "target_files": ["src/audio_visualizer.py"],
-  "validation_command": ["python", "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_frame_pipeline_acceptance.py"],
+  "target_files": [
+    "src/audio_visualizer.py"
+  ],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth"
 }
