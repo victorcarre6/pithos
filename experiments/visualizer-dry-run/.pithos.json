@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "experiment_id": "audio_processing",
-  "title": "Récupération de la sortie audio du mac",
-  "description": "Identification de la source de sortie, des éventuelles propriétés comme la source d'encodage, le format etc. pour pouvoir être exploité pour la visualisation..",
-  "micro_rush_id": "setup",
+  "experiment_id": "visualizer-dry-run",
+  "title": "Borner les niveaux lissés dans [0, 1]",
+  "description": "Ajouter une fonction qui borne (clamp) chaque niveau de bande entre 0 et 1 après le lissage exponentiel, pour éviter tout dépassement avant l'affichage VJing.",
+  "micro_rush_id": "level-clamping",
+  "seed": "Construire un visualiseur audio destiné au VJing.",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
-  "target_files": ["src/audio_interface.py"],
-  "validation_command": ["python", "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_smoothing_acceptance.py"],
+  "target_files": ["src/audio_visualizer.py"],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth"
 }
