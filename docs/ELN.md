@@ -554,3 +554,43 @@
   (`harness/fixtures/visualizer_frame_pipeline_acceptance.py`, même convention), vérifié rouge avant
   (`ImportError`) et vert après (implémentation de référence jetable, 3 cas dont un calcul à la main).
 - **204 tests inchangés** (fixture + config uniquement, pas de code touché).
+
+## 25:13 — Boucle de 6h+ sur un fichier détruit : cause racine (`git switch` sur `origin/main` périmé) + garde-fou
+
+- **Symptôme observé** : `dev.pithos.runner.visualizer-dry-run` tournait toutes les 15-20 min depuis
+  `run-20260825T131106Z-db8c72` (13:11) jusqu'à `run-20260825T172751Z-9da0bd` (17:27, encore actif à
+  l'inspection), échouant systématiquement en `author_oracle` sur `clamp_levels`/`split_bands`/`process_frame`
+  « non défini » — alors que les trois existaient déjà dans le code avant `db8c72`.
+- **Cause racine n°1 (déclencheur)** : `run-20260825T121729Z-d9a543` (le rush `frame-pipeline`, 12:19) a
+  réellement réussi — `implement` a produit un `process_frame` correct, `test` est passé — mais `finalize` a
+  échoué au `git switch -c agent/rush-frame-pipeline origin/main` : commit `17181d3` (config `frame-pipeline`)
+  n'avait jamais été poussé (l'opérateur garde la main sur le push final, par consigne explicite), donc
+  `origin/main` avait encore l'ancien `.pithos.json` — le switch refusait d'écraser le `.pithos.json` local
+  déjà réécrit par `propose_next_rush`. Le travail réel restait non commité sur `main`, sans branche de
+  protection. **`GitBroker._switch`** (`pithos_git_broker/broker.py`) basait toute nouvelle branche de rush
+  sur `origin/<main>` au lieu du `main` local — un choix qui suppose `origin` toujours à jour, hypothèse
+  fausse dès que l'opérateur retient un push. **Corrigé** : `git switch -c <branch> main` (HEAD local), plus
+  de `git fetch origin main` préalable.
+- **Cause racine n°2 (destruction)** : au réveil suivant (`run-20260825T131106Z-db8c72`, 13:11),
+  `auto_oracle` a repris la main (le `propose_next_rush` raté avait déjà retiré `validation_command`) sur un
+  `process_frame` non commité. Un `repair` (5 tool calls, weak model sans outil `read` — seulement
+  `edit`/`write`) a fini par écraser tout `src/audio_visualizer.py` par un unique appel d'outil mal formé
+  écrit comme contenu de fichier : `{"action": "check_file", "path": "/workspace/src/audio_visualizer.py"}`.
+  Ce blob est du Python syntaxiquement valide (une expression littérale) donc rien ne l'a jamais rejeté :
+  chaque réveil suivant repartait sur un fichier vide de toute fonction, en boucle infinie sans plus jamais le
+  modifier (`changed_files: []` sur tous les runs de 14:10 à 17:27).
+- **Corrigé à la racine** : `PiPhaseRunner.__call__` (`pi_phase.py`) refuse maintenant d'appliquer un
+  changement `.py` à l'espace de travail hôte si (a) il ne compile pas, ou (b) le fichier avait des `def` au
+  niveau module avant et n'en a plus aucune après — exactement la signature de cette destruction. Détection
+  avant `_apply_projection`, jamais après.
+- **Récupération** : le vrai `process_frame` (celui qui avait fait passer le test à 12:19) a survécu dans
+  l'instantané de session `phases/01-implement/workspace/` du run `d9a543` — restauré tel quel sur
+  `src/audio_visualizer.py`, revérifié rouge-avant/vert-après avec la fixture. `.pithos.json` remis à l'état
+  du commit `17181d3` (annule la mutation de `propose_next_rush`, cohérent avec le code maintenant réel).
+  `dev.pithos.runner.visualizer-dry-run` stoppé (`launchctl bootout`) le temps de la réparation.
+- **3 scripts ajoutés à la racine** (`stop_launchd.sh`, `resume_launchd.sh`, `force_launchd.sh`) pour piloter
+  ce LaunchAgent sans retaper les commandes `launchctl` à la main la prochaine fois qu'une boucle doit être
+  coupée en urgence.
+- **209 tests** (204 + 5 nouveaux : `_valid_python_changes` — accepte, rejette le blob, rejette une erreur de
+  syntaxe, ignore le non-`.py`, laisse passer un fichier neuf sans `def` préalable ; `_switch` sur `main`
+  local dans `test_git_broker.py`).
