@@ -152,6 +152,258 @@ def test_author_oracle_phase_without_an_oracle_author_fails_clearly(tmp_path):
     assert "requires an oracle_author" in result.failure_summary
 
 
+def test_test_success_routes_through_propose_next_rush_when_configured(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+    proposed = []
+
+    def next_rush_author(state):
+        proposed.append(state.mission_id)
+
+        return True, "proposed next micro-rush 'next-id': Next thing"
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "python acceptance.py"),
+        lambda state: finalized.append(state.mission_id),
+        next_rush_author=next_rush_author,
+    )
+    state = MissionState("mission-propose-1", "visualizer")
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert proposed == ["mission-propose-1"]
+    assert finalized == ["mission-propose-1"]
+    phases = [entry["phase"] for entry in result.history]
+    assert "propose_next_rush" in phases
+    assert phases.index("propose_next_rush") < phases.index("finalize")
+
+
+def test_test_success_skips_propose_next_rush_when_not_configured(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "python acceptance.py"),
+        lambda state: finalized.append(state.mission_id),
+    )
+    state = MissionState("mission-propose-2", "visualizer")
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert finalized == ["mission-propose-2"]
+    assert "propose_next_rush" not in [entry["phase"] for entry in result.history]
+
+
+def test_a_failed_proposal_still_lets_the_mission_finalize(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+
+    def failing_next_rush_author(state):
+        return False, "propose_next_rush failed: model unreachable"
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "python acceptance.py"),
+        lambda state: finalized.append(state.mission_id),
+        next_rush_author=failing_next_rush_author,
+    )
+    state = MissionState("mission-propose-3", "visualizer")
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert finalized == ["mission-propose-3"]
+    propose_entry = next(entry for entry in result.history if entry.get("phase") == "propose_next_rush" and "success" in entry)
+    assert propose_entry["success"] is False
+
+
+def test_review_success_also_routes_through_propose_next_rush(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+
+    def phase_runner(phase, context):
+        return PhaseResult(True, f"{phase} complete", [])
+
+    def next_rush_author(state):
+        return True, "proposed next micro-rush 'next-id': Next thing"
+
+    orchestrator = Orchestrator(
+        store,
+        phase_runner,
+        None,
+        lambda state: finalized.append(state.mission_id),
+        next_rush_author=next_rush_author,
+    )
+    state = MissionState("mission-propose-4", "visualizer", phase="review")
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert finalized == ["mission-propose-4"]
+    phases = [entry["phase"] for entry in result.history]
+    assert "propose_next_rush" in phases
+
+
+def _todo(*titles):
+    return [
+        {"title": title, "description": "...", "target_files": [f"{title}.py"], "status": "pending"}
+        for title in titles
+    ]
+
+
+def test_plan_todo_phase_calls_the_planner_then_moves_to_author_oracle(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    calls = []
+
+    def todo_planner(state):
+        calls.append(state.mission_id)
+        state.todo = _todo("Only item")
+
+        return True, "planned 1 item(s): Only item"
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "generated oracle"),
+        lambda state: None,
+        oracle_author=lambda state: (True, "oracle authored"),
+        todo_planner=todo_planner,
+    )
+    state = MissionState("mission-plan-1", "visualizer", phase="plan_todo")
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert calls == ["mission-plan-1"]
+    assert result.status == "completed"
+    assert [item["status"] for item in result.todo] == ["done"]
+
+
+def test_plan_todo_phase_without_a_planner_behaves_like_a_single_implicit_item(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "generated oracle"),
+        lambda state: None,
+        oracle_author=lambda state: (True, "oracle authored"),
+    )
+    state = MissionState("mission-plan-2", "visualizer", phase="plan_todo")
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert result.todo == []
+
+
+def test_multi_item_todo_all_succeed_finalizes_once(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "generated oracle"),
+        lambda state: finalized.append(state.mission_id),
+        oracle_author=lambda state: (True, f"oracle for item {state.todo_index}"),
+    )
+    state = MissionState("mission-todo-1", "visualizer", phase="plan_todo", todo=_todo("A", "B"))
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert result.phase == "done"
+    assert [item["status"] for item in result.todo] == ["done", "done"]
+    assert finalized == ["mission-todo-1"]
+
+
+def test_multi_item_todo_skips_a_failed_item_but_still_finalizes(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+    oracle_calls = []
+
+    def oracle_author(state):
+        oracle_calls.append(state.todo_index)
+        if state.todo_index == 1:
+            return False, "no case survived cross-generation agreement"
+
+        return True, "oracle authored"
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        lambda changed_files: ValidationResult(True, "generated oracle"),
+        lambda state: finalized.append(state.mission_id),
+        oracle_author=oracle_author,
+    )
+    state = MissionState("mission-todo-2", "visualizer", phase="plan_todo", todo=_todo("A", "B", "C"))
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "completed"
+    assert oracle_calls == [0, 1, 2]
+    assert [item["status"] for item in result.todo] == ["done", "skipped", "done"]
+    assert finalized == ["mission-todo-2"]
+
+
+def test_multi_item_todo_fails_the_mission_when_every_item_fails(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    finalized = []
+
+    orchestrator = Orchestrator(
+        store,
+        None,
+        None,
+        lambda state: finalized.append(state.mission_id),
+        oracle_author=lambda state: (False, "no attempt produced a usable oracle"),
+    )
+    state = MissionState("mission-todo-3", "visualizer", phase="plan_todo", todo=_todo("A", "B"))
+
+    result = orchestrator.run(state, lambda current: "unused")
+
+    assert result.status == "failed"
+    assert result.phase == "failed"
+    assert [item["status"] for item in result.todo] == ["skipped", "skipped"]
+    assert finalized == []
+
+
+def test_a_failed_item_resets_repair_attempts_and_failure_summary_for_the_next_item(tmp_path):
+    store = StateStore(tmp_path / "mission.json")
+    validations = iter(
+        [
+            ValidationResult(False, "acceptance.py", stderr="FAILED forever"),
+            ValidationResult(False, "acceptance.py", stderr="FAILED forever"),
+            ValidationResult(False, "acceptance.py", stderr="FAILED forever"),
+            ValidationResult(False, "acceptance.py", stderr="FAILED forever"),
+            ValidationResult(True, "acceptance.py"),
+        ]
+    )
+
+    def phase_runner(phase, context):
+        return PhaseResult(True, f"{phase} complete", [])
+
+    orchestrator = Orchestrator(
+        store,
+        phase_runner,
+        lambda changed_files: next(validations),
+        lambda state: None,
+        oracle_author=lambda state: (True, "oracle authored"),
+    )
+    state = MissionState("mission-todo-4", "visualizer", phase="plan_todo", todo=_todo("A", "B"), max_repairs=2)
+
+    result = orchestrator.run(state, lambda current: current.failure_summary)
+
+    assert result.status == "completed"
+    assert [item["status"] for item in result.todo] == ["skipped", "done"]
+    assert result.repair_attempts == 0
+    assert result.failure_summary == ""
+
+
 def test_interruption_is_persisted_and_resumable(tmp_path):
     store = StateStore(tmp_path / "mission.json")
     orchestrator = Orchestrator(store, None, None, None)
@@ -380,6 +632,41 @@ def test_finalizer_reuses_existing_pull_request(tmp_path):
     assert state.artifacts["pull_request"] == "https://github.com/example/pithos/pull/1"
 
 
+def test_finalizer_auto_merges_a_reused_pull_request_too(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    calls = []
+
+    def git_send(request):
+        calls.append(request)
+        if request["operation"] == "pr_view":
+            return {
+                "ok": True,
+                "stdout": '{"url":"https://github.com/example/pithos/pull/1","state":"OPEN"}\n',
+            }
+
+        return {"ok": True, "stdout": "ok\n"}
+
+    state = MissionState(
+        "run-20260824T150300Z-a1b2c3",
+        "visualizer",
+        phase="finalize",
+        evidence=[{"command": "python acceptance.py", "passed": True}],
+    )
+    finalizer = LocalFinalizer(
+        workspace,
+        tmp_path / "missions" / state.mission_id,
+        tmp_path / "logs",
+        git_send,
+        auto_merge=True,
+    )
+
+    finalizer(state)
+
+    assert [request["operation"] for request in calls] == ["switch", "pr_view", "commit", "push", "pr_merge"]
+    assert state.artifacts["merged"] is True
+
+
 def test_finalizer_refuses_to_push_to_merged_pull_request(tmp_path):
     workspace = tmp_path / "workspace"
     workspace.mkdir()
@@ -434,6 +721,115 @@ def test_finalization_failure_is_persisted(tmp_path):
     assert result.phase == "failed"
     assert result.failure_summary == "finalization failed: push refused"
     assert store.load().status == "failed"
+
+
+def test_finalizer_auto_merges_after_pr_create_when_enabled(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    calls = []
+
+    def git_send(request):
+        calls.append(request)
+        if request["operation"] == "pr_view":
+            raise RuntimeError("no pull request")
+        stdout = "https://github.com/example/pithos/pull/1\n" if request["operation"] == "pr_create" else "ok\n"
+
+        return {"ok": True, "stdout": stdout}
+
+    state = MissionState(
+        "run-20260824T150000Z-a1b2c3",
+        "visualizer",
+        phase="finalize",
+        evidence=[{"command": "python acceptance.py", "passed": True}],
+    )
+    finalizer = LocalFinalizer(
+        workspace,
+        tmp_path / "missions" / state.mission_id,
+        tmp_path / "logs",
+        git_send,
+        auto_merge=True,
+    )
+
+    finalizer(state)
+
+    assert [request["operation"] for request in calls] == [
+        "switch",
+        "pr_view",
+        "commit",
+        "push",
+        "pr_create",
+        "pr_merge",
+    ]
+    assert state.artifacts["merged"] is True
+    assert "merge_failed" not in state.artifacts
+
+
+def test_finalizer_never_calls_pr_merge_when_auto_merge_is_disabled(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    calls = []
+
+    def git_send(request):
+        calls.append(request)
+        if request["operation"] == "pr_view":
+            raise RuntimeError("no pull request")
+        stdout = "https://github.com/example/pithos/pull/1\n" if request["operation"] == "pr_create" else "ok\n"
+
+        return {"ok": True, "stdout": stdout}
+
+    state = MissionState(
+        "run-20260824T150100Z-a1b2c3",
+        "visualizer",
+        phase="finalize",
+        evidence=[{"command": "python acceptance.py", "passed": True}],
+    )
+    finalizer = LocalFinalizer(
+        workspace,
+        tmp_path / "missions" / state.mission_id,
+        tmp_path / "logs",
+        git_send,
+    )
+
+    finalizer(state)
+
+    assert "pr_merge" not in [request["operation"] for request in calls]
+    assert "merged" not in state.artifacts
+
+
+def test_a_failed_auto_merge_does_not_undo_an_already_validated_mission(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    calls = []
+
+    def git_send(request):
+        calls.append(request)
+        if request["operation"] == "pr_view":
+            raise RuntimeError("no pull request")
+        if request["operation"] == "pr_merge":
+            raise RuntimeError("branch protection: required review missing")
+        stdout = "https://github.com/example/pithos/pull/1\n" if request["operation"] == "pr_create" else "ok\n"
+
+        return {"ok": True, "stdout": stdout}
+
+    state = MissionState(
+        "run-20260824T150200Z-a1b2c3",
+        "visualizer",
+        phase="finalize",
+        evidence=[{"command": "python acceptance.py", "passed": True}],
+    )
+    finalizer = LocalFinalizer(
+        workspace,
+        tmp_path / "missions" / state.mission_id,
+        tmp_path / "logs",
+        git_send,
+        auto_merge=True,
+    )
+
+    finalizer(state)
+
+    assert state.artifacts["pull_request"] == "https://github.com/example/pithos/pull/1"
+    assert "branch protection" in state.artifacts["merge_failed"]
+    assert "merged" not in state.artifacts
 
 
 def test_git_failure_does_not_publish_continuity(tmp_path):

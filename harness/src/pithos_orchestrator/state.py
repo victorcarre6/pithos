@@ -7,12 +7,14 @@ from pathlib import Path
 
 
 PHASES = {
+    "plan_todo",
     "author_oracle",
     "preflight",
     "implement",
     "test",
     "repair",
     "review",
+    "propose_next_rush",
     "finalize",
     "done",
     "failed",
@@ -43,6 +45,25 @@ class MissionState:
     history: list = field(default_factory=list)
     artifacts: dict = field(default_factory=dict)
     updated_at: str = field(default_factory=now)
+    todo: list = field(default_factory=list)
+    todo_index: int = 0
+
+
+def current_item(project, state):
+    """Return the active todo item's title/description/target_files, or the rush-level fields.
+
+    A mission without a plan (`state.todo` empty -- no planner configured, or planning fell back)
+    behaves exactly as if it had a single implicit item covering the whole rush.
+    """
+
+    if state.todo:
+        return state.todo[state.todo_index]
+
+    return {
+        "title": project.get("title", ""),
+        "description": project.get("description", ""),
+        "target_files": project.get("target_files"),
+    }
 
 
 class StateStore:

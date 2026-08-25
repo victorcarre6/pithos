@@ -131,6 +131,10 @@ def _factual_text(facts):
 
     validation = str(facts.get("validation", "FAIL"))
     conclusion = f"Au final, la validation externe est {validation}."
+    todo = facts.get("todo") or []
+    if todo:
+        done = sum(1 for item in todo if item.get("status") == "done")
+        conclusion = f"{conclusion} {done}/{len(todo)} étape(s) validée(s)."
     pull_request = facts.get("pull_request")
     if pull_request:
         conclusion = f"{conclusion} La PR est {pull_request}."

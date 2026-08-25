@@ -356,3 +356,93 @@
 - **158 tests passent** (146 + 12 nouveaux : `test_oracle.py`, phase `author_oracle` du contrôleur, lancement
   sans `validation_command`). Voir [`RUN_GUIDE.md`](../RUN_GUIDE.md) pour le protocole de relance à jour et les
   limites connues.
+
+## 24:55 — PR `#7` ratée, échec rapide et rushes auto-proposés (seed)
+
+- **Diagnostic PR `#7`** : `experiment_id` avait été édité à la main en `"audio_processing"` (underscore
+  invalide). Le lanceur ne validait alors ce champ nulle part ; l'échec n'est apparu qu'à `finalize`, après
+  une session Docker/Pi complète et l'ouverture d'une PR sans changement réel (`target_files` pointait vers un
+  fichier inexistant, `validation_command` recyclait l'oracle `band-smoothing` sans rapport — validation vide).
+  La PR a été fermée manuellement par l'opérateur.
+- **Correctif** : `launcher.py` valide désormais `experiment_id` et `micro_rush_id` contre
+  `^[a-z0-9][a-z0-9-]{0,63}$` (le même motif que `contracts/v1/*.schema.json`) avant toute création de
+  mission — un identifiant invalide échoue immédiatement, sans Docker, sans PR.
+- **Rushes auto-proposés** : à la demande explicite de l'opérateur, `.pithos.json` peut désormais porter un
+  champ `seed` (objectif long terme, jamais réécrit par le modèle). Quand il est présent, une nouvelle phase
+  `propose_next_rush` (avant `finalize`) fait proposer par le modèle, en un appel borné à schéma JSON, le
+  prochain micro-rush : identifiant, titre, description, jusqu'à 3 `target_files`. Le harnais valide tout
+  (format d'identifiant, différent du rush courant, longueur bornée, chemins qui ne sortent pas du workspace)
+  avant de réécrire `.pithos.json` avec ces seuls champs modifiés. Best-effort : un échec de proposition ne
+  fait jamais échouer la mission qui vient de réussir.
+- Le nouveau `.pithos.json` voyage dans le **même commit/PR** que le travail validé — le broker Git n'expose de
+  toute façon aucune opération d'écriture directe sur `main` (`BRANCH_PATTERN` n'autorise que `agent/rush-*`).
+  Fusionner la PR reste donc le seul point d'activation, cohérent avec la relecture déjà exigée pour l'oracle
+  généré.
+- **`oracle.py` étendu aux fichiers inexistants** : un `target_files` peut maintenant désigner un fichier qui
+  n'existe pas encore (un rush auto-proposé peut légitimement en demander un). Pour ces fichiers, l'oracle ne
+  vérifie plus qu'un cas numérique (impossible sans fonction existante) mais que le fichier existe et
+  s'importe sans erreur après implémentation — mécaniquement rouge avant, vert après, une garantie
+  volontairement plus faible que le contrat numérique, documentée comme telle.
+- **Preuves réelles sur `pithos/ling-3.0-tiny:8b-16k`** : `NextRushAuthor` a proposé, à partir du seed
+  « Construire un visualiseur audio destiné au VJing » et du rush `band-smoothing` juste terminé, le rush
+  `band-peak-normalization` ciblant un fichier existant et deux nouveaux fichiers ; `OracleAuthor` a ensuite
+  authoré avec succès un oracle mixte (cas numériques sur `split_bands` + vérifications d'import) sur ces
+  mêmes cibles, confirmé rouge.
+- **175 tests passent** (158 + 17 nouveaux : `test_next_rush.py`, extension `test_oracle.py` (fichiers
+  neufs/mixtes), phase `propose_next_rush` du contrôleur, validation d'identifiants au lancement). Voir
+  [`RUN_GUIDE.md`](../RUN_GUIDE.md) § *Rushes auto-proposés*.
+
+## 25:05 — Auto-merge : la boucle se ferme vraiment
+
+- Question posée directement par l'opérateur : « tout est vraiment autonome en vase clos ? ». Réponse honnête
+  à ce moment-là : non — `pr_merge` existait déjà côté broker Git mais n'était appelé nulle part ; chaque
+  mission ouvrait une PR et s'arrêtait là. Pire : sans merge entre deux réveils, le rush suivant risquait
+  d'échouer à `finalize` (conflit Git, la nouvelle branche partant toujours d'`origin/main`, qui n'aurait pas
+  le travail du rush précédent) — après avoir déjà consommé une session Docker/Pi complète.
+- Sur confirmation explicite de l'opérateur (le compromis — la revue humaine passe d'avant-merge à
+  après-merge — avait été posé clairement avant), `LocalFinalizer` (`campaign.py`) gagne un paramètre
+  `auto_merge` : après création/réutilisation de la PR, il appelle `pr_merge` (déjà garde-fouté côté broker :
+  tête/base conformes à la politique, PR encore `OPEN`). Best-effort — un échec de merge (protection de
+  branche, panne GitHub) n'invalide jamais une mission déjà validée ; la cause atterrit dans
+  `state.json` → `artifacts.merge_failed`, la PR reste ouverte comme avant.
+- Même signal d'activation que `propose_next_rush` : `auto_merge` suit exactement la présence de `seed` dans
+  `.pithos.json` (`launcher.py`). Sans `seed`, aucun merge automatique n'a jamais lieu — comportement
+  strictement inchangé pour toute expérience qui n'a pas explicitement demandé l'autonomie complète.
+- **179 tests passent** (175 + 4 nouveaux : séquence git avec/sans auto-merge, merge sur PR réutilisée, échec
+  de merge best-effort, gating par `seed` au lancement). `RUN_GUIDE.md` documente le nouveau compromis de
+  revue (avant vs après merge) et corrige l'ancienne affirmation « fusionner la PR active la proposition » —
+  ce n'est plus vrai avec `seed` : l'activation est maintenant automatique.
+
+## 25:08 — Diagnostic `level-clamping` et décomposition en micro-passes (`plan_todo`)
+
+- **Diagnostic du run `run-20260825T023932Z-c637a7`** (`level-clamping`, auto-proposé après `band-smoothing`) :
+  échec en `author_oracle`, 3 tentatives, toujours *"no case survived cross-generation agreement"*. Hypothèse
+  initiale erronée (fonction inexistante ciblée) écartée par le message d'erreur lui-même : `_validate_spec`
+  et `_require_same_target` réussissent nécessairement avant qu'`_agreeing_cases` ne puisse être vide, donc les
+  deux générations s'accordaient bien sur la même fonction existante — c'est l'arithmétique des cas numériques
+  qui a divergé, de façon reproductible sur 3 tentatives. Confirme, sur un second cas réel, la limite déjà
+  documentée dans `RUN_GUIDE.md` (« l'arithmétique du modèle n'est pas fiable »).
+- **Garde-fou immédiat, sans lien direct avec ce diagnostic** : `next_rush.py` (`propose_next_rush`) reçoit
+  désormais `existing_functions` (fonctions déjà `def`-inies dans les fichiers modifiés) dans ses faits, avec
+  consigne explicite de préférer modifier une fonction existante plutôt que d'en supposer une nouvelle — la
+  fonction `existing_functions()` (ex-`_existing_functions`, renommée publique) est réutilisée telle quelle par
+  `plan_todo.py` ci-dessous.
+- **Hypothèse de l'opérateur, implémentée** : un petit modèle travaille mieux en plusieurs passes courtes à
+  contexte frais qu'en une session longue. Nouvelle phase `plan_todo` (avant `author_oracle`, seulement quand
+  l'oracle est auto-généré) : le modèle scinde le rush en 1 à 4 étapes atomiques bornées par schéma JSON
+  (`plan_todo.py`), chacune retraversant ensuite le cycle complet `author_oracle → preflight → implement →
+  test → repair` **seule, à contexte frais** (`MissionState.todo`/`todo_index`, `state.current_item` dans
+  `state.py`, `_advance_todo` dans `controller.py`). Décomposition par défaut best-effort : tout échec de
+  planification laisse `state.todo` vide et la mission se comporte exactement comme avant cette version (une
+  étape implicite). Une étape qui échoue est marquée `skipped`, pas fatale — la mission échoue seulement si
+  aucune étape n'a réussi.
+- **Choix délibéré, discuté avec l'opérateur avant implémentation** : une seule PR et un seul récap Telegram
+  pour toute la mission, quel que soit le nombre d'étapes — multiplier les PR par étape aurait démultiplié le
+  risque de collision d'auto-merge déjà documenté (`Rushes auto-proposés`), sans bénéfice avéré. Seule la façon
+  dont le *travail* est scindé change, pas la façon dont il est mergé/rapporté. `oracle-NN.py` remplace
+  `oracle.py` seulement pour ce cas (numéroté par étape), afin de garder chaque contrat relisible séparément
+  (étape 6 de `RUN_GUIDE.md`).
+- **195 tests passent** (179 + 16 nouveaux : `test_plan_todo.py`, boucle multi-étapes du contrôleur — succès
+  complet, échec partiel, échec total, réinitialisation des réparations entre étapes —, ciblage de l'étape
+  active par `OracleAuthor`/`ContextFactory`, faits `existing_functions` de `next_rush.py`).
+  `RUN_GUIDE.md` documente la décomposition sous « Décomposition en micro-passes (`plan_todo`) ».

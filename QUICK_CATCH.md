@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 22:13 CEST._
+_État vérifié le 24/08/2026 à 23:20 CEST._
 
 ## Micro quick catch général
 
@@ -12,10 +12,10 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **158 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **195 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
-runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré et
-intégrations.
+runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré,
+rushes auto-proposés, auto-merge, décomposition en micro-passes (`plan_todo`) et intégrations.
 
 **Baseline retenue.** Après mise à jour du serveur Ollama de `0.32.13` vers `0.32.15`,
 `maternion/ling-3.0-tiny:8b` charge correctement : smoke **6/6** à 52,57 tok/s, protocol **6/6** à
@@ -26,10 +26,15 @@ les deux échecs d'endurance exécutent les tests mais omettent le rapport final
 **Prochain chemin critique.** Les PR `#1` à `#6` sont toutes fusionnées dans `main` et les deux LaunchAgents
 restent actifs. Le rush `band-smoothing` est `completed` (commit `e4cd83d`, PR `#4`) et un marqueur local
 empêche toute répétition. Les PR `#5` (horodatage `started` du rapport) et `#6` (récap Telegram humain) sont
-également fusionnées. Il reste à choisir le prochain micro-rush pour `experiments/visualizer-dry-run/` et à
-changer `micro_rush_id` dans `.pithos.json` pour le libérer ; jusque-là, chaque réveil du runner se termine en
-skip idempotent. Le harnais peut désormais générer l'oracle du prochain rush lui-même (`.pithos.json` sans
-`validation_command`) — voir [`RUN_GUIDE.md`](RUN_GUIDE.md). Aucun secret n'est tracké.
+également fusionnées. La PR `#7` (rush `setup`) a échoué à `finalize` sur un `experiment_id` invalide et a été
+fermée ; le lanceur valide désormais ce champ avant toute session. Le harnais peut générer l'oracle du prochain
+rush lui-même (`.pithos.json` sans `validation_command`) et, si `.pithos.json` porte un champ `seed`, proposer
+lui-même le prochain micro-rush et fusionner sa propre PR automatiquement à la fin de chaque mission réussie —
+la boucle se ferme vraiment dans ce cas, la revue humaine passant d'avant-merge à après-merge — voir
+[`RUN_GUIDE.md`](RUN_GUIDE.md). Il
+reste à remettre `experiments/visualizer-dry-run/.pithos.json` dans un état valide (`experiment_id` correct,
+`seed`, premier `target_files` existant) pour relancer le cycle ; jusque-là, chaque réveil du runner se termine
+en skip idempotent. Aucun secret n'est tracké.
 
 ## Protocole de collecte — semaine autonome
 
@@ -243,7 +248,8 @@ $EDITOR ../experiments/<experiment-id>/PROJECT.md
 
 ## Références canoniques
 
-- Relancer un micro-rush : [`RUN_GUIDE.md`](RUN_GUIDE.md) — protocole à jour, oracle auto-généré et ses limites.
+- Relancer un micro-rush : [`RUN_GUIDE.md`](RUN_GUIDE.md) — protocole à jour, oracle auto-généré, rushes
+  auto-proposés (`seed`) et leurs limites respectives.
 - Périmètre : [`PROJECT.md`](PROJECT.md)
 - État détaillé : [`docs/ROADMAP.md`](docs/ROADMAP.md) et [`docs/ELN.md`](docs/ELN.md)
 - Architecture et arbitrages : [`docs/EXPLANATIONS.md`](docs/EXPLANATIONS.md)

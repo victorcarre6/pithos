@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "01-model-benchmark",
-  "generated_at": "2026-08-24T20:12:16.209508+00:00",
+  "generated_at": "2026-08-25T08:16:01.571573+00:00",
   "files": [
     {
       "path": "src/pithos_benchmark/__init__.py",

@@ -17,6 +17,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+from .state import current_item
+
 
 MAX_CASES = 4
 MAX_ARGS = 6
@@ -43,23 +45,31 @@ class OracleAuthor:
         self.opener = opener
 
     def __call__(self, state):
-        target_files = self.project.get("target_files") or []
-        sources = {}
+        item = current_item(self.project, state)
+        output_path = self.output_path
+        if state.todo:
+            output_path = output_path.with_name(f"oracle-{state.todo_index + 1:02d}.py")
+        target_files = item["target_files"] or []
+        existing_sources = {}
+        new_files = []
         for relative in target_files:
             path = self.workspace / relative
             if path.is_file():
-                sources[relative] = path.read_text(encoding="utf-8", errors="replace")
+                existing_sources[relative] = path.read_text(encoding="utf-8", errors="replace")
+            else:
+                new_files.append(relative)
 
-        if not sources:
-            return False, "author_oracle found no readable target_files"
+        if not existing_sources and not new_files:
+            return False, "author_oracle found no target_files"
 
         try:
             path, reason = author_oracle(
                 self.model,
-                self.project.get("title", ""),
-                self.project.get("description", ""),
-                sources,
-                self.output_path,
+                item["title"],
+                item["description"],
+                existing_sources,
+                new_files,
+                output_path,
                 self.workspace,
                 timeout=self.timeout,
                 attempts=self.attempts,
@@ -73,11 +83,32 @@ class OracleAuthor:
         return True, reason
 
 
-def author_oracle(model, title, description, sources, output_path, workspace, timeout=45, attempts=3, opener=None):
-    """Author, render and red-check one oracle; return (path, reason) or raise OracleSpecError."""
+def author_oracle(
+    model, title, description, sources, new_files, output_path, workspace, timeout=45, attempts=3, opener=None
+):
+    """Author, render and red-check one oracle; return (path, reason) or raise OracleSpecError.
+
+    `sources` holds target files that already exist (eligible for a numeric-case contract);
+    `new_files` holds target files that do not exist yet, for which only a weaker "exists and
+    imports cleanly" check is possible -- there is no function to reference before it's written.
+    """
 
     allowed_files = sorted(sources)
     output_path = Path(output_path)
+
+    if not allowed_files:
+        # nothing existing to reference: a creation-only oracle needs no model call
+        script = _render_script(None, None, [], new_files)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(script, encoding="utf-8")
+        red = _run_script(output_path, workspace, timeout)
+        if red.returncode == 0:
+            raise OracleSpecError("generated oracle already passes on current code (not red)")
+
+        return output_path, (
+            f"oracle authored as file-creation checks only for {len(new_files)} new file(s), confirmed red"
+        )
+
     reasons = []
     for attempt in range(1, attempts + 1):
         try:
@@ -94,7 +125,7 @@ def author_oracle(model, title, description, sources, output_path, workspace, ti
             reasons.append(f"attempt {attempt}: {error}")
             continue
 
-        script = _render_script(primary["target_file"], primary["target_function"], cases)
+        script = _render_script(primary["target_file"], primary["target_function"], cases, new_files)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(script, encoding="utf-8")
 
@@ -103,9 +134,11 @@ def author_oracle(model, title, description, sources, output_path, workspace, ti
             reasons.append(f"attempt {attempt}: generated oracle already passes on current code (not red)")
             continue
 
+        extra = f", plus {len(new_files)} new file check(s)" if new_files else ""
+
         return output_path, (
             f"oracle authored for {primary['target_function']} in {primary['target_file']} "
-            f"with {len(cases)} agreeing case(s), confirmed red"
+            f"with {len(cases)} agreeing case(s){extra}, confirmed red"
         )
 
     raise OracleSpecError("; ".join(reasons) or "no attempt produced a usable oracle")
@@ -258,25 +291,28 @@ def _close(actual, expected):
     return math.isclose(actual, expected, rel_tol=1e-6, abs_tol=AGREEMENT_TOLERANCE)
 
 
-def _render_script(target_file, function, cases):
-    parent = str(Path(target_file).parent)
-    module = Path(target_file).stem
-    cases_literal = repr([{"args": tuple(case["args"]), "expect": case["expect"]} for case in cases])
+def _render_script(target_file, function, cases, new_files):
+    """Compose one self-contained oracle script from the harness's own template.
 
-    return f'''#!/usr/bin/env python3
+    `target_file`/`function`/`cases` describe an optional numeric-case contract against an
+    already-existing function; `new_files` describes optional file-creation checks (exists and
+    imports cleanly) for target files that do not exist yet. At least one of the two must be
+    non-empty.
+    """
+
+    new_files = list(new_files or [])
+    header = '''#!/usr/bin/env python3
 """Harness-rendered acceptance oracle.
 
-The model selected only a target function and numeric input/output cases,
-cross-checked across two independent generations; this script is composed
-and executed by the harness. No model-authored code runs here.
+The model selected only file/function names and numeric input/output cases,
+cross-checked across two independent generations where applicable; this
+script is composed and executed by the harness. No model-authored code runs
+here.
 """
+import importlib
 import math
 import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path.cwd() / {parent!r}))
-
-from {module} import {function}
 
 
 def _close(actual, expected):
@@ -285,7 +321,18 @@ def _close(actual, expected):
             return False
         return all(_close(a, e) for a, e in zip(actual, expected))
     return isinstance(actual, (int, float)) and math.isclose(actual, expected, rel_tol=1e-6, abs_tol=1e-9)
+'''
 
+    blocks = []
+    checks = 0
+    if function is not None:
+        parent = str(Path(target_file).parent)
+        module = Path(target_file).stem
+        cases_literal = repr([{"args": tuple(case["args"]), "expect": case["expect"]} for case in cases])
+        blocks.append(
+            f'''
+sys.path.insert(0, str(Path.cwd() / {parent!r}))
+from {module} import {function}
 
 CASES = {cases_literal}
 
@@ -295,9 +342,30 @@ for index, case in enumerate(CASES):
         raise AssertionError(
             f"case {{index}}: {function}(*{{case['args']!r}}) == {{result!r}}, expected {{case['expect']!r}}"
         )
-
-print("generated oracle: PASS ({len(cases)} case(s))")
 '''
+        )
+        checks += len(cases)
+
+    if new_files:
+        new_files_literal = repr(new_files)
+        blocks.append(
+            f'''
+for relative in {new_files_literal}:
+    file_path = Path.cwd() / relative
+    if not file_path.is_file():
+        raise AssertionError(f"expected {{relative}} to exist")
+    sys.path.insert(0, str(file_path.parent))
+    try:
+        importlib.import_module(file_path.stem)
+    except Exception as error:
+        raise AssertionError(f"expected {{relative}} to import cleanly, got: {{error!r}}") from error
+'''
+        )
+        checks += len(new_files)
+
+    footer = f'\nprint("generated oracle: PASS ({checks} check(s))")\n'
+
+    return header + "".join(blocks) + footer
 
 
 def _run_script(path, workspace, timeout):

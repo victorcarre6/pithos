@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-24T20:12:16.277002+00:00",
+  "generated_at": "2026-08-25T08:16:01.605301+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -10,7 +10,7 @@
     },
     {
       "path": "src/pithos_orchestrator/campaign.py",
-      "sha256": "63d18953718f39830dfa2aecf9cc501489dd9020e0d96f68041296cd5bb42b48"
+      "sha256": "14a7d9d60ca3685c185861912d906b1fe75f52b5f9bf89e9c1bae59034df6883"
     },
     {
       "path": "src/pithos_orchestrator/client.py",
@@ -22,27 +22,35 @@
     },
     {
       "path": "src/pithos_orchestrator/controller.py",
-      "sha256": "a528125cfba439f9a80956754cbe41f6e502fb146a485d15f35af2d810862d48"
+      "sha256": "21b19d57d2d4687a681a0fd3ffe39fea6f16c165c366f5256100860a5bd65022"
     },
     {
       "path": "src/pithos_orchestrator/launcher.py",
-      "sha256": "8515ed1b40e3da73b5a589c83f475b836dc04952c5dee4d11af7ff660dcd89b8"
+      "sha256": "ba6485df87fca648b7d495559d349640f8498f3737579035d0bfc9808f327c78"
+    },
+    {
+      "path": "src/pithos_orchestrator/next_rush.py",
+      "sha256": "0613b6aa428e553548bd1b4a256ccd8f21373428424ba93aee65fcb509414c94"
     },
     {
       "path": "src/pithos_orchestrator/oracle.py",
-      "sha256": "56b1edabffef768e4f9eed7a57bd815bf7bd714990036938b4bdaaec63cacfc2"
+      "sha256": "50d9b5aa899730ea379e71d2387071a783d35213376976e7d5b7c48532b61f68"
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
       "sha256": "1630b4c259b11f2177a92b6ec0be00392423100a2255cd15c646c424adb34219"
     },
     {
+      "path": "src/pithos_orchestrator/plan_todo.py",
+      "sha256": "a2221bc18fd6c38028589b743cf5d8f5b113c843f6af75ae9b0b95509dbdc04c"
+    },
+    {
       "path": "src/pithos_orchestrator/recap.py",
-      "sha256": "7a992e8484eaed99250f181116b926c35140b688f7ba53f22036db74691a832b"
+      "sha256": "5b59a88db3ad86f69933359e017445eb8a91333848ab484e8bf5572dc987297a"
     },
     {
       "path": "src/pithos_orchestrator/state.py",
-      "sha256": "ac489486129932f25289b32d811f1451f93499c61918c28ff4b18fef9d6299fd"
+      "sha256": "6a255a624d484a87fe011e5474479d5cfb9148c7af140a7fd5de2c34c8f050f2"
     },
     {
       "path": "src/visualizer_acceptance.py",
@@ -53,16 +61,24 @@
       "sha256": "11311d00730ad2768e85865eb057f673586337f9d6df107d08e6e05877e7d1be"
     },
     {
+      "path": "tests/test_next_rush.py",
+      "sha256": "686162128e902bd45bb0c34cf618a3f6c2fea7456e0cec5d9b72db6217af63a8"
+    },
+    {
       "path": "tests/test_oracle.py",
-      "sha256": "c046e50616f07b7ba4f1d5d06ef901c832fc34930383f2012ce365e4b1d967dc"
+      "sha256": "7fd250310dae84de20573b7e8f434a493dee1dc0bb28fc5ebe107877181094c2"
     },
     {
       "path": "tests/test_orchestrator.py",
-      "sha256": "2a366446e8c2d55226283faf061551c822ff81733560dab3292510d5209ec3d3"
+      "sha256": "d6d7105e2ae2c4b848e3f8e56ab651d5babfedc296d30383cb6bc501f9357bee"
+    },
+    {
+      "path": "tests/test_plan_todo.py",
+      "sha256": "05a0f0367704202ec19f9837933c2b54482872b02d90051fee89d9b8ae029cc9"
     },
     {
       "path": "tests/test_run_orchestrated.py",
-      "sha256": "601cfb09162c4d20480cbb160e37ecc5893397d49138e5e5a25e618d45fe532a"
+      "sha256": "8f33c2f8fb3f9baa8362cb3e5cdd4dcc0cf5931396d3c81934f6a975bacbdbc7"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "02-capability-probe",
-  "generated_at": "2026-08-24T20:12:16.213053+00:00",
+  "generated_at": "2026-08-25T08:16:01.573759+00:00",
   "files": [
     {
       "path": "src/pithos_capability_probe/__init__.py",

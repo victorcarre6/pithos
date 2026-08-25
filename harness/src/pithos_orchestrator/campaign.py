@@ -28,7 +28,8 @@ class ContextFactory:
         if state.failure_summary:
             sections.append(ContextSection("Validation failure", state.failure_summary, required=True))
 
-        for path in self._target_files(state.changed_files):
+        target_paths = state.todo[state.todo_index]["target_files"] if state.todo else self.target_paths
+        for path in self._target_files(state.changed_files, target_paths):
             relative = path.relative_to(self.workspace)
             content = path.read_text(encoding="utf-8", errors="replace")
             sections.append(ContextSection(f"File: {relative}", content))
@@ -37,11 +38,11 @@ class ContextFactory:
 
         return context
 
-    def _target_files(self, changed_files):
-        if self.target_paths:
+    def _target_files(self, changed_files, target_paths):
+        if target_paths:
             return [
                 self.workspace / relative
-                for relative in self.target_paths
+                for relative in target_paths
                 if (self.workspace / relative).is_file()
             ]
 
@@ -103,11 +104,12 @@ class CommandValidator:
 class LocalFinalizer:
     """Write and publish a harness-owned continuity report after validation."""
 
-    def __init__(self, workspace, mission_root, logs_root=None, git_send=None):
+    def __init__(self, workspace, mission_root, logs_root=None, git_send=None, auto_merge=False):
         self.workspace = Path(workspace)
         self.mission_root = Path(mission_root)
         self.logs_root = Path(logs_root) if logs_root else self.mission_root.parent.parent
         self.git_send = git_send
+        self.auto_merge = auto_merge
 
     def __call__(self, state):
         started_at = state.history[0].get("at", state.updated_at) if state.history else state.updated_at
@@ -211,3 +213,17 @@ class LocalFinalizer:
             url = response["stdout"].strip()
 
         state.artifacts["pull_request"] = url
+
+        if self.auto_merge:
+            self._auto_merge(state)
+
+    def _auto_merge(self, state):
+        # best-effort: the validated work is already safely committed and pushed above, so a merge
+        # hiccup (branch protection, GitHub outage, already-merged race) must not undo that success
+        try:
+            self.git_send({"operation": "pr_merge", "arguments": {}, "run_id": state.mission_id})
+        except RuntimeError as error:
+            state.artifacts["merge_failed"] = str(error)
+            return
+
+        state.artifacts["merged"] = True

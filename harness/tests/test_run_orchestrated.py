@@ -207,7 +207,7 @@ def test_launch_writes_observable_mission_lifecycle(tmp_path, monkeypatch):
     }
     (workspace / ".pithos.json").write_text(json.dumps(project))
 
-    def complete(orchestrator, state, context_factory):
+    def complete(orchestrator, state, context_factory, max_steps=20):
         state.status = "completed"
         state.phase = "done"
 
@@ -225,6 +225,41 @@ def test_launch_writes_observable_mission_lifecycle(tmp_path, monkeypatch):
     assert events[1]["payload"]["status"] == "completed"
 
 
+def test_launch_rejects_invalid_experiment_id_before_any_session_runs(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    project = {
+        "experiment_id": "audio_processing",
+        "title": "Sortie audio",
+        "description": "Underscore is not a valid identifier character.",
+        "validation_command": ["python", "acceptance.py"],
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    with pytest.raises(ValueError, match="experiment_id 'audio_processing'"):
+        run_module.launch(workspace, tmp_path / "logs")
+
+    assert not (tmp_path / "logs" / "missions").exists()
+
+
+def test_launch_rejects_invalid_micro_rush_id_before_any_session_runs(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    project = {
+        "experiment_id": "observable",
+        "micro_rush_id": "Setup Rush!",
+        "title": "Sortie audio",
+        "description": "Spaces and punctuation are not a valid identifier.",
+        "validation_command": ["python", "acceptance.py"],
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    with pytest.raises(ValueError, match="micro_rush_id 'Setup Rush!'"):
+        run_module.launch(workspace, tmp_path / "logs")
+
+    assert not (tmp_path / "logs" / "missions").exists()
+
+
 def test_launch_requires_target_files_when_validation_command_is_absent(tmp_path):
     workspace = tmp_path / "workspace"
     workspace.mkdir()
@@ -239,7 +274,7 @@ def test_launch_requires_target_files_when_validation_command_is_absent(tmp_path
         run_module.launch(workspace, tmp_path / "logs")
 
 
-def test_launch_without_validation_command_starts_at_author_oracle(tmp_path, monkeypatch):
+def test_launch_without_validation_command_starts_at_plan_todo(tmp_path, monkeypatch):
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     config = tmp_path / "pi-config"
@@ -257,9 +292,10 @@ def test_launch_without_validation_command_starts_at_author_oracle(tmp_path, mon
 
     seen_phase = {}
 
-    def complete(orchestrator, state, context_factory):
+    def complete(orchestrator, state, context_factory, max_steps=20):
         seen_phase["initial"] = state.phase
         assert orchestrator.oracle_author is not None
+        assert orchestrator.todo_planner is not None
         state.status = "completed"
         state.phase = "done"
 
@@ -271,9 +307,73 @@ def test_launch_without_validation_command_starts_at_author_oracle(tmp_path, mon
 
     events_path = next((tmp_path / "logs" / "missions").glob("*/events.jsonl"))
     events = [json.loads(line) for line in events_path.read_text().splitlines()]
-    assert seen_phase["initial"] == "author_oracle"
+    assert seen_phase["initial"] == "plan_todo"
     assert result.status == "completed"
     assert events[0]["payload"]["oracle"] == "generated"
+
+
+def test_launch_without_a_seed_never_builds_a_next_rush_author(tmp_path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    config = tmp_path / "pi-config"
+    config.mkdir()
+    project = {
+        "experiment_id": "observable",
+        "title": "Lissage",
+        "description": "Lisser les bandes.",
+        "runtime": "host",
+        "model": "pithos/ling",
+        "pi_config": str(config),
+        "validation_command": ["python", "acceptance.py"],
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    def complete(orchestrator, state, context_factory, max_steps=20):
+        assert orchestrator.next_rush_author is None
+        assert orchestrator.todo_planner is None
+        assert orchestrator.finalizer.auto_merge is False
+        state.status = "completed"
+        state.phase = "done"
+
+        return state
+
+    monkeypatch.setattr(run_module.Orchestrator, "run", complete)
+
+    result = run_module.launch(workspace, tmp_path / "logs")
+
+    assert result.status == "completed"
+
+
+def test_launch_with_a_seed_builds_a_next_rush_author(tmp_path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    config = tmp_path / "pi-config"
+    config.mkdir()
+    project = {
+        "experiment_id": "observable",
+        "title": "Lissage",
+        "description": "Lisser les bandes.",
+        "seed": "Construire un visualiseur audio destiné au VJing.",
+        "runtime": "host",
+        "model": "pithos/ling",
+        "pi_config": str(config),
+        "validation_command": ["python", "acceptance.py"],
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    def complete(orchestrator, state, context_factory, max_steps=20):
+        assert orchestrator.next_rush_author is not None
+        assert orchestrator.finalizer.auto_merge is True
+        state.status = "completed"
+        state.phase = "done"
+
+        return state
+
+    monkeypatch.setattr(run_module.Orchestrator, "run", complete)
+
+    result = run_module.launch(workspace, tmp_path / "logs")
+
+    assert result.status == "completed"
 
 
 def test_finish_payload_aggregates_all_phase_metrics(tmp_path):
