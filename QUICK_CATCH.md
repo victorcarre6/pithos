@@ -12,7 +12,7 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **204 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **209 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
 runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré,
 rushes auto-proposés, auto-merge, décomposition en micro-passes (`plan_todo`) et intégrations.
@@ -232,6 +232,11 @@ $EDITOR ../experiments/<experiment-id>/PROJECT.md
 
 # activation périodique après merge du code courant
 .venv/bin/python scripts/install_launchd.py install ../experiments/visualizer-dry-run
+
+# pilotage du LaunchAgent installé, depuis la racine du repo
+./stop_launchd.sh    # coupe le réveil autonome (garde le collecteur d'événements)
+./resume_launchd.sh  # le recharge sur son intervalle normal
+./force_launchd.sh   # déclenche un réveil immédiat sans attendre le prochain tick
 ```
 
 ## Gate avant autonomie périodique

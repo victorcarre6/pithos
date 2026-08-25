@@ -3,6 +3,7 @@
 import json
 import os
 import hashlib
+import re
 import shutil
 import urllib.request
 from dataclasses import replace
@@ -15,6 +16,9 @@ from pithos_runner.process import run_monitored
 from pithos_runner.runner import RunnerConfiguration, _runtime_command
 
 from .controller import PhaseResult
+
+
+_DEF = re.compile(r"(?m)^\s*def\s+[A-Za-z_][A-Za-z0-9_]*\s*\(")
 
 
 @dataclass(frozen=True)
@@ -85,11 +89,21 @@ class PiPhaseRunner:
             for path in allowed_paths
             if before.get(path) != after.get(path)
         )
-        _apply_projection(projection, self.configuration.workspace, changed_files)
+        # a weak model can `write` a malformed tool call as if it were file content (observed:
+        # a bare {"action": "check_file", ...} blob replacing a whole module) -- never let that
+        # reach the host workspace, where it would silently destroy previously-working code.
+        valid_changes = _valid_python_changes(self.configuration.workspace, projection, changed_files)
+        if valid_changes:
+            _apply_projection(projection, self.configuration.workspace, changed_files)
+        else:
+            changed_files = []
+
         productive_stop = outcome.exit_code == 0 or outcome.timed_out or outcome.tool_limit_exceeded
         protocol_gate = protocol_success if outcome.exit_code == 0 else stream_valid
-        success = productive_stop and protocol_gate and not outcome.loop_detected
+        success = productive_stop and protocol_gate and not outcome.loop_detected and valid_changes
         summary = _summary(phase, success, outcome, adapter.metrics())
+        if not valid_changes:
+            summary += " invalid_python"
         result = {
             "phase": phase,
             "success": success,
@@ -165,6 +179,30 @@ def _prepare_projection(workspace, projection, allowed_paths):
         destination = projection / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
+
+
+def _valid_python_changes(workspace, projection, changed_files):
+    """Reject the whole batch if any changed `.py` file no longer parses, or lost every
+    function definition it used to have -- a bare `write` of e.g. a stray tool-call blob
+    is syntactically valid Python (an expression statement) but destroys the module.
+    """
+    for relative in changed_files:
+        if not relative.endswith(".py"):
+            continue
+        new_source = (projection / relative).read_text(encoding="utf-8")
+        try:
+            compile(new_source, relative, "exec")
+        except SyntaxError:
+            return False
+
+        old_path = Path(workspace) / relative
+        if old_path.is_file():
+            old_defs = len(_DEF.findall(old_path.read_text(encoding="utf-8")))
+            new_defs = len(_DEF.findall(new_source))
+            if old_defs > 0 and new_defs == 0:
+                return False
+
+    return True
 
 
 def _apply_projection(projection, workspace, changed_files):

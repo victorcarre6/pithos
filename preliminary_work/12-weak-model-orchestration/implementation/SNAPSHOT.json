@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-25T11:41:58.036708+00:00",
+  "generated_at": "2026-08-25T17:31:00.884033+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -38,7 +38,7 @@
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
-      "sha256": "1630b4c259b11f2177a92b6ec0be00392423100a2255cd15c646c424adb34219"
+      "sha256": "d613c0587bf1ee4a4881824ed3f2c5d02f0be49bb34b562f52cfbe22af55948e"
     },
     {
       "path": "src/pithos_orchestrator/plan_todo.py",
@@ -71,6 +71,10 @@
     {
       "path": "tests/test_orchestrator.py",
       "sha256": "00ac1dfec5c92a1264529329e5feab7354cf8f89525f2b40e119ef2e2f4658c8"
+    },
+    {
+      "path": "tests/test_pi_phase.py",
+      "sha256": "1a8f20b59d2db5b3b2da410a4d80780539567802aac13a5a368234e8a3100123"
     },
     {
       "path": "tests/test_plan_todo.py",

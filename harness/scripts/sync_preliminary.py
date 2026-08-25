@@ -79,6 +79,7 @@ PROJECTS = {
             "tests/test_oracle.py",
             "tests/test_next_rush.py",
             "tests/test_plan_todo.py",
+            "tests/test_pi_phase.py",
         ],
     },
 }

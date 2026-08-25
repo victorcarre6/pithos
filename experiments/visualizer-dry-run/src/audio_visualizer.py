@@ -95,3 +95,25 @@ def clamp_levels(levels: tuple[float, float, float]) -> tuple[float, float, floa
         max(0.0, min(1.0, levels[1])),
         max(0.0, min(1.0, levels[2])),
     )
+
+
+def process_frame(previous: tuple[float, float, float], magnitudes: list[float], alpha: float) -> tuple[float, float, float]:
+    """Process a frame: split, smooth, and clamp FFT magnitude bands.
+
+    Parameters
+    ----------
+    previous : tuple[float, float, float]
+        The previous (bass, mid, treble) levels.
+    magnitudes : list[float]
+        Non-negative FFT magnitude values.
+    alpha : float
+        Blend weight in (0.0, 1.0).
+
+    Returns
+    -------
+    tuple[float, float, float]
+        The resulting (bass, mid, treble) triplet.
+    """
+    current = split_bands(magnitudes)
+    smoothed = smooth_levels(previous, current, alpha)
+    return clamp_levels(smoothed)

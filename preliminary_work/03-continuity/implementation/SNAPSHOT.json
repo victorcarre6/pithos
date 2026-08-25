@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "03-continuity",
-  "generated_at": "2026-08-25T11:41:58.010259+00:00",
+  "generated_at": "2026-08-25T17:31:00.842618+00:00",
   "files": [
     {
       "path": "src/pithos_continuity/__init__.py",

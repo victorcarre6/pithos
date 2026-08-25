@@ -143,9 +143,10 @@ class GitBroker:
         if existing.returncode == 0:
             return self._run(["git", "switch", branch])
 
-        self._run(["git", "fetch", "origin", self.policy.main_branch])
-
-        return self._run(["git", "switch", "-c", branch, f"origin/{self.policy.main_branch}"])
+        # cut from local main, not origin/main -- local main can be ahead of origin (a push held
+        # back by the operator), and basing off origin/main here forces a checkout of origin's stale
+        # file content, which aborts whenever that differs from what's on disk (observed: .pithos.json)
+        return self._run(["git", "switch", "-c", branch, self.policy.main_branch])
 
     def _commit(self, arguments: dict) -> dict:
         self._current_branch()
