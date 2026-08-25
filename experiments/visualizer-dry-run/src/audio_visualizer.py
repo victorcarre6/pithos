@@ -75,3 +75,23 @@ def smooth_levels(previous: tuple[float, float, float], current: tuple[float, fl
         previous[1] * (1 - alpha) + current[1] * alpha,
         previous[2] * (1 - alpha) + current[2] * alpha,
     )
+
+
+def clamp_levels(levels: tuple[float, float, float]) -> tuple[float, float, float]:
+    """Clamp each band level to the range [0, 1].
+
+    Parameters
+    ----------
+    levels : tuple[float, float, float]
+        A triplet (bass, mid, treble) of floats.
+
+    Returns
+    -------
+    tuple[float, float, float]
+        A triplet where each element is clamped to [0, 1].
+    """
+    return (
+        max(0.0, min(1.0, levels[0])),
+        max(0.0, min(1.0, levels[1])),
+        max(0.0, min(1.0, levels[2])),
+    )
