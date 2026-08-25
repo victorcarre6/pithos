@@ -1,14 +1,17 @@
 {
   "schema_version": 1,
   "experiment_id": "visualizer-dry-run",
-  "title": "Borner les niveaux lissés dans [0, 1]",
-  "description": "Ajouter la fonction pure clamp_levels(levels) dans src/audio_visualizer.py : levels est un triplet (bass, mid, treble) de trois floats ; retourner un triplet où chaque valeur est bornée dans [0, 1] (max(0.0, min(1.0, value)) par élément), sans modifier smooth_levels ni split_bands.",
-  "micro_rush_id": "level-clamping",
-  "seed": "Construire un visualiseur audio destiné au VJing.",
+  "title": "Borner les niveaux liss\u00e9s dans [0, 1] \u2014 version am\u00e9lior\u00e9e",
+  "description": "Modifier clamp_levels dans src/audio_visualizer.py pour ajouter une validation des entr\u00e9es et une gestion des valeurs NaN/Inf, tout en conservant le comportement de clamping [0, 1] par \u00e9l\u00e9ment.",
+  "micro_rush_id": "level-clamping-2",
+  "seed": "Construire un visualiseur audio destin\u00e9 au VJing.",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
-  "target_files": ["src/audio_visualizer.py"],
-  "validation_command": ["python", "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_level_clamping_acceptance.py"],
+  "target_files": [
+    "src/audio_visualizer.py",
+    "tests/audio_visualizer_test.py",
+    "docs/audio_visualizer_api.md"
+  ],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth"
 }
