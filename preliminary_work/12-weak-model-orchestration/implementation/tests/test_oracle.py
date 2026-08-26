@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from pithos_orchestrator.oracle import OracleAuthor, OracleSpecError, author_oracle
+from pithos_orchestrator.oracle import OracleAuthor, OracleSpecError, _request_spec, author_oracle
 from pithos_orchestrator.state import MissionState
 
 
@@ -106,6 +106,32 @@ def test_author_oracle_rejects_disagreeing_generations(tmp_path):
             attempts=1,
             opener=opener,
         )
+
+
+def test_request_spec_constrains_a_function_explicitly_named_by_the_task(tmp_path):
+    sources = _write_module(tmp_path, "def old(x):\n    return x\n\n\ndef wanted(x):\n    return x\n")
+    payload = {"target_file": "src/module.py", "target_function": "wanted", "cases": [{"args": [2], "expect": 3}]}
+    captured = []
+
+    def opener(request, timeout):
+        captured.append(json.loads(request.data))
+        body = {"response": json.dumps(payload)}
+
+        return io.BytesIO(json.dumps(body).encode())
+
+    _request_spec(
+        "fake-model",
+        "Fix wanted",
+        "Change wanted(x).",
+        sources,
+        ["src/module.py"],
+        45,
+        opener,
+        "wanted",
+    )
+
+    [request] = captured
+    assert request["format"]["properties"]["target_function"]["enum"] == ["wanted"]
 
 
 def test_author_oracle_retries_when_generated_case_already_passes(tmp_path):

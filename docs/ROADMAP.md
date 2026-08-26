@@ -23,5 +23,11 @@
   `MAX_CONSECUTIVE_FAILURES` réveils consécutifs est désormais auto-skip jusqu'à intervention humaine
   (`run_experiment.py`), au lieu de retenter indéfiniment ; déclenché en pratique par la proposition
   redondante `frame-pipeline-v2` (redemandait `process_frame`, déjà mergé en `#9`).
-- [TODO] Campagne — `micro_rush_id` réglé sur `compute-magnitudes` (DFT pure vers `split_bands`) ; reste à
-  relancer le LaunchAgent (`resume_launchd.sh`).
+- [DONE] Campagne — `compute_magnitudes` (DFT pure) validé sans inference par un oracle manuel, puis fusionné
+  dans `main` via la PR `#10`.
+- [DONE] Garde-fou de proposition — une tâche sur un module existant doit déclarer une fonction cible réelle,
+  l'oracle est contraint à cette fonction et une description identique au rush courant est rejetée.
+- [DONE] Produit — prototype web local avec capture audio sélectionnable, FFT temps réel, Canvas plein écran,
+  trois thèmes cyberpunk et lanceur macOS sans dépendance npm.
+- [TODO] Campagne — observer une session audio interactive réelle lorsque l'autorisation navigateur et un
+  périphérique sont disponibles ; aucune décision ni modification de code utilisateur n'est requise.

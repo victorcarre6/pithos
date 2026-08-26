@@ -71,6 +71,7 @@ class OracleAuthor:
                 new_files,
                 output_path,
                 self.workspace,
+                target_function=self.project.get("target_function"),
                 timeout=self.timeout,
                 attempts=self.attempts,
                 opener=self.opener,
@@ -84,7 +85,17 @@ class OracleAuthor:
 
 
 def author_oracle(
-    model, title, description, sources, new_files, output_path, workspace, timeout=45, attempts=3, opener=None
+    model,
+    title,
+    description,
+    sources,
+    new_files,
+    output_path,
+    workspace,
+    target_function=None,
+    timeout=45,
+    attempts=3,
+    opener=None,
 ):
     """Author, render and red-check one oracle; return (path, reason) or raise OracleSpecError.
 
@@ -116,8 +127,12 @@ def author_oracle(
         try:
             # deliberately different sampling temperatures: a systematic misunderstanding tends to survive
             # a low-temperature replay, but genuine independence needs the two calls to actually diverge
-            primary = _request_spec(model, title, description, sources, allowed_files, timeout, opener, temperature=0.15)
-            check = _request_spec(model, title, description, sources, allowed_files, timeout, opener, temperature=0.6)
+            primary = _request_spec(
+                model, title, description, sources, allowed_files, timeout, opener, target_function, temperature=0.15
+            )
+            check = _request_spec(
+                model, title, description, sources, allowed_files, timeout, opener, target_function, temperature=0.6
+            )
             _require_same_target(primary, check)
             cases = _agreeing_cases(primary["cases"], check["cases"])
             if not cases:
@@ -149,15 +164,21 @@ def author_oracle(
     raise OracleSpecError("; ".join(reasons) or "no attempt produced a usable oracle")
 
 
-def _request_spec(model, title, description, sources, allowed_files, timeout, opener, temperature=0.2):
+def _request_spec(
+    model, title, description, sources, allowed_files, timeout, opener, target_function=None, temperature=0.2
+):
+    named_functions = [target_function] if target_function else _named_functions(title, description, sources)
     listing = "\n\n".join(
         f"### {relative}\n```python\n{content[:4000]}\n```" for relative, content in sources.items()
     )
+    target_instruction = ""
+    if len(named_functions) == 1:
+        target_instruction = f" La fonction ciblée est obligatoirement `{named_functions[0]}`."
     prompt = (
         "Tu proposes un contrat de test d'acceptation pour la tâche suivante. Choisis UNE seule fonction déjà "
         f"définie dans les fichiers ci-dessous et 1 à {MAX_CASES} cas d'entrée/sortie numériques concrets qui "
         "vérifient le comportement attendu. N'invente aucun code, aucune fonction, aucun fichier absent de la "
-        "liste. Réponds uniquement avec l'objet JSON demandé.\n\n"
+        f"liste.{target_instruction} Réponds uniquement avec l'objet JSON demandé.\n\n"
         f"Titre : {title}\nDescription : {description}\n\n{listing}"
     )
     payload = {
@@ -165,7 +186,7 @@ def _request_spec(model, title, description, sources, allowed_files, timeout, op
         "prompt": prompt,
         "stream": False,
         "think": False,
-        "format": _spec_schema(allowed_files),
+        "format": _spec_schema(allowed_files, named_functions),
         "options": {"num_predict": 400, "temperature": temperature},
     }
     request = urllib.request.Request(
@@ -190,7 +211,7 @@ def _request_spec(model, title, description, sources, allowed_files, timeout, op
     return _validate_spec(raw, sources, allowed_files)
 
 
-def _spec_schema(allowed_files):
+def _spec_schema(allowed_files, named_functions=None):
     number_or_vector = {
         "anyOf": [
             {"type": "number"},
@@ -202,7 +223,10 @@ def _spec_schema(allowed_files):
         "type": "object",
         "properties": {
             "target_file": {"type": "string", "enum": allowed_files},
-            "target_function": {"type": "string"},
+            "target_function": {
+                "type": "string",
+                **({"enum": named_functions} if len(named_functions or []) == 1 else {}),
+            },
             "cases": {
                 "type": "array",
                 "minItems": 1,
@@ -219,6 +243,19 @@ def _spec_schema(allowed_files):
         },
         "required": ["target_file", "target_function", "cases"],
     }
+
+
+def _named_functions(title, description, sources):
+    """Return existing functions explicitly named by the active task."""
+
+    task = f"{title}\n{description}"
+    names = set()
+    for source in sources.values():
+        for name in re.findall(r"(?m)^\s*def\s+([A-Za-z_][A-Za-z0-9_]{0,63})\s*\(", source):
+            if re.search(rf"\b{re.escape(name)}\b", task):
+                names.add(name)
+
+    return sorted(names)
 
 
 def _validate_spec(raw, sources, allowed_files):

@@ -56,7 +56,12 @@ class NextRushAuthor:
 
         try:
             raw = _request_next_rush(self.model, facts, self.timeout, self.opener)
-            proposal = _validate_proposal(raw, facts["current_micro_rush_id"], self.workspace)
+            proposal = _validate_proposal(
+                raw,
+                facts["current_micro_rush_id"],
+                self.workspace,
+                current_description=facts["current_description"],
+            )
         except NextRushSpecError as error:
             return False, f"propose_next_rush failed: {error}"
 
@@ -65,6 +70,10 @@ class NextRushAuthor:
         updated["title"] = proposal["title"]
         updated["description"] = proposal["description"]
         updated["target_files"] = proposal["target_files"]
+        if proposal["target_function"]:
+            updated["target_function"] = proposal["target_function"]
+        else:
+            updated.pop("target_function", None)
         updated.pop("validation_command", None)
 
         (self.workspace / ".pithos.json").write_text(json.dumps(updated, indent=2) + "\n", encoding="utf-8")
@@ -93,7 +102,9 @@ def _request_next_rush(model, facts, timeout, opener):
         "Propose UN seul prochain micro-rush borné qui rapproche le projet de l'objectif ci-dessous, en "
         "t'appuyant sur ce qui vient d'être accompli. N'écris ni code ni instructions techniques : "
         "seulement un identifiant court, un titre, une description et une courte liste de chemins de "
-        "fichiers relatifs à modifier ou créer. Réponds uniquement avec l'objet JSON demandé.\n\n"
+        "fichiers relatifs à modifier ou créer. Pour un fichier existant, `target_function` doit être le nom "
+        "exact d'une fonction de `existing_functions`. Pour un fichier entièrement nouveau, utilise `null`. "
+        "Réponds uniquement avec l'objet JSON demandé.\n\n"
         "`existing_functions` liste les fonctions déjà définies dans les fichiers qui viennent d'être "
         "modifiés : préfère un rush qui change le comportement d'une de ces fonctions existantes, plutôt "
         "qu'un rush qui n'a de sens qu'en ajoutant une fonction encore inexistante -- le contrat de test "
@@ -137,6 +148,7 @@ def _spec_schema():
             "micro_rush_id": {"type": "string"},
             "title": {"type": "string"},
             "description": {"type": "string"},
+            "target_function": {"anyOf": [{"type": "string"}, {"type": "null"}]},
             "target_files": {
                 "type": "array",
                 "minItems": 1,
@@ -144,11 +156,11 @@ def _spec_schema():
                 "items": {"type": "string"},
             },
         },
-        "required": ["micro_rush_id", "title", "description", "target_files"],
+        "required": ["micro_rush_id", "title", "description", "target_function", "target_files"],
     }
 
 
-def _validate_proposal(raw, current_micro_rush_id, workspace):
+def _validate_proposal(raw, current_micro_rush_id, workspace, current_description=""):
     if not isinstance(raw, dict):
         raise NextRushSpecError("next-rush proposal must be a JSON object")
 
@@ -165,16 +177,27 @@ def _validate_proposal(raw, current_micro_rush_id, workspace):
     description = raw.get("description")
     if not isinstance(description, str) or not description.strip() or len(description) > MAX_DESCRIPTION_CHARS:
         raise NextRushSpecError("next-rush description must be a bounded non-empty string")
+    if description.strip().casefold() == current_description.strip().casefold():
+        raise NextRushSpecError("next-rush description must differ from the current one")
 
     target_files = raw.get("target_files")
     if not isinstance(target_files, list) or not (1 <= len(target_files) <= MAX_TARGET_FILES):
         raise NextRushSpecError("next-rush target_files must be a short non-empty list")
 
+    validated_files = [_validate_relative_path(path, workspace) for path in target_files]
+    functions = existing_functions(workspace, validated_files)
+    target_function = raw.get("target_function")
+    if functions and target_function not in functions:
+        raise NextRushSpecError("next-rush target_function is not defined in the target files")
+    if not functions and target_function is not None:
+        raise NextRushSpecError("next-rush target_function must be null for new target files")
+
     return {
         "micro_rush_id": micro_rush_id,
         "title": title.strip(),
         "description": description.strip(),
-        "target_files": [_validate_relative_path(path, workspace) for path in target_files],
+        "target_function": target_function,
+        "target_files": validated_files,
     }
 
 

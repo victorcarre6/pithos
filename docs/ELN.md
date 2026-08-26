@@ -629,3 +629,33 @@
   micro-rush ») avec les mêmes critères d'acceptation hand-verifiable que les rushes précédents.
 - **211 tests** (209 + 2 nouveaux dans `test_run_experiment.py` : plafond de tentatives atteint → skip ;
   un succès efface un historique d'échecs antérieur).
+
+## 26:19 — DFT fusionnée, oracles et propositions resserrés
+
+- Trois missions `compute-magnitudes` ont été conservées en échec. La première a généré un oracle visant
+  `split_bands`; la troisième a imposé deux résultats DFT faux, dont `compute_magnitudes([]) == [0.0]`.
+  Le plafond de trois échecs a ensuite arrêté correctement les réveils.
+- La DFT produite par Ling a été conservée puis simplifiée sans modifier les quatre primitives existantes.
+  Un oracle manuel couvre la liste vide, le silence et un signal DC constant, puis relance le test projet.
+- Mission réelle `run-20260826T171933Z-d0ccab` : preflight PASS, aucune inference, aucune réparation, rapport
+  publié, PR `#10` créée puis fusionnée automatiquement dans `main`.
+- La proposition suivante a redemandé exactement `compute_magnitudes` sous l'identifiant
+  `compute-magnitudes-v3`. Le harnais exige désormais un `target_function` existant pour tout module déjà
+  présent, contraint l'oracle à cette fonction et rejette une description identique au rush courant.
+- `.pithos.json` est replacé sur le rush complété `compute-magnitudes-v2` avec son oracle manuel : un lancement
+  accidentel reste donc un skip idempotent. Le LaunchAgent de l'expérience n'est pas rechargé avant le choix
+  du prochain axe produit.
+- Validation globale : **214 tests**, build Vite, TypeScript des extensions, deux configurations Compose,
+  oracle DFT et contrôle `git diff --check` passent.
+
+## 26:20 — Autonomie réaffirmée et visualiseur utilisable
+
+- L'utilisateur confirme qu'il ne doit jamais choisir le prochain axe ni intervenir dans le code. Cette règle
+  est ajoutée au projet canonique et au contrat de l'expérience.
+- Décision autonome : Web Audio + Canvas 2D, servi uniquement sur `127.0.0.1`, sans dépendance npm ni service
+  externe. Ce choix couvre en un incrément capture locale, FFT temps réel, plein écran et thèmes.
+- Le prototype fournit une entrée par défaut, un sélecteur de périphérique, trois palettes et un lanceur macOS
+  double-cliquable. Le pipeline numérique est séparé du DOM et couvert par Node.
+- Preuves : 3 tests Node, 2 tests Python, tests historiques, oracle DFT, smoke HTTP localhost, syntaxe JS/shell.
+  La capture Firefox headless est bloquée par l'instance Firefox utilisateur déjà ouverte ; elle n'a pas été
+  interrompue. L'autorisation microphone reste nécessaire au premier usage, comme l'impose macOS/navigateur.

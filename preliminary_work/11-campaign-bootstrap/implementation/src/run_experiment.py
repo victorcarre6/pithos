@@ -16,6 +16,11 @@ from pithos_orchestrator.launcher import launch as launch_orchestrated
 from pithos_runner.lock import LockHeld, RunLock
 
 
+# au-delà, un micro-rush bloqué (proposition redondante, oracle inatteignable, etc.) retentait
+# indéfiniment à chaque réveil du LaunchAgent sans jamais avancer -- observé sur frame-pipeline-v2
+MAX_CONSECUTIVE_FAILURES = 3
+
+
 def launch(workspace: Path, logs_root: Path):
     """Start optional brokers, execute one run and retain all service logs."""
 
@@ -43,6 +48,21 @@ def launch(workspace: Path, logs_root: Path):
                     "reason": "micro-rush already completed",
                     "micro_rush_id": project.get("micro_rush_id"),
                     "mission_id": completion.get("mission_id"),
+                }
+
+        # un micro-rush qui échoue en boucle ne doit pas retenter indéfiniment à chaque réveil
+        failure_path = runtime_root / f"{project['experiment_id']}-failures.json"
+        if failure_path.is_file():
+            failures = json.loads(failure_path.read_text(encoding="utf-8"))
+            if (
+                failures.get("micro_rush_id") == project.get("micro_rush_id")
+                and failures.get("count", 0) >= MAX_CONSECUTIVE_FAILURES
+            ):
+                return {
+                    "status": "skipped",
+                    "reason": "micro-rush failed too many times in a row; needs human intervention",
+                    "micro_rush_id": project.get("micro_rush_id"),
+                    "consecutive_failures": failures.get("count", 0),
                 }
 
         if project.get("runtime", "docker") == "docker":
@@ -114,6 +134,17 @@ def launch(workspace: Path, logs_root: Path):
                 temporary = completion_path.with_suffix(".tmp")
                 temporary.write_text(json.dumps(completion, indent=2) + "\n", encoding="utf-8")
                 temporary.replace(completion_path)
+                failure_path.unlink(missing_ok=True)
+            else:
+                previous_count = 0
+                if failure_path.is_file():
+                    previous = json.loads(failure_path.read_text(encoding="utf-8"))
+                    if previous.get("micro_rush_id") == project.get("micro_rush_id"):
+                        previous_count = previous.get("count", 0)
+                failures = {"micro_rush_id": project.get("micro_rush_id"), "count": previous_count + 1}
+                temporary = failure_path.with_suffix(".tmp")
+                temporary.write_text(json.dumps(failures, indent=2) + "\n", encoding="utf-8")
+                temporary.replace(failure_path)
 
             return result
         finally:

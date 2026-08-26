@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-25T17:31:00.884033+00:00",
+  "generated_at": "2026-08-26T17:22:30.461698+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -30,11 +30,11 @@
     },
     {
       "path": "src/pithos_orchestrator/next_rush.py",
-      "sha256": "f22314b7310d9df498a5872db0b8dd22a6f6451b105a0071f6a437a23d8bdc0d"
+      "sha256": "9f88f03aef1e7ec0860c8558793daa3e0f9bb349fde33f1fae180dc476e21aa6"
     },
     {
       "path": "src/pithos_orchestrator/oracle.py",
-      "sha256": "19dc7fb736a4e503b9228b62924a8ec5979564049fcbf294aab5d2d315c44585"
+      "sha256": "a6454f62986a6845ebd058ee98468e1994b634dd7ac8f989aad6a2079c00297d"
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
@@ -57,16 +57,28 @@
       "sha256": "c55d17fc6e05e9ec85fb1f592d06f530a61bb0a4adc0920152619237e8b14e45"
     },
     {
+      "path": "src/visualizer_frame_pipeline_acceptance.py",
+      "sha256": "03c0013dd5666d0b3b11f1d0c545c2e5172e85098cbbb64a2c1bfe41b7fa5564"
+    },
+    {
+      "path": "src/visualizer_level_clamping_acceptance.py",
+      "sha256": "1653508d228f35708f4a7791a560d792833ab9a680736a45290d14154f1654c5"
+    },
+    {
+      "path": "src/visualizer_magnitudes_acceptance.py",
+      "sha256": "f4bae8e13fc9ff970a525befe13dd2fe4d3b0de681e6b734d75b01793fe5bdf0"
+    },
+    {
       "path": "src/visualizer_smoothing_acceptance.py",
       "sha256": "11311d00730ad2768e85865eb057f673586337f9d6df107d08e6e05877e7d1be"
     },
     {
       "path": "tests/test_next_rush.py",
-      "sha256": "7113f2e73a4fd26adb0d2b54c99e515b242aa8c2d8b79fe5404dd1f8a246b36e"
+      "sha256": "549ac6a6a5306824b21129ae1a13bbd840d63d86a4c4a0cdba2362d9e8453c0b"
     },
     {
       "path": "tests/test_oracle.py",
-      "sha256": "c60f94bd8d711303b5d380f7d2c9e0361800e4893f97bf64a84ba434d9f47809"
+      "sha256": "966b25a0d120138e1504c8097b54a9872b0ffc902341cf8b8ee54cd31c90a129"
     },
     {
       "path": "tests/test_orchestrator.py",

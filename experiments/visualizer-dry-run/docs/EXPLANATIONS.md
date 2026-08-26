@@ -5,3 +5,13 @@ trois tranches contiguës ; la moyenne de chaque tranche produit un niveau scala
 
 Les tests du projet doublent l'oracle externe conservé par Pithos. Le modèle peut modifier l'implémentation,
 mais il ne peut pas rendre une mission verte en affaiblissant uniquement ses propres tests.
+
+`compute_magnitudes` utilise directement la définition de la DFT, en complexité quadratique. Ce choix reste
+la référence déterministe sur de petits signaux. Le runtime temps réel ne l'appelle pas : Web Audio fournit
+une FFT native bornée à 1 024 échantillons, puis `audio-core.mjs` normalise les octets, agrège les trois bandes
+et applique le lissage pur déjà éprouvé par le prototype Python.
+
+Le navigateur remplace une distribution desktop lourde. Il fournit capture audio, sélection de périphérique,
+plein écran et Canvas 2D sur macOS Intel sans dépendance applicative. Le serveur Python ne publie que le dossier
+`web/` et écoute explicitement sur `127.0.0.1`; le code client ne contient aucune URL externe. Une interface
+loopback éventuellement présente est visible comme une entrée standard, sans couplage à un driver précis.
