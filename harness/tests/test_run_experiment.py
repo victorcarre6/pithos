@@ -137,3 +137,66 @@ def test_completed_micro_rush_is_skipped_until_identity_changes(tmp_path, monkey
 
     assert result["status"] == "skipped"
     assert result["micro_rush_id"] == "band-smoothing"
+
+
+def _configured_workspace(tmp_path, micro_rush_id):
+    repository = tmp_path / "repository"
+    workspace = repository / "experiments" / "audio-lab"
+    workspace.mkdir(parents=True)
+    harness = repository / "harness"
+    configuration = {
+        "schema_version": 1,
+        "experiment_id": "audio-lab",
+        "micro_rush_id": micro_rush_id,
+        "runtime": "host",
+        "pi_config": str(harness / "config" / "pi-host"),
+        "ground_truth": str(harness / "ground_truth"),
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(configuration), encoding="utf-8")
+
+    return workspace
+
+
+def test_micro_rush_failing_repeatedly_is_skipped_after_max_consecutive_failures(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "frame-pipeline-v2")
+    logs_root = tmp_path / "logs"
+    monkeypatch.setattr(
+        run_module,
+        "launch_orchestrated",
+        lambda *args: SimpleNamespace(status="failed", micro_rush_id="frame-pipeline-v2", mission_id="run-x"),
+    )
+
+    for _ in range(run_module.MAX_CONSECUTIVE_FAILURES):
+        result = run_module.launch(workspace, logs_root)
+        assert result["status"] == "failed"
+
+    monkeypatch.setattr(
+        run_module,
+        "launch_orchestrated",
+        lambda *args: pytest.fail("a micro-rush stuck at the failure cap must not launch again"),
+    )
+
+    result = run_module.launch(workspace, logs_root)
+
+    assert result["status"] == "skipped"
+    assert result["consecutive_failures"] == run_module.MAX_CONSECUTIVE_FAILURES
+
+
+def test_completed_run_clears_a_prior_failure_streak(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "frame-pipeline-v2")
+    logs_root = tmp_path / "logs"
+    failure_path = logs_root / "runtime" / "audio-lab-failures.json"
+    failure_path.parent.mkdir(parents=True)
+    failure_path.write_text(
+        json.dumps({"micro_rush_id": "frame-pipeline-v2", "count": run_module.MAX_CONSECUTIVE_FAILURES - 1})
+    )
+    monkeypatch.setattr(
+        run_module,
+        "launch_orchestrated",
+        lambda *args: SimpleNamespace(status="completed", micro_rush_id="frame-pipeline-v2", mission_id="run-x"),
+    )
+
+    result = run_module.launch(workspace, logs_root)
+
+    assert result["status"] == "completed"
+    assert not failure_path.is_file()

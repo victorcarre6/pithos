@@ -17,7 +17,11 @@
 - [DONE] 11 — finaliser correctement les interruptions et requalifier Ling sur un dry-run borné.
 - [DONE] 12 — orchestration Ling, preflight, rapport, Telegram, push et PR validés en conditions réelles.
 - [DONE] Activation — LaunchAgents installés, premier wake Ling terminé et second wake ignoré idempotemment.
-- [DONE] Campagne — PR `#4` (band-smoothing), `#5` (horodatage `started`) et `#6` (récap Telegram humain)
-  fusionnées dans `main`.
-- [TODO] Campagne — choisir le prochain micro-rush pour `visualizer-dry-run` et changer `micro_rush_id` dans
-  `.pithos.json` pour le libérer ; sans ce changement, chaque réveil du runner reste un skip idempotent.
+- [DONE] Campagne — PR `#4` (band-smoothing), `#5` (horodatage `started`), `#6` (récap Telegram humain),
+  `#8` (level-clamping) et `#9` (frame-pipeline) fusionnées dans `main`.
+- [DONE] Garde-fou anti-boucle — un micro-rush qui échoue au même `micro_rush_id` sur
+  `MAX_CONSECUTIVE_FAILURES` réveils consécutifs est désormais auto-skip jusqu'à intervention humaine
+  (`run_experiment.py`), au lieu de retenter indéfiniment ; déclenché en pratique par la proposition
+  redondante `frame-pipeline-v2` (redemandait `process_frame`, déjà mergé en `#9`).
+- [TODO] Campagne — `micro_rush_id` réglé sur `compute-magnitudes` (DFT pure vers `split_bands`) ; reste à
+  relancer le LaunchAgent (`resume_launchd.sh`).

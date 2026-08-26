@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 24/08/2026 à 23:20 CEST._
+_État vérifié le 26/08/2026._
 
 ## Micro quick catch général
 
@@ -12,7 +12,7 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **209 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** **211 tests passent**. Le frontend React/Vite compile et les configurations Compose
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
 runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré,
 rushes auto-proposés, auto-merge, décomposition en micro-passes (`plan_todo`) et intégrations.
@@ -23,18 +23,18 @@ rushes auto-proposés, auto-merge, décomposition en micro-passes (`plan_todo`) 
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** Les PR `#1` à `#6` sont toutes fusionnées dans `main` et les deux LaunchAgents
-restent actifs. Le rush `band-smoothing` est `completed` (commit `e4cd83d`, PR `#4`) et un marqueur local
-empêche toute répétition. Les PR `#5` (horodatage `started` du rapport) et `#6` (récap Telegram humain) sont
-également fusionnées. La PR `#7` (rush `setup`) a échoué à `finalize` sur un `experiment_id` invalide et a été
-fermée ; le lanceur valide désormais ce champ avant toute session. Le harnais peut générer l'oracle du prochain
-rush lui-même (`.pithos.json` sans `validation_command`) et, si `.pithos.json` porte un champ `seed`, proposer
-lui-même le prochain micro-rush et fusionner sa propre PR automatiquement à la fin de chaque mission réussie —
-la boucle se ferme vraiment dans ce cas, la revue humaine passant d'avant-merge à après-merge — voir
-[`RUN_GUIDE.md`](RUN_GUIDE.md). Il
-reste à remettre `experiments/visualizer-dry-run/.pithos.json` dans un état valide (`experiment_id` correct,
-`seed`, premier `target_files` existant) pour relancer le cycle ; jusque-là, chaque réveil du runner se termine
-en skip idempotent. Aucun secret n'est tracké.
+**Prochain chemin critique.** Les PR `#1` à `#6`, `#8` (level-clamping) et `#9` (frame-pipeline) sont toutes
+fusionnées dans `main`. Le harnais peut générer l'oracle du prochain rush lui-même (`.pithos.json` sans
+`validation_command`) et, si `.pithos.json` porte un champ `seed`, proposer lui-même le prochain micro-rush et
+fusionner sa propre PR automatiquement à la fin de chaque mission réussie — voir [`RUN_GUIDE.md`](RUN_GUIDE.md).
+Cette auto-proposition peut cependant redemander un travail déjà fait : `frame-pipeline-v2`, auto-proposé après
+`#9`, redécrivait `process_frame` déjà mergé et a échoué en boucle stérile sur ~1h20 (5 missions) avant que le
+LaunchAgent soit arrêté à la main. `run_experiment.py` plafonne désormais les tentatives consécutives d'un
+même `micro_rush_id` en échec (`MAX_CONSECUTIVE_FAILURES = 3`, fichier d'état
+`~/logs/pithos/runtime/*-failures.json`) : passé ce seuil, les réveils suivants sont auto-skip jusqu'à
+intervention humaine, au lieu de retenter indéfiniment. `micro_rush_id` est réglé sur `compute-magnitudes`
+(DFT pure vers `split_bands`, cf. `docs/ELN.md` entrée `26:01`) ; le LaunchAgent reste à relancer
+(`./resume_launchd.sh`). Aucun secret n'est tracké.
 
 ## Protocole de collecte — semaine autonome
 

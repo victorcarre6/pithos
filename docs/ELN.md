@@ -594,3 +594,38 @@
 - **209 tests** (204 + 5 nouveaux : `_valid_python_changes` — accepte, rejette le blob, rejette une erreur de
   syntaxe, ignore le non-`.py`, laisse passer un fichier neuf sans `def` préalable ; `_switch` sur `main`
   local dans `test_git_broker.py`).
+
+## 26:01 — `frame-pipeline-v2` en boucle stérile pendant ~1h20, garde-fou anti-boucle ajouté
+
+- **Constat en reprenant le repo** : `dev.pithos.runner.visualizer-dry-run` n'était plus chargé
+  (`launchctl list` ne le montre pas), `run-20260825T204222Z-1c13d7` restait figé en `status: running`
+  (dernier événement à 20:45, aucun `finished_at`), et le verrou `visualizer-dry-run.lock` pointait sur le
+  PID `94040`, mort. Rien de cassé structurellement : `RunLock._recover_stale_lock` traite déjà ce cas au
+  prochain `acquire` (PID mort → verrou nettoyé automatiquement), donc aucune intervention manuelle requise
+  sur le verrou lui-même.
+- **Cause racine** : `.pithos.json` avait été auto-réécrit par `propose_next_rush` en `frame-pipeline-v2`,
+  qui redemande mot pour mot la construction de `process_frame(previous, magnitudes, alpha)` — déjà
+  implémenté et mergé (PR `#9`, cf. `25:13`). `existing_functions` listait bien `process_frame` dans les
+  faits transmis au modèle, mais rien ne bloque une proposition qui redécrit une fonction déjà correcte :
+  5 missions consécutives (`19:24` à `20:22`) ont échoué en `author_oracle` (« no case survived
+  cross-generation agreement » — cohérent, il n'y a pas de vrai changement de comportement à spécifier), puis
+  la 6ᵉ (`1c13d7`, `20:42`) a produit un cas d'oracle faux (`process_frame(*((0,0,0),(1,0,0),0.5))` attendu
+  `(0,0,0)`, alors que la sémantique existante de `smooth_levels` donne `(0.5,0,0)` — implémentation
+  correcte, oracle généré faux) avant d'être interrompue en plein `implement`.
+- **Le vrai bug** : rien ne plafonne les tentatives d'un `micro_rush_id` qui échoue en boucle d'un réveil à
+  l'autre — `run_experiment.py` ne sautait que sur un `micro_rush_id` déjà *complété* (`*-completed.json`),
+  jamais sur un `micro_rush_id` qui échoue systématiquement. Sans intervention manuelle, le LaunchAgent
+  aurait retenté `frame-pipeline-v2` toutes les 15 min indéfiniment.
+- **Corrigé à la racine** : nouveau fichier d'état `{experiment_id}-failures.json` (même mécanique atomique
+  que `*-completed.json`) dans `run_experiment.py` — un `micro_rush_id` qui échoue (`status != "completed"`)
+  incrémente son compteur ; à `MAX_CONSECUTIVE_FAILURES` (3, aligné sur le `max_repairs` déjà utilisé pour
+  `author_oracle`) consécutifs, les réveils suivants sont auto-skip jusqu'à ce qu'un humain change
+  `micro_rush_id` ou qu'une mission réussisse (le compteur est alors effacé).
+- **Prochain micro-rush choisi** (`.pithos.json` mis à jour, `micro_rush_id: compute-magnitudes`) :
+  `compute_magnitudes(samples)`, transformée de Fourier discrète pure (bibliothèque standard uniquement) du
+  signal brut vers les magnitudes consommées par `split_bands` — le seul candidat qui reste dans le moule
+  « fonction pure sans dépendance » avant de buter sur les arbitrages humains différés de `PROJECT.md`
+  (capture audio réelle, fenêtre, thèmes). Documenté dans `PROJECT.md` (nouvelle section « Troisième
+  micro-rush ») avec les mêmes critères d'acceptation hand-verifiable que les rushes précédents.
+- **211 tests** (209 + 2 nouveaux dans `test_run_experiment.py` : plafond de tentatives atteint → skip ;
+  un succès efface un historique d'échecs antérieur).

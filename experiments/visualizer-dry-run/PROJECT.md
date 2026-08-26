@@ -72,6 +72,21 @@ Critères d'acceptation :
 - une valeur intermédiaire applique l'interpolation aux trois bandes ;
 - les tests du premier micro-rush restent verts.
 
+## Troisième micro-rush — magnitudes depuis le signal brut
+
+Ajouter une fonction pure `compute_magnitudes(samples)` qui calcule la transformée de Fourier discrète
+d'un signal réel (`samples: list[float]`) et retourne la liste des magnitudes (module de chaque
+coefficient complexe), une valeur par échantillon d'entrée. Aucune dépendance externe (bibliothèque
+standard uniquement). Ne modifie ni `split_bands`, ni `smooth_levels`, ni `clamp_levels`, ni
+`process_frame`.
+
+Critères d'acceptation :
+
+- une liste vide retourne une liste vide ;
+- un signal constant (DC) concentre la magnitude sur le premier coefficient ;
+- un signal nul retourne des magnitudes nulles ;
+- les tests des micro-rushes précédents restent verts.
+
 ## Commandes de vérification
 
 La commande exacte dépend du langage choisi et doit être ajoutée ici ou dans `README.md`. Elle ne doit ni
