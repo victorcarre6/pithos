@@ -1,16 +1,11 @@
 """FFT-based audio visualizer core for the VJing experiment.
 
-Provides a pure function that splits an FFT magnitude spectrum into three
-normalized bands: bass, mid, and treble.
-
-Contract:
-    split_bands(magnitudes: list[float]) -> tuple[float, float, float]
-
-Each returned value is a scalar float in [0, 1].
-
-Uses a linear cumulative-accumulation approach: the cumulative sum of magnitude
-values is mapped into three bands (bass 0–20%, mid 20–60%, treble 60–100%).
+Provides pure functions for deterministic audio analysis without I/O or
+external dependencies.
 """
+
+import cmath
+import math
 
 
 def split_bands(magnitudes: list[float]) -> tuple[float, float, float]:
@@ -48,6 +43,24 @@ def split_bands(magnitudes: list[float]) -> tuple[float, float, float]:
     treble_mean = sum(magnitudes[2 * third:]) / (n - 2 * third) if n > 2 * third else 0.0
 
     return bass_mean, mid_mean, treble_mean
+
+
+def compute_magnitudes(samples: list[float]) -> list[float]:
+    """Return one DFT magnitude per real input sample."""
+
+    sample_count = len(samples)
+    magnitudes = []
+
+    for frequency in range(sample_count):
+        coefficient = 0j
+        for sample_index, sample in enumerate(samples):
+            angle = -2j * math.pi * frequency * sample_index / sample_count
+            coefficient += sample * cmath.exp(angle)
+
+        magnitude = abs(coefficient)
+        magnitudes.append(magnitude)
+
+    return magnitudes
 
 
 def smooth_levels(previous: tuple[float, float, float], current: tuple[float, float, float], alpha: float) -> tuple[float, float, float]:
