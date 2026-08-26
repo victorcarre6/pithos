@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "experiment_id": "visualizer-dry-run",
-  "title": "Calculer des magnitudes via DFT pur sans d\u00e9pendance externe",
+  "title": "Transformer un signal audio brut en magnitudes via une DFT pure",
   "description": "Ajouter une fonction pure compute_magnitudes(samples) dans src/audio_visualizer.py qui calcule la transform\u00e9e de Fourier discr\u00e8te d'un signal r\u00e9el (samples: list[float]) et retourne la liste des magnitudes (module de chaque coefficient complexe), une valeur par \u00e9chantillon d'entr\u00e9e, sans d\u00e9pendance externe (cmath/math uniquement). Une liste vide retourne une liste vide. Ne modifie ni split_bands ni le reste du pipeline existant.",
-  "micro_rush_id": "compute-magnitudes-v3",
+  "micro_rush_id": "compute-magnitudes-v2",
   "seed": "Construire un visualiseur audio destin\u00e9 au VJing.",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
@@ -12,5 +12,8 @@
   ],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth",
-  "target_function": "compute_magnitudes"
+  "validation_command": [
+    "python",
+    "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_magnitudes_acceptance.py"
+  ]
 }

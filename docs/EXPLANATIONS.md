@@ -78,3 +78,25 @@ Après `run.finished`, un appel Ollama sans tool choisit seulement trois fragmen
 contraints. Le harnais insère ensuite les phrases factuelles exactes, archive `telegram-recap.txt` hors Git et
 envoie une requête idempotente `orchestrated-recap`. Timeout, JSON invalide ou broker indisponible sont
 journalisés sans modifier le résultat de mission.
+
+## Contrat explicite de la fonction ciblée
+
+L'oracle numérique ne peut valider de manière forte que des fonctions déjà présentes. Les échecs
+`compute-magnitudes` ont montré deux ambiguïtés distinctes : une tâche d'ajout dans un module existant peut
+faire sélectionner une ancienne fonction sans rapport, et deux générations Ling peuvent s'accorder sur la
+même arithmétique fausse.
+
+Les rushes auto-proposés sur un module existant portent donc un `target_function` choisi dans les fonctions
+réellement détectées. Cette valeur contraint le schéma de l'oracle suivant. Les créations de fichiers gardent
+`target_function: null` et restent limitées au faible contrôle d'import déjà documenté. Une description
+strictement identique au rush courant est aussi refusée avant d'écrire `.pithos.json`. Ces garde-fous règlent
+la sélection et la répétition exacte ; ils ne transforment pas le modèle en oracle arithmétique. Pour une
+fonction nouvelle dans un fichier existant, un `validation_command` déterministe reste requis.
+
+## Runtime produit sans dépendance
+
+Le prototype final utilise le navigateur comme runtime local : Web Audio remplace PortAudio/NumPy pour la
+capture et la FFT, tandis que Canvas 2D suffit aux trois bandes réactives. Cela réduit la surface de packaging
+sur le MacBook Intel cible et conserve le calcul applicatif pur dans `audio-core.mjs`. Un petit serveur Python
+lié à `127.0.0.1` est nécessaire au secure context navigateur ; il ne constitue ni un service distant ni une
+surface LAN. Aucun endpoint externe n'est présent dans le client.

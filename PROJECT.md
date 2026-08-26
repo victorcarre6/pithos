@@ -98,6 +98,9 @@ raison d'arrêt et prochaine condition de réveil.
 ## Autonomie et garde-fous
 
 - L'agent décide seul de l'architecture du livrable et de l'ordre des tâches.
+- Les arbitrages produit et techniques ordinaires sont résolus par l'agent ; l'utilisateur n'a jamais à
+  choisir le prochain chantier ni à modifier le code. Seul un blocage externe sans substitut sûr peut lui
+  être remonté.
 - Il peut installer des dépendances et accéder aux domaines documentaires autorisés ; chaque installation et
   accès réseau est journalisé.
 - Les credentials Git et Telegram sont fournis par une capacité brokerisée, jamais placés dans le workspace.

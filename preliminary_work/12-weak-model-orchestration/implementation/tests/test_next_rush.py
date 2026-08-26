@@ -42,6 +42,7 @@ def test_valid_proposal_overwrites_pithos_json_and_preserves_infra_fields(tmp_pa
         "micro_rush_id": "audio-source",
         "title": "Lire la source audio",
         "description": "Identifier la source de sortie audio active.",
+        "target_function": None,
         "target_files": ["src/audio_source.py"],
     }
     author = NextRushAuthor("fake-model", project, tmp_path, opener=_opener_yielding(payload))
@@ -54,6 +55,7 @@ def test_valid_proposal_overwrites_pithos_json_and_preserves_infra_fields(tmp_pa
     assert written["micro_rush_id"] == "audio-source"
     assert written["title"] == "Lire la source audio"
     assert written["target_files"] == ["src/audio_source.py"]
+    assert "target_function" not in written
     assert "validation_command" not in written
     # infrastructure and long-term fields are copied verbatim, never model-authored
     assert written["seed"] == project["seed"]
@@ -99,6 +101,24 @@ def test_rejects_a_proposal_reusing_the_current_micro_rush_id(tmp_path):
     assert not (tmp_path / ".pithos.json").is_file()
 
 
+def test_rejects_a_proposal_repeating_the_current_description(tmp_path):
+    project = _project()
+    payload = {
+        "micro_rush_id": "band-smoothing-v2",
+        "title": "Reformuler le même rush",
+        "description": project["description"],
+        "target_function": None,
+        "target_files": ["src/audio_source.py"],
+    }
+    author = NextRushAuthor("fake-model", project, tmp_path, opener=_opener_yielding(payload))
+
+    success, reason = author(state=MissionState("run-1", "visualizer-dry-run"))
+
+    assert success is False
+    assert "description must differ" in reason
+    assert not (tmp_path / ".pithos.json").is_file()
+
+
 def test_rejects_an_oversize_title(tmp_path):
     project = _project()
     payload = {
@@ -113,6 +133,26 @@ def test_rejects_an_oversize_title(tmp_path):
 
     assert success is False
     assert "title" in reason
+
+
+def test_rejects_a_new_function_proposal_for_an_existing_module(tmp_path):
+    project = _project()
+    target = tmp_path / "src" / "audio_visualizer.py"
+    target.parent.mkdir(parents=True)
+    target.write_text("def split_bands(values):\n    return values\n", encoding="utf-8")
+    payload = {
+        "micro_rush_id": "compute-magnitudes",
+        "title": "Calculer les magnitudes",
+        "description": "Ajouter compute_magnitudes(samples) dans le module existant.",
+        "target_function": "compute_magnitudes",
+        "target_files": ["src/audio_visualizer.py"],
+    }
+    author = NextRushAuthor("fake-model", project, tmp_path, opener=_opener_yielding(payload))
+
+    success, reason = author(state=MissionState("run-1", "visualizer-dry-run"))
+
+    assert success is False
+    assert "target_function is not defined" in reason
 
 
 @pytest.mark.parametrize("path", ["/etc/passwd", "../outside.py", "src/../../outside.py"])
@@ -154,6 +194,7 @@ def test_facts_list_functions_already_defined_in_the_changed_files(tmp_path):
         "micro_rush_id": "level-clamping",
         "title": "Borner les niveaux",
         "description": "Clamper smooth_levels dans [0, 1].",
+        "target_function": "smooth_levels",
         "target_files": ["src/audio_visualizer.py"],
     }
     captured = []
@@ -179,6 +220,7 @@ def test_facts_report_no_existing_functions_for_a_file_that_does_not_exist_yet(t
         "micro_rush_id": "audio-source",
         "title": "Lire la source audio",
         "description": "Identifier la source de sortie audio active.",
+        "target_function": None,
         "target_files": ["src/audio_source.py"],
     }
     captured = []

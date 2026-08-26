@@ -94,6 +94,14 @@ télécharger de dépendance ni nécessiter une interface audio réelle.
 
 ## Arbitrages humains différés
 
-- Source audio macOS exacte : loopback virtuel, interface physique ou capture applicative.
-- Technologie de fenêtre transparente et mode plein écran.
-- Direction visuelle finale des thèmes.
+- [DONE] Source audio : entrée locale par défaut via Web Audio, sélectionnable sans configuration de build.
+  Une interface loopback macOS apparaît comme une entrée ordinaire lorsqu'elle est installée.
+- [DONE] Fenêtre : application web locale Canvas 2D, plein écran via l'API navigateur. La transparence native
+  hors fenêtre n'est pas disponible dans ce runtime et reste hors du chemin minimal.
+- [DONE] Direction visuelle : trois thèmes cyberpunk intégrés, sélectionnables à chaud.
+
+## Politique d'autonomie
+
+Les choix produit et techniques ordinaires appartiennent à l'agent. L'utilisateur ne doit ni sélectionner le
+prochain chantier de développement, ni écrire ou corriger du code. Un blocage n'est remonté que s'il dépend
+d'un credential, d'un matériel ou d'une autorisation sans substitut local sûr.

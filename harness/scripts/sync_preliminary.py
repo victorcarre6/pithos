@@ -71,6 +71,9 @@ PROJECTS = {
         "src": [
             "src/pithos_orchestrator",
             "fixtures/visualizer_acceptance.py",
+            "fixtures/visualizer_frame_pipeline_acceptance.py",
+            "fixtures/visualizer_level_clamping_acceptance.py",
+            "fixtures/visualizer_magnitudes_acceptance.py",
             "fixtures/visualizer_smoothing_acceptance.py",
         ],
         "tests": [
