@@ -20,3 +20,7 @@ La campagne est pilotée par le `seed`, pas par un opérateur externe. Le marque
 rejouer le même rush, puis déclenche un handoff local : Pithos propose une nouvelle identité et un contrat
 borné, remplace atomiquement `.pithos.json` et enchaîne la mission. Si Ollama ou la validation de proposition
 échoue, le rush terminé n'est jamais rejoué et le LaunchAgent reprend la planification au réveil suivant.
+
+Le runtime actif est `host` : Pi utilise le profil local borné et Ollama via loopback. Docker reste une
+capacité du harness mais n'appartient plus au chemin nominal de cette campagne après la saturation observée
+de sa VM. Ce choix ne modifie ni les fichiers projetés à Pi ni les gates externes.

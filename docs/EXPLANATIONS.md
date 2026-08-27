@@ -74,6 +74,12 @@ Le démarrage Compose est lui aussi borné à 120 secondes. Un daemon Docker sus
 le verrou du runner pendant des dizaines de minutes : le processus sort, le contexte libère le verrou et un
 réveil ultérieur peut reprendre après restauration du runtime externe.
 
+Après observation d'une VM Docker maintenue au-dessus de 200 % CPU malgré l'absence de mission, la campagne
+visualiseur utilise le runtime `host` déjà supporté par le runner. Pi reste borné par phase et pointe vers
+Ollama sur `127.0.0.1`; les workspaces projetés, oracles externes, limites de tools et brokers hôte restent
+inchangés. Ce basculement retire Docker du chemin nominal de cette expérience sans supprimer ni affaiblir le
+runtime Docker du harness.
+
 Le handoff ne dépend pas du dernier diff, qui peut être vide après un preflight déjà vert. Il transmet au
 modèle les sources Python produit disponibles, leurs fonctions, les cibles courantes et la roadmap bornée.
 Les champs d'infrastructure restent recopiés sans modification et seule une proposition validée peut changer

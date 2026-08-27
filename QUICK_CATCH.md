@@ -40,6 +40,12 @@ faite en fin de mission échoue, le réveil suivant effectue uniquement le hando
 configuration puis lance le rush choisi par Pithos. Codex et l'utilisateur ne pilotent plus les incréments.
 Aucun secret n'est tracké.
 
+**Runtime de campagne.** Après blocage de Docker Desktop et mesure de sa VM à environ **204 % CPU**, le
+visualiseur utilise le runtime `host` déjà supporté : Pi local, Ollama sur loopback, mêmes projections et
+gates externes. Le smoke réel produit `HOST_OK` avec `agent_end`/`agent_settled`. Le réveil périodique est
+revenu à la valeur projet de **10 800 s**; Docker reste disponible dans le harness mais n'est plus requis par
+cette campagne.
+
 ## Protocole de collecte — semaine autonome
 
 Objectif : accumuler des trajectoires Ling comparables sans perdre les échecs intermédiaires. Pour chaque
@@ -50,8 +56,8 @@ unique**, **un titre** et **une description courte** human-readable dans `.pitho
    place.
 2. Ne jamais supprimer manuellement le marqueur `~/logs/pithos/runtime/*-completed.json` : il déclenche le
    handoff autonome quand son identifiant correspond encore à `.pithos.json`.
-3. Laisser les LaunchAgents et Docker/Ollama actifs. Le runner se réveille toutes les **10 800 s** et reprend
-   automatiquement une planification transitoirement échouée.
+3. Laisser les LaunchAgents et Ollama actifs. Docker n'est pas requis pour cette expérience. Le runner se
+   réveille toutes les **10 800 s** et reprend automatiquement une planification transitoirement échouée.
 4. Ne supprimer ni JSONL, sessions Pi, rapports, streams, logs Squid, SQLite, échecs, timeouts ou tool failures.
    Le collecteur doit rester `RunAtLoad`/`KeepAlive` et la quarantaine doit rester visible, jamais maquillée.
 5. N'accepter une PR autonome qu'après oracle vert, rapport conforme, notifications Telegram, commit, push et

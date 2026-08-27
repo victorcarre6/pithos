@@ -5,12 +5,12 @@
   "description": "Modifier `compute_magnitudes` dans `src/audio_visualizer.py` pour utiliser une fen\u00eatre de Hann et une DFT en-place sur la liste des magnitudes d\u00e9j\u00e0 calcul\u00e9es, garantissant une complexit\u00e9 r\u00e9duite et une m\u00e9moire stable.",
   "micro_rush_id": "compute-magnitudes-v3",
   "seed": "Construire un visualiseur audio destin\u00e9 au VJing.",
-  "runtime": "docker",
+  "runtime": "host",
   "model": "pithos/ling-3.0-tiny:8b-16k",
   "target_files": [
     "src/audio_visualizer.py"
   ],
-  "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
+  "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth",
   "target_function": "compute_magnitudes"
 }

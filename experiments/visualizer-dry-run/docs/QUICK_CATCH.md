@@ -20,3 +20,6 @@ python tests/validate_product.py
 ```
 
 Le premier lancement interactif requiert uniquement l'autorisation audio imposée par le navigateur.
+
+Le runner de campagne utilise désormais le runtime **host** et le profil `harness/config/pi`; Docker Desktop
+n'est pas requis. Le réveil nominal est toutes les trois heures et chaque phase reste bornée à cinq minutes.
