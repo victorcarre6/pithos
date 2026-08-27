@@ -70,6 +70,10 @@ proposition bornée, remplace atomiquement `.pithos.json`, recharge cette config
 rush dans le même réveil. Le même handoff remplace un rush autonome après trois missions en échec. Une panne
 de planification ne rejoue jamais l'ancien rush : elle est retentée au réveil périodique suivant.
 
+Le démarrage Compose est lui aussi borné à 120 secondes. Un daemon Docker suspendu ne peut donc plus conserver
+le verrou du runner pendant des dizaines de minutes : le processus sort, le contexte libère le verrou et un
+réveil ultérieur peut reprendre après restauration du runtime externe.
+
 Le handoff ne dépend pas du dernier diff, qui peut être vide après un preflight déjà vert. Il transmet au
 modèle les sources Python produit disponibles, leurs fonctions, les cibles courantes et la roadmap bornée.
 Les champs d'infrastructure restent recopiés sans modification et seule une proposition validée peut changer

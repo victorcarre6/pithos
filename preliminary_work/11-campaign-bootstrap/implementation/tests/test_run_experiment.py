@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -63,6 +64,29 @@ def test_host_launch_does_not_start_docker(tmp_path, monkeypatch):
         (tmp_path / "logs" / "runtime" / "audio-lab-completed.json").read_text()
     )
     assert completion["micro_rush_id"] == "first-task"
+
+
+def test_docker_start_is_bounded(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "first-task")
+    configuration_path = workspace / ".pithos.json"
+    configuration = json.loads(configuration_path.read_text())
+    configuration["runtime"] = "docker"
+    configuration_path.write_text(json.dumps(configuration), encoding="utf-8")
+    observed = []
+
+    def run(command, **kwargs):
+        observed.append((command, kwargs))
+
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+    monkeypatch.setattr(run_module.subprocess, "run", run)
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        run_module.launch(workspace, tmp_path / "logs")
+
+    [(command, kwargs)] = observed
+    assert command[:2] == ["docker", "compose"]
+    assert kwargs["timeout"] == run_module.DOCKER_START_TIMEOUT_SECONDS
 
 
 def test_environment_loads_only_telegram_values_without_overriding_host(tmp_path, monkeypatch):

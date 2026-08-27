@@ -21,6 +21,7 @@ from pithos_runner.lock import LockHeld, RunLock
 # au-delà, un micro-rush bloqué (proposition redondante, oracle inatteignable, etc.) retentait
 # indéfiniment à chaque réveil du LaunchAgent sans jamais avancer -- observé sur frame-pipeline-v2
 MAX_CONSECUTIVE_FAILURES = 3
+DOCKER_START_TIMEOUT_SECONDS = 120
 
 
 def launch(workspace: Path, logs_root: Path):
@@ -82,6 +83,7 @@ def launch(workspace: Path, logs_root: Path):
                 ["docker", "compose", "-f", str(harness_root / "runtime" / "docker-compose.yml"), "up", "-d"],
                 check=True,
                 env=host_environment,
+                timeout=DOCKER_START_TIMEOUT_SECONDS,
             )
 
         remote = _git_remote(workspace)

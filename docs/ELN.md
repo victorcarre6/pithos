@@ -675,3 +675,10 @@
   les cibles courantes et la roadmap bornée alimentent la proposition même quand le dernier diff est vide.
 - **Preuve ciblée** : 25 tests couvrent notamment succès complété → nouveau rush lancé, échec de handoff →
   nouvelle tentative au réveil suivant, plafond d'échec → replanification et contexte produit hors diff.
+
+## 27:10 — Démarrage Docker borné après preuve réelle
+
+- Le premier handoff réel a écrit `compute-magnitudes-v3` sans intervention, puis le runner est resté bloqué
+  plus de 45 minutes dans `docker compose up -d` parce que Docker Desktop ne répondait plus.
+- Le démarrage Compose possède désormais un timeout de 120 secondes. L'échec libère le verrou et laisse le
+  LaunchAgent reprendre à un réveil ultérieur, au lieu de figer toute la campagne avant la mission.
