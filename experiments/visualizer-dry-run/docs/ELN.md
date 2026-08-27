@@ -41,3 +41,10 @@
   roadmap, remplace atomiquement `.pithos.json`, puis lance lui-même la nouvelle mission.
 - Trois propositions invalides reportent la décision au réveil suivant sans rejouer le rush terminé. Après
   trois missions en échec, Pithos choisit également un autre rush sans intervention de l'utilisateur.
+
+## 27:10 — Runtime host après saturation Docker
+
+- La VM Docker est restée au-dessus de 200 % CPU alors que Compose ne répondait plus. Le runner et Docker ont
+  été arrêtés avant reprise.
+- La campagne utilise maintenant Pi directement sur l'hôte avec Ollama local. Le contrôle de contexte, les
+  limites par phase, l'oracle externe et la finalisation Git restent ceux du même harness.

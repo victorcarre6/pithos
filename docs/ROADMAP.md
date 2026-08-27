@@ -33,5 +33,7 @@
   suivant ; une génération invalide est retentée sans demander à l'utilisateur de choisir ou d'éditer le code.
 - [DONE] Runtime borné — le démarrage Compose ne peut plus retenir indéfiniment le verrou de campagne lorsque
   Docker Desktop ne répond pas.
+- [DONE] Reprise CPU-safe — campagne active sur le runtime host existant, sans VM Docker, avec réveil nominal
+  rétabli à 10 800 secondes.
 - [TODO] Campagne — observer une session audio interactive réelle lorsque l'autorisation navigateur et un
   périphérique sont disponibles ; aucune décision ni modification de code utilisateur n'est requise.

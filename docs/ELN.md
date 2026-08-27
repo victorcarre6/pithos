@@ -682,3 +682,12 @@
   plus de 45 minutes dans `docker compose up -d` parce que Docker Desktop ne répondait plus.
 - Le démarrage Compose possède désormais un timeout de 120 secondes. L'échec libère le verrou et laisse le
   LaunchAgent reprendre à un réveil ultérieur, au lieu de figer toute la campagne avant la mission.
+
+## 27:10 — Retour au runtime host
+
+- Mesure après l'alerte utilisateur : processus `Virtualization.VirtualMachine` Docker à environ 204 % CPU,
+  tandis que le runner Pithos était déjà sorti et qu'Ollama n'était pas le consommateur dominant.
+- Le LaunchAgent a été désactivé et Docker Desktop arrêté avant toute reprise.
+- L'expérience passe de `runtime: docker` / `config/pi-docker` à `runtime: host` / `config/pi`. Ce chemin est
+  natif dans le runner, conserve les mêmes bornes de phase et supprime la VM fautive du cycle nominal.
+- L'intervalle installé avait dérivé à 900 secondes; la valeur canonique à restaurer est 10 800 secondes.

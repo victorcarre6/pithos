@@ -82,7 +82,8 @@ config.
 
 - Ne pas supprimer `~/logs/pithos/runtime/visualizer-dry-run-completed.json` à la main — un nouveau
   `micro_rush_id` suffit à le rendre obsolète automatiquement.
-- Docker, Ollama et les deux LaunchAgents restent actifs tels quels.
+- Ollama et les deux LaunchAgents restent actifs. La campagne visualiseur utilise le runtime host; Docker
+  Desktop n'est pas requis.
 - Après avoir mergé une PR de rush (`agent/rush-*`) toi-même (pas de `seed`, donc pas d'auto-merge), repasser
   sur `main` en local (`git switch main && git pull`) avant le prochain réveil : `finalize` laisse le dépôt
   sur la branche du rush, et le prochain réveil lit `.pithos.json` sur la branche actuellement extraite, pas
