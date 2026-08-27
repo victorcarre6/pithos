@@ -691,3 +691,6 @@
 - L'expérience passe de `runtime: docker` / `config/pi-docker` à `runtime: host` / `config/pi`. Ce chemin est
   natif dans le runner, conserve les mêmes bornes de phase et supprime la VM fautive du cycle nominal.
 - L'intervalle installé avait dérivé à 900 secondes; la valeur canonique à restaurer est 10 800 secondes.
+- La première réinstallation a échoué car `install_launchd.py` tentait `bootstrap` avant `enable` sur le
+  runner explicitement désactivé pendant l'incident. L'ordre est inversé pour rendre cette récupération
+  idempotente : `bootout` best-effort, `enable`, puis `bootstrap`.

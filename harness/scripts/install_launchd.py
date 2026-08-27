@@ -116,8 +116,8 @@ def install(paths, uid):
             text=True,
             check=False,
         )
-        subprocess.run(["launchctl", "bootstrap", domain, str(path)], check=True)
         subprocess.run(["launchctl", "enable", f"{domain}/{label}"], check=True)
+        subprocess.run(["launchctl", "bootstrap", domain, str(path)], check=True)
 
 
 def uninstall(labels, agents_dir, uid):

@@ -67,6 +67,9 @@ def test_write_and_install_private_plists(tmp_path, monkeypatch):
     assert runner_path.stat().st_mode & 0o777 == 0o600
     assert ["launchctl", "bootstrap", "gui/501", str(runner_path)] in commands
     assert ["launchctl", "enable", "gui/501/dev.pithos.runner.audio-lab"] in commands
+    enable_index = commands.index(["launchctl", "enable", "gui/501/dev.pithos.runner.audio-lab"])
+    bootstrap_index = commands.index(["launchctl", "bootstrap", "gui/501", str(runner_path)])
+    assert enable_index < bootstrap_index
 
 
 def test_invalid_experiment_id_is_rejected(tmp_path):
