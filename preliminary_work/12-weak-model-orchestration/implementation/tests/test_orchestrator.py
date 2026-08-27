@@ -491,6 +491,21 @@ def test_campaign_components_build_validate_and_finalize(tmp_path):
     assert (tmp_path / "logs" / "latest.md").exists()
 
 
+def test_command_validator_requires_regression_suite_after_green_oracle(tmp_path):
+    validator = CommandValidator(
+        tmp_path,
+        ["python", "-c", "print('oracle pass')"],
+        regression_command=["python", "-c", "raise SystemExit('regression failed')"],
+    )
+
+    validation = validator([])
+
+    assert validation.passed is False
+    assert "oracle pass" in validation.stdout
+    assert "regression failed" in validation.stderr
+    assert "&&" in validation.command
+
+
 def test_context_prefers_phase_brief_over_full_project(tmp_path):
     (tmp_path / "PROJECT.md").write_text("# Full product backlog\n")
     (tmp_path / ".pithos-task.md").write_text("Change only src/feature.py.\n")

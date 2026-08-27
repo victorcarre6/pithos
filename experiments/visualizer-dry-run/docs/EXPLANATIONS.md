@@ -24,3 +24,8 @@ borné, remplace atomiquement `.pithos.json` et enchaîne la mission. Si Ollama 
 Le runtime actif est `host` : Pi utilise le profil local borné et Ollama via loopback. Docker reste une
 capacité du harness mais n'appartient plus au chemin nominal de cette campagne après la saturation observée
 de sa VM. Ce choix ne modifie ni les fichiers projetés à Pi ni les gates externes.
+
+Chaque rush auto-généré conserve aussi `regression_command: ["python", "tests/validate_product.py"]`. Un
+oracle nouveau ne peut donc valider un comportement qui casse le noyau Python, le lanceur localhost ou le
+pipeline JavaScript déjà livré. Si aucune réparation ne satisfait les deux contrats, le launcher restaure les
+fichiers cibles capturés avant mission.

@@ -149,6 +149,8 @@ avec les garde-fous suivants :
    déjà ne prouve rien et déclenche une nouvelle tentative (3 tentatives maximum).
 4. Aucun code du modèle n'est jamais exécuté : seuls une chaîne (nom de fonction) et des littéraux numériques
    traversent la frontière modèle → exécution.
+5. Si `regression_command` est configuré, un oracle vert ne suffit pas : la suite produit historique doit
+   passer ensuite. Toute mission qui ne termine pas restaure ses `target_files` au snapshot de départ.
 
 ### Limites connues
 

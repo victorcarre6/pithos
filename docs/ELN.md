@@ -694,3 +694,15 @@
 - La première réinstallation a échoué car `install_launchd.py` tentait `bootstrap` avant `enable` sur le
   runner explicitement désactivé pendant l'incident. L'ordre est inversé pour rendre cette récupération
   idempotente : `bootout` best-effort, `enable`, puis `bootstrap`.
+
+## 27:11 — Faux oracle intercepté, missions rendues transactionnelles
+
+- Wake host réel `run-20260827T094100Z-f76fca` : planification et trois tentatives d'oracle exécutées en
+  environ 25 secondes, échec propre, aucune VM Docker et aucune charge anormale.
+- Le wake suivant a généré un oracle rouge mais faux : entrée vide attendue `(0.0,)` au lieu de `[]`. La phase
+  `implement` travaillait encore dans sa projection isolée; aucun diff n'a atteint le workspace.
+- Nouveau contrat `regression_command` dans `.pithos.json` : après l'oracle, le validator exécute
+  `python tests/validate_product.py`. Un succès exige les deux commandes vertes.
+- Le launcher snapshotte les seuls `target_files` et les restaure atomiquement pour toute mission non
+  `completed` ou exception. Les échecs restent journalisés mais ne peuvent plus laisser une régression locale.
+- Preuves : 70 tests ciblés et suite produit réelle verte (`2 pytest`, `3 node:test`, smoke localhost).
