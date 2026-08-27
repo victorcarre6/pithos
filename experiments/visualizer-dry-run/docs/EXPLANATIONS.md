@@ -15,3 +15,8 @@ Le navigateur remplace une distribution desktop lourde. Il fournit capture audio
 plein écran et Canvas 2D sur macOS Intel sans dépendance applicative. Le serveur Python ne publie que le dossier
 `web/` et écoute explicitement sur `127.0.0.1`; le code client ne contient aucune URL externe. Une interface
 loopback éventuellement présente est visible comme une entrée standard, sans couplage à un driver précis.
+
+La campagne est pilotée par le `seed`, pas par un opérateur externe. Le marqueur de complétion empêche de
+rejouer le même rush, puis déclenche un handoff local : Pithos propose une nouvelle identité et un contrat
+borné, remplace atomiquement `.pithos.json` et enchaîne la mission. Si Ollama ou la validation de proposition
+échoue, le rush terminé n'est jamais rejoué et le LaunchAgent reprend la planification au réveil suivant.

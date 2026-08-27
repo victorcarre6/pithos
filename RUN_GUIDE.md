@@ -1,8 +1,8 @@
-# Guide de relance — lancer le prochain micro-rush
+# Guide d'exploitation — campagne autonome
 
-Ce guide reprend, étape par étape, ce qui reste **manuel côté humain** pour relancer un cycle d'autonomie sur
-`experiments/visualizer-dry-run/` une fois le rush courant fusionné. Le harnais lui-même n'a besoin d'aucune
-modification de code pour un nouveau micro-rush ordinaire.
+Avec un `seed` non vide, **aucune relance ni sélection de micro-rush n'est manuelle**. Le LaunchAgent réveille
+`experiments/visualizer-dry-run/`, Pithos choisit le prochain contrat borné, le valide, l'exécute et fusionne
+la PR. Les étapes manuelles ci-dessous ne décrivent que le mode supervisé sans `seed` et le diagnostic.
 
 Depuis cette version, **l'oracle n'est plus écrit à la main** : le harnais le fait générer par le modèle local
 lui-même, sous contrainte, puis le vérifie avant de s'en servir. Voir [Oracle auto-généré](#oracle-auto-généré-comment-ça-marche)
@@ -242,10 +242,12 @@ ci-dessus). C'est une nouvelle phase `propose_next_rush`, insérée juste avant 
    repasse toujours par `author_oracle` au cycle suivant).
 4. Ce nouveau `.pithos.json` est ensuite inclus dans le **même commit et la même PR** que le travail qui vient
    d'être validé.
-5. Si la proposition échoue (identifiant invalide, modèle injoignable, etc.), ce n'est jamais bloquant : la
-   mission qui vient de réussir se termine normalement, `.pithos.json` reste inchangé, et la cause est
-   journalisée dans `state.json` (`propose_next_rush failed: ...`). Il suffit alors de relancer l'étape 2
-   manuellement pour ce cycle-là.
+5. Si la proposition de fin de mission échoue, le travail validé est quand même finalisé. Au réveil suivant,
+   le runner reconnaît le rush complété et reprend uniquement le handoff : trois générations bornées sont
+   tentées, sans rejouer le code déjà validé. Une proposition valide est chargée puis exécutée immédiatement ;
+   sinon le prochain réveil retente automatiquement.
+6. Après trois missions en échec sur le même identifiant, une campagne avec `seed` abandonne ce contrat et
+   passe par le même handoff autonome. Sans `seed`, le comportement prudent historique reste un arrêt.
 
 Sans `seed`, cette phase n'existe pas — comportement strictement identique à avant.
 

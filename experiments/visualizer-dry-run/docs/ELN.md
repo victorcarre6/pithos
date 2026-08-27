@@ -33,3 +33,11 @@
   une seconde instance macOS isolée. Aucun processus utilisateur n'a été interrompu. Ce résultat ne remet pas
   en cause le smoke HTTP ni les tests de structure DOM ; l'autorisation audio réelle reste une interaction de
   sécurité imposée par le navigateur au premier lancement.
+
+## 27:09 — Campagne rendue réellement fermée
+
+- Le rush complété ne devient plus un cul-de-sac si sa proposition suivante a échoué avant `finalize`.
+- Au réveil, Pithos reprend uniquement le handoff, choisit un contrat à partir du `seed`, des sources et de la
+  roadmap, remplace atomiquement `.pithos.json`, puis lance lui-même la nouvelle mission.
+- Trois propositions invalides reportent la décision au réveil suivant sans rejouer le rush terminé. Après
+  trois missions en échec, Pithos choisit également un autre rush sans intervention de l'utilisateur.

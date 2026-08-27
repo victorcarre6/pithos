@@ -139,6 +139,92 @@ def test_completed_micro_rush_is_skipped_until_identity_changes(tmp_path, monkey
     assert result["micro_rush_id"] == "band-smoothing"
 
 
+def test_completed_autonomous_rush_authors_and_launches_the_next_one(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "band-smoothing")
+    configuration_path = workspace / ".pithos.json"
+    configuration = json.loads(configuration_path.read_text())
+    configuration["seed"] = "Construire un visualiseur audio destiné au VJing."
+    configuration["model"] = "fake-model"
+    configuration["target_files"] = ["src/audio_visualizer.py"]
+    configuration_path.write_text(json.dumps(configuration), encoding="utf-8")
+    logs_root = tmp_path / "logs"
+    completion_path = logs_root / "runtime" / "audio-lab-completed.json"
+    completion_path.parent.mkdir(parents=True)
+    completion_path.write_text(
+        json.dumps({"micro_rush_id": "band-smoothing", "mission_id": "run-old"}),
+        encoding="utf-8",
+    )
+
+    class Author:
+        def __init__(self, model, project, author_workspace):
+            assert model == "fake-model"
+            assert author_workspace == workspace
+
+        def __call__(self, state):
+            updated = dict(configuration)
+            updated["micro_rush_id"] = "level-clamping"
+            updated["title"] = "Borner les niveaux"
+            updated["description"] = "Borner chaque niveau entre zéro et un."
+            configuration_path.write_text(json.dumps(updated), encoding="utf-8")
+
+            return True, "proposed next micro-rush 'level-clamping': Borner les niveaux"
+
+    launched = []
+
+    def launch_orchestrated(workspace_arg, logs, git, telegram):
+        launched.append(json.loads((workspace_arg / ".pithos.json").read_text())["micro_rush_id"])
+
+        return SimpleNamespace(status="completed", micro_rush_id="level-clamping", mission_id="run-new")
+
+    monkeypatch.setattr(run_module, "NextRushAuthor", Author)
+    monkeypatch.setattr(run_module, "launch_orchestrated", launch_orchestrated)
+    monkeypatch.setattr(run_module, "_git_remote", lambda workspace_arg: None)
+
+    result = run_module.launch(workspace, logs_root)
+
+    assert result["status"] == "completed"
+    assert launched == ["level-clamping"]
+    completion = json.loads(completion_path.read_text())
+    assert completion["micro_rush_id"] == "level-clamping"
+
+
+def test_completed_autonomous_rush_retries_planning_on_a_later_wake(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "band-smoothing")
+    configuration_path = workspace / ".pithos.json"
+    configuration = json.loads(configuration_path.read_text())
+    configuration["seed"] = "Construire un visualiseur audio destiné au VJing."
+    configuration["model"] = "fake-model"
+    configuration_path.write_text(json.dumps(configuration), encoding="utf-8")
+    logs_root = tmp_path / "logs"
+    completion_path = logs_root / "runtime" / "audio-lab-completed.json"
+    completion_path.parent.mkdir(parents=True)
+    completion_path.write_text(
+        json.dumps({"micro_rush_id": "band-smoothing", "mission_id": "run-old"}),
+        encoding="utf-8",
+    )
+
+    class Author:
+        def __init__(self, *args):
+            pass
+
+        def __call__(self, state):
+            return False, "propose_next_rush failed: model unreachable"
+
+    monkeypatch.setattr(run_module, "NextRushAuthor", Author)
+    monkeypatch.setattr(
+        run_module,
+        "launch_orchestrated",
+        lambda *args: pytest.fail("a failed handoff must not relaunch the completed rush"),
+    )
+
+    first = run_module.launch(workspace, logs_root)
+    second = run_module.launch(workspace, logs_root)
+
+    assert first["status"] == "planning_failed"
+    assert second["status"] == "planning_failed"
+    assert first["micro_rush_id"] == "band-smoothing"
+
+
 def _configured_workspace(tmp_path, micro_rush_id):
     repository = tmp_path / "repository"
     workspace = repository / "experiments" / "audio-lab"
@@ -180,6 +266,50 @@ def test_micro_rush_failing_repeatedly_is_skipped_after_max_consecutive_failures
 
     assert result["status"] == "skipped"
     assert result["consecutive_failures"] == run_module.MAX_CONSECUTIVE_FAILURES
+
+
+def test_autonomous_rush_at_failure_cap_is_replanned_without_human_intervention(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "frame-pipeline-v2")
+    configuration_path = workspace / ".pithos.json"
+    configuration = json.loads(configuration_path.read_text())
+    configuration["seed"] = "Construire un visualiseur audio destiné au VJing."
+    configuration["model"] = "fake-model"
+    configuration_path.write_text(json.dumps(configuration), encoding="utf-8")
+    logs_root = tmp_path / "logs"
+    failure_path = logs_root / "runtime" / "audio-lab-failures.json"
+    failure_path.parent.mkdir(parents=True)
+    failure_path.write_text(
+        json.dumps({"micro_rush_id": "frame-pipeline-v2", "count": run_module.MAX_CONSECUTIVE_FAILURES}),
+        encoding="utf-8",
+    )
+
+    class Author:
+        def __init__(self, *args):
+            pass
+
+        def __call__(self, state):
+            updated = dict(configuration)
+            updated["micro_rush_id"] = "different-rush"
+            updated["title"] = "Choisir une autre amélioration"
+            updated["description"] = "Améliorer un autre comportement borné."
+            configuration_path.write_text(json.dumps(updated), encoding="utf-8")
+
+            return True, "proposed next micro-rush 'different-rush'"
+
+    monkeypatch.setattr(run_module, "NextRushAuthor", Author)
+    monkeypatch.setattr(run_module, "_git_remote", lambda workspace_arg: None)
+    monkeypatch.setattr(
+        run_module,
+        "launch_orchestrated",
+        lambda *args: SimpleNamespace(status="completed", micro_rush_id="different-rush", mission_id="run-new"),
+    )
+
+    result = run_module.launch(workspace, logs_root)
+
+    assert result["status"] == "completed"
+    completion_path = logs_root / "runtime" / "audio-lab-completed.json"
+    completion = json.loads(completion_path.read_text())
+    assert completion["micro_rush_id"] == "different-rush"
 
 
 def test_completed_run_clears_a_prior_failure_streak(tmp_path, monkeypatch):
