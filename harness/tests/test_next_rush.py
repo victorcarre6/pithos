@@ -237,3 +237,68 @@ def test_facts_report_no_existing_functions_for_a_file_that_does_not_exist_yet(t
 
     [prompt] = captured
     assert '"existing_functions": []' in prompt
+
+
+def test_retries_an_invalid_proposal_before_writing_the_next_rush(tmp_path):
+    project = _project()
+    invalid = {
+        "micro_rush_id": "band-smoothing",
+        "title": "Même rush",
+        "description": "Répéter le rush courant.",
+        "target_function": None,
+        "target_files": ["src/new_module.py"],
+    }
+    valid = {
+        "micro_rush_id": "audio-source",
+        "title": "Lire la source audio",
+        "description": "Identifier la source de sortie audio active.",
+        "target_function": None,
+        "target_files": ["src/audio_source.py"],
+    }
+    payloads = iter([invalid, valid])
+
+    def opener(request, timeout):
+        body = {"response": json.dumps(next(payloads))}
+
+        return io.BytesIO(json.dumps(body).encode())
+
+    author = NextRushAuthor("fake-model", project, tmp_path, opener=opener)
+
+    success, reason = author(state=MissionState("run-1", "visualizer-dry-run"))
+
+    assert success is True
+    assert "audio-source" in reason
+
+
+def test_facts_include_product_sources_and_roadmap_without_a_changed_file(tmp_path):
+    project = _project(target_files=[])
+    source = tmp_path / "src" / "audio_visualizer.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("def split_bands(values):\n    return values\n", encoding="utf-8")
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "ROADMAP.md").write_text("- [DONE] Découper les bandes.\n", encoding="utf-8")
+    payload = {
+        "micro_rush_id": "audio-source",
+        "title": "Lire la source audio",
+        "description": "Identifier la source de sortie audio active.",
+        "target_function": None,
+        "target_files": ["src/audio_source.py"],
+    }
+    captured = []
+
+    def opener(request, timeout):
+        captured.append(json.loads(request.data)["prompt"])
+        body = {"response": json.dumps(payload)}
+
+        return io.BytesIO(json.dumps(body).encode())
+
+    author = NextRushAuthor("fake-model", project, tmp_path, opener=opener)
+
+    success, _ = author(state=MissionState("handoff", "visualizer-dry-run"))
+
+    assert success is True
+    [prompt] = captured
+    assert '"candidate_files": ["src/audio_visualizer.py"]' in prompt
+    assert '"existing_functions": ["split_bands"]' in prompt
+    assert "[DONE] Découper les bandes" in prompt

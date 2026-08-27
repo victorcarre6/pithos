@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "experiment_id": "visualizer-dry-run",
-  "title": "Transformer un signal audio brut en magnitudes via une DFT pure",
-  "description": "Ajouter une fonction pure compute_magnitudes(samples) dans src/audio_visualizer.py qui calcule la transform\u00e9e de Fourier discr\u00e8te d'un signal r\u00e9el (samples: list[float]) et retourne la liste des magnitudes (module de chaque coefficient complexe), une valeur par \u00e9chantillon d'entr\u00e9e, sans d\u00e9pendance externe (cmath/math uniquement). Une liste vide retourne une liste vide. Ne modifie ni split_bands ni le reste du pipeline existant.",
-  "micro_rush_id": "compute-magnitudes-v2",
+  "title": "Am\u00e9liorer la DFT pure en magnitudes avec une optimisation de fen\u00eatre",
+  "description": "Modifier `compute_magnitudes` dans `src/audio_visualizer.py` pour utiliser une fen\u00eatre de Hann et une DFT en-place sur la liste des magnitudes d\u00e9j\u00e0 calcul\u00e9es, garantissant une complexit\u00e9 r\u00e9duite et une m\u00e9moire stable.",
+  "micro_rush_id": "compute-magnitudes-v3",
   "seed": "Construire un visualiseur audio destin\u00e9 au VJing.",
   "runtime": "docker",
   "model": "pithos/ling-3.0-tiny:8b-16k",
@@ -12,8 +12,5 @@
   ],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi-docker",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth",
-  "validation_command": [
-    "python",
-    "/Users/victorcarre/code/pithos/harness/fixtures/visualizer_magnitudes_acceptance.py"
-  ]
+  "target_function": "compute_magnitudes"
 }

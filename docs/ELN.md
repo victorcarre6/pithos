@@ -659,3 +659,19 @@
 - Preuves : 3 tests Node, 2 tests Python, tests historiques, oracle DFT, smoke HTTP localhost, syntaxe JS/shell.
   La capture Firefox headless est bloquée par l'instance Firefox utilisateur déjà ouverte ; elle n'a pas été
   interrompue. L'autorisation microphone reste nécessaire au premier usage, comme l'impose macOS/navigateur.
+
+## 27:09 — Handoff autonome persistant
+
+- **Rupture constatée** : après une proposition `propose_next_rush` invalide, la mission réussie était
+  finalisée avec l'ancien `.pithos.json`; son marqueur de complétion transformait ensuite tous les réveils en
+  `micro-rush already completed`. Le runner ne possédait aucun chemin pour reprendre seulement la décision.
+- **Correction** : lorsqu'un marqueur correspond encore au rush configuré et qu'un `seed` est présent, le
+  runner appelle désormais `NextRushAuthor`, recharge la configuration écrite atomiquement puis lance le rush
+  choisi dans le même réveil. Il ne relance jamais le rush déjà validé.
+- **Échecs persistants** : le plafond de trois missions ne demande plus d'intervention humaine en mode
+  autonome; il déclenche le même handoff. Le mode sans `seed` conserve l'arrêt prudent existant.
+- **Résilience** : trois générations bornées absorbent une sortie Ollama invalide. Si elles échouent toutes,
+  le LaunchAgent reprendra la planification au réveil suivant. Les sources produit Python, leurs fonctions,
+  les cibles courantes et la roadmap bornée alimentent la proposition même quand le dernier diff est vide.
+- **Preuve ciblée** : 25 tests couvrent notamment succès complété → nouveau rush lancé, échec de handoff →
+  nouvelle tentative au réveil suivant, plafond d'échec → replanification et contexte produit hors diff.

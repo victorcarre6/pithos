@@ -64,9 +64,16 @@ Chaque mission émet désormais son propre cycle `run.started` / `run.finished`.
 
 La planification macOS sépare deux LaunchAgents utilisateur : le collecteur SQLite reste vivant, tandis que
 le launcher d'expérience se réveille toutes les trois heures. Un verrou par expérience couvre proxy, brokers
-et mission. Après succès, un marqueur hors Git associe le `micro_rush_id` au run terminé ; les réveils suivants
-sont des no-op jusqu'à la publication d'un nouvel identifiant. Une nouvelle branche part toujours de
-`origin/main`, et une PR fermée n'est jamais réutilisée.
+et mission. Après succès, un marqueur hors Git associe le `micro_rush_id` au run terminé. Pour une campagne
+sans `seed`, les réveils suivants restent des no-op. Avec un `seed`, le runner demande lui-même une nouvelle
+proposition bornée, remplace atomiquement `.pithos.json`, recharge cette configuration puis lance le nouveau
+rush dans le même réveil. Le même handoff remplace un rush autonome après trois missions en échec. Une panne
+de planification ne rejoue jamais l'ancien rush : elle est retentée au réveil périodique suivant.
+
+Le handoff ne dépend pas du dernier diff, qui peut être vide après un preflight déjà vert. Il transmet au
+modèle les sources Python produit disponibles, leurs fonctions, les cibles courantes et la roadmap bornée.
+Les champs d'infrastructure restent recopiés sans modification et seule une proposition validée peut changer
+l'identité du rush. Une nouvelle branche part toujours de `main`, et une PR fermée n'est jamais réutilisée.
 
 Les credentials Telegram peuvent être chargés depuis le `.env` ignoré de l'expérience. Le launcher ne lit
 que les deux clés allowlistées et transmet cet environnement au broker hôte ; le modèle, le workspace projeté,

@@ -29,5 +29,7 @@
   l'oracle est contraint à cette fonction et une description identique au rush courant est rejetée.
 - [DONE] Produit — prototype web local avec capture audio sélectionnable, FFT temps réel, Canvas plein écran,
   trois thèmes cyberpunk et lanceur macOS sans dépendance npm.
+- [DONE] Boucle fermée — un rush autonome terminé ou plafonné déclenche lui-même une proposition bornée du
+  suivant ; une génération invalide est retentée sans demander à l'utilisateur de choisir ou d'éditer le code.
 - [TODO] Campagne — observer une session audio interactive réelle lorsque l'autorisation navigateur et un
   périphérique sont disponibles ; aucune décision ni modification de code utilisateur n'est requise.

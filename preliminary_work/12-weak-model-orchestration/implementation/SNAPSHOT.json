@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-26T17:22:30.461698+00:00",
+  "generated_at": "2026-08-27T07:11:30.962559+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -30,7 +30,7 @@
     },
     {
       "path": "src/pithos_orchestrator/next_rush.py",
-      "sha256": "9f88f03aef1e7ec0860c8558793daa3e0f9bb349fde33f1fae180dc476e21aa6"
+      "sha256": "3a484a0f116ec171b5f9b04a05906ba6153deeb8919995e4940a2513b9b3b9db"
     },
     {
       "path": "src/pithos_orchestrator/oracle.py",
@@ -74,7 +74,7 @@
     },
     {
       "path": "tests/test_next_rush.py",
-      "sha256": "549ac6a6a5306824b21129ae1a13bbd840d63d86a4c4a0cdba2362d9e8453c0b"
+      "sha256": "a8b3f3fd52b67bfad45f2051dc4770f268d2fec7a73fc398b8f0e9f5f3b0c97a"
     },
     {
       "path": "tests/test_oracle.py",

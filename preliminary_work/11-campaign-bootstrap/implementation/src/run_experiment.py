@@ -13,6 +13,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from pithos_orchestrator.launcher import launch as launch_orchestrated
+from pithos_orchestrator.next_rush import NextRushAuthor
+from pithos_orchestrator.state import MissionState
 from pithos_runner.lock import LockHeld, RunLock
 
 
@@ -38,19 +40,24 @@ def launch(workspace: Path, logs_root: Path):
     with ExitStack() as stack:
         stack.enter_context(RunLock(runtime_root / f"{project['experiment_id']}.lock"))
 
-        # un micro-rush réussi ne se répète pas à chaque réveil
+        # un micro-rush réussi ne se répète pas ; une campagne autonome choisit puis lance le suivant
         completion_path = runtime_root / f"{project['experiment_id']}-completed.json"
         if completion_path.is_file():
             completion = json.loads(completion_path.read_text(encoding="utf-8"))
             if completion.get("micro_rush_id") == project.get("micro_rush_id"):
-                return {
-                    "status": "skipped",
-                    "reason": "micro-rush already completed",
-                    "micro_rush_id": project.get("micro_rush_id"),
-                    "mission_id": completion.get("mission_id"),
-                }
+                advanced = _advance_autonomous_rush(workspace, project, "previous micro-rush completed")
+                if advanced is None:
+                    return {
+                        "status": "skipped",
+                        "reason": "micro-rush already completed",
+                        "micro_rush_id": project.get("micro_rush_id"),
+                        "mission_id": completion.get("mission_id"),
+                    }
+                if advanced["status"] != "advanced":
+                    return advanced
+                project = advanced["project"]
 
-        # un micro-rush qui échoue en boucle ne doit pas retenter indéfiniment à chaque réveil
+        # un rush autonome bloqué est remplacé ; une campagne supervisée conserve l'arrêt historique
         failure_path = runtime_root / f"{project['experiment_id']}-failures.json"
         if failure_path.is_file():
             failures = json.loads(failure_path.read_text(encoding="utf-8"))
@@ -58,12 +65,17 @@ def launch(workspace: Path, logs_root: Path):
                 failures.get("micro_rush_id") == project.get("micro_rush_id")
                 and failures.get("count", 0) >= MAX_CONSECUTIVE_FAILURES
             ):
-                return {
-                    "status": "skipped",
-                    "reason": "micro-rush failed too many times in a row; needs human intervention",
-                    "micro_rush_id": project.get("micro_rush_id"),
-                    "consecutive_failures": failures.get("count", 0),
-                }
+                advanced = _advance_autonomous_rush(workspace, project, "previous micro-rush repeatedly failed")
+                if advanced is None:
+                    return {
+                        "status": "skipped",
+                        "reason": "micro-rush failed too many times in a row; needs human intervention",
+                        "micro_rush_id": project.get("micro_rush_id"),
+                        "consecutive_failures": failures.get("count", 0),
+                    }
+                if advanced["status"] != "advanced":
+                    return advanced
+                project = advanced["project"]
 
         if project.get("runtime", "docker") == "docker":
             subprocess.run(
@@ -155,6 +167,40 @@ def launch(workspace: Path, logs_root: Path):
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     process.kill()
+
+
+def _advance_autonomous_rush(workspace, project, trigger):
+    """Author and load the next rush, or return None for a non-autonomous project."""
+
+    seed = project.get("seed")
+    if not isinstance(seed, str) or not seed.strip():
+        return None
+
+    # le handoff n'ouvre aucun broker : il ne fait qu'une proposition locale bornée
+    state = MissionState(
+        "handoff",
+        project["experiment_id"],
+        micro_rush_id=project.get("micro_rush_id", ""),
+        changed_files=list(project.get("target_files") or []),
+    )
+    author = NextRushAuthor(project.get("model", "maternion/ling-3.0-tiny:8b"), project, workspace)
+    success, reason = author(state)
+    if not success:
+        return {
+            "status": "planning_failed",
+            "reason": reason,
+            "trigger": trigger,
+            "micro_rush_id": project.get("micro_rush_id"),
+        }
+
+    updated = json.loads((workspace / ".pithos.json").read_text(encoding="utf-8"))
+
+    return {
+        "status": "advanced",
+        "reason": reason,
+        "trigger": trigger,
+        "project": updated,
+    }
 
 
 def _environment_for(workspace, logs_root):

@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 26/08/2026._
+_État vérifié le 27/08/2026._
 
 ## Micro quick catch général
 
@@ -12,10 +12,12 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** **214 tests passent**. Le frontend React/Vite compile et les configurations Compose
+**Validation du socle.** La suite complète, le frontend React/Vite et les configurations Compose constituent
+la gate de publication. Les tests couvrent les contrats, probes déterministes, continuité,
 du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
 runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré,
-rushes auto-proposés, auto-merge, décomposition en micro-passes (`plan_todo`) et intégrations.
+rushes auto-proposés, handoff autonome persistant, auto-merge, décomposition en micro-passes (`plan_todo`) et
+intégrations.
 
 **Baseline retenue.** Après mise à jour du serveur Ollama de `0.32.13` vers `0.32.15`,
 `maternion/ling-3.0-tiny:8b` charge correctement : smoke **6/6** à 52,57 tok/s, protocol **6/6** à
@@ -31,13 +33,12 @@ Cette auto-proposition peut cependant redemander un travail déjà fait : `frame
 `#9`, redécrivait `process_frame` déjà mergé et a échoué en boucle stérile sur ~1h20 (5 missions) avant que le
 LaunchAgent soit arrêté à la main. `run_experiment.py` plafonne désormais les tentatives consécutives d'un
 même `micro_rush_id` en échec (`MAX_CONSECUTIVE_FAILURES = 3`, fichier d'état
-`~/logs/pithos/runtime/*-failures.json`) : passé ce seuil, les réveils suivants sont auto-skip jusqu'à
-intervention humaine, au lieu de retenter indéfiniment. La DFT pure `compute_magnitudes` est maintenant
-validée et fusionnée. Le rush auto-proposé suivant répétait exactement ce travail ; la configuration locale
-est donc replacée sur le rush complété `compute-magnitudes-v2`, ce qui rend tout réveil accidentel idempotent.
-Le prototype produit web est désormais implémenté : capture locale, FFT temps réel, plein écran et trois
-thèmes. Le LaunchAgent reste sur un rush complété pour garantir des skips idempotents ; Codex pilote les
-incréments suivants sans choix opérateur. Aucun secret n'est tracké.
+`~/logs/pithos/runtime/*-failures.json`). Avec un `seed`, ce seuil déclenche désormais la sélection autonome
+d'un autre rush ; sans `seed`, le mode supervisé conserve l'arrêt. La DFT pure `compute_magnitudes` et le
+prototype web sont fusionnés : capture locale, FFT temps réel, plein écran et trois thèmes. Si la proposition
+faite en fin de mission échoue, le réveil suivant effectue uniquement le handoff, recharge la nouvelle
+configuration puis lance le rush choisi par Pithos. Codex et l'utilisateur ne pilotent plus les incréments.
+Aucun secret n'est tracké.
 
 ## Protocole de collecte — semaine autonome
 
@@ -45,11 +46,12 @@ Objectif : accumuler des trajectoires Ling comparables sans perdre les échecs i
 nouveau rush, conserver **un objectif borné**, **un oracle externe rouge avant inference**, **un identifiant
 unique**, **un titre** et **une description courte** human-readable dans `.pithos.json`.
 
-1. Merger la PR du rush précédent avant de préparer le suivant, puis repartir de `origin/main`.
-2. Changer `micro_rush_id` uniquement quand le nouveau contrat, les fichiers cibles et l'oracle sont prêts ;
-   ne jamais supprimer manuellement le marqueur `~/logs/pithos/runtime/*-completed.json` pour forcer un run.
-3. Laisser les LaunchAgents et Docker/Ollama actifs. Le runner se réveille toutes les **10 800 s** ; un rush
-   terminé doit produire uniquement des skips jusqu'au changement explicite de son identifiant.
+1. Laisser Pithos choisir, valider, publier et fusionner chaque micro-rush ; ne pas préparer le suivant à sa
+   place.
+2. Ne jamais supprimer manuellement le marqueur `~/logs/pithos/runtime/*-completed.json` : il déclenche le
+   handoff autonome quand son identifiant correspond encore à `.pithos.json`.
+3. Laisser les LaunchAgents et Docker/Ollama actifs. Le runner se réveille toutes les **10 800 s** et reprend
+   automatiquement une planification transitoirement échouée.
 4. Ne supprimer ni JSONL, sessions Pi, rapports, streams, logs Squid, SQLite, échecs, timeouts ou tool failures.
    Le collecteur doit rester `RunAtLoad`/`KeepAlive` et la quarantaine doit rester visible, jamais maquillée.
 5. N'accepter une PR autonome qu'après oracle vert, rapport conforme, notifications Telegram, commit, push et

@@ -10,3 +10,4 @@
 - [DONE] FFT temps réel via `AnalyserNode`, normalisation et lissage testés hors navigateur.
 - [DONE] Canvas plein écran et trois thèmes cyberpunk (`neon`, `acid`, `ember`).
 - [DONE] Lanceur macOS par double-clic, serveur borné à `127.0.0.1` et smoke HTTP réel.
+- [DONE] Handoff de campagne autonome : le runner choisit et lance le prochain micro-rush sans édition humaine.

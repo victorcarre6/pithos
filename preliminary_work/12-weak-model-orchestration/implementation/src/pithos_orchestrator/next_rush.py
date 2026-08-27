@@ -7,8 +7,9 @@ JSON-schema-constrained Ollama call. The harness validates every field,
 copies the current .pithos.json verbatim for everything else (seed,
 experiment_id, runtime, model, pi_config, ground_truth), and writes the
 result back into the workspace so it rides along in the same commit/PR the
-mission already produces. A human still has to merge that PR before the
-proposal takes any effect.
+mission already produces. The runner can also invoke the same author after a
+completed or repeatedly failed rush, so a transient proposal failure never
+stalls an autonomous campaign permanently.
 """
 
 import json
@@ -21,6 +22,7 @@ import re
 MAX_TARGET_FILES = 3
 MAX_TITLE_CHARS = 160
 MAX_DESCRIPTION_CHARS = 500
+MAX_CONTEXT_FILES = 12
 _IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 _RELATIVE_PATH = re.compile(r"^[A-Za-z0-9_.\-/]{1,120}$")
 _DEF = re.compile(r"(?m)^\s*def\s+([A-Za-z_][A-Za-z0-9_]{0,63})\s*\(")
@@ -33,37 +35,54 @@ class NextRushSpecError(ValueError):
 class NextRushAuthor:
     """Bind next-rush proposal authoring to one mission's project config."""
 
-    def __init__(self, model, project, workspace, opener=None, timeout=45):
+    def __init__(self, model, project, workspace, opener=None, timeout=45, attempts=3):
         self.model = model
         self.project = project
         self.workspace = Path(workspace)
         self.opener = opener
         self.timeout = timeout
+        self.attempts = attempts
 
     def __call__(self, state):
         seed = str(self.project.get("seed", "")).strip()
         if not seed:
             return False, "propose_next_rush skipped: no seed configured"
 
+        # contexte produit borné, y compris lorsque le dernier diff est vide
+        context_files = candidate_files(self.workspace)
+        target_files = list(self.project.get("target_files") or [])
+        relevant_files = list(dict.fromkeys([*state.changed_files, *target_files, *context_files]))
         facts = {
             "seed": seed,
             "current_micro_rush_id": self.project.get("micro_rush_id", ""),
             "current_title": str(self.project.get("title", "")).strip(),
             "current_description": str(self.project.get("description", "")).strip(),
             "changed_files": list(state.changed_files),
-            "existing_functions": existing_functions(self.workspace, state.changed_files),
+            "candidate_files": context_files,
+            "existing_functions": existing_functions(self.workspace, relevant_files),
+            "roadmap": _read_bounded(self.workspace / "docs" / "ROADMAP.md"),
         }
 
-        try:
-            raw = _request_next_rush(self.model, facts, self.timeout, self.opener)
-            proposal = _validate_proposal(
-                raw,
-                facts["current_micro_rush_id"],
-                self.workspace,
-                current_description=facts["current_description"],
-            )
-        except NextRushSpecError as error:
-            return False, f"propose_next_rush failed: {error}"
+        # plusieurs générations bornées absorbent les sorties faibles ou momentanément invalides
+        errors = []
+        proposal = None
+        for attempt in range(1, self.attempts + 1):
+            try:
+                raw = _request_next_rush(self.model, facts, self.timeout, self.opener)
+                proposal = _validate_proposal(
+                    raw,
+                    facts["current_micro_rush_id"],
+                    self.workspace,
+                    current_description=facts["current_description"],
+                )
+                break
+            except NextRushSpecError as error:
+                errors.append(f"attempt {attempt}: {error}")
+
+        if proposal is None:
+            detail = "; ".join(errors)
+
+            return False, f"propose_next_rush failed: {detail}"
 
         updated = dict(self.project)
         updated["micro_rush_id"] = proposal["micro_rush_id"]
@@ -76,9 +95,35 @@ class NextRushAuthor:
             updated.pop("target_function", None)
         updated.pop("validation_command", None)
 
-        (self.workspace / ".pithos.json").write_text(json.dumps(updated, indent=2) + "\n", encoding="utf-8")
+        configuration_path = self.workspace / ".pithos.json"
+        temporary = configuration_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(updated, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(configuration_path)
 
         return True, f"proposed next micro-rush {proposal['micro_rush_id']!r}: {proposal['title']}"
+
+
+def candidate_files(workspace):
+    """Return a bounded list of Python product sources available to the next-rush author."""
+
+    workspace = Path(workspace)
+    paths = [path.relative_to(workspace).as_posix() for path in workspace.glob("*.py")]
+    source_root = workspace / "src"
+    if source_root.is_dir():
+        for path in source_root.rglob("*.py"):
+            relative = path.relative_to(workspace).as_posix()
+            paths.append(relative)
+
+    return sorted(paths)[:MAX_CONTEXT_FILES]
+
+
+def _read_bounded(path, limit=4000):
+    """Read a small project-status document when present."""
+
+    if not path.is_file():
+        return ""
+
+    return path.read_text(encoding="utf-8", errors="replace")[:limit]
 
 
 def existing_functions(workspace, relative_paths):
@@ -105,8 +150,9 @@ def _request_next_rush(model, facts, timeout, opener):
         "fichiers relatifs à modifier ou créer. Pour un fichier existant, `target_function` doit être le nom "
         "exact d'une fonction de `existing_functions`. Pour un fichier entièrement nouveau, utilise `null`. "
         "Réponds uniquement avec l'objet JSON demandé.\n\n"
-        "`existing_functions` liste les fonctions déjà définies dans les fichiers qui viennent d'être "
-        "modifiés : préfère un rush qui change le comportement d'une de ces fonctions existantes, plutôt "
+        "`candidate_files` et `existing_functions` décrivent le code produit réellement disponible, et "
+        "`roadmap` son état déclaré. Ne répète pas un item marqué DONE. Préfère un rush qui change le "
+        "comportement d'une fonction existante, plutôt "
         "qu'un rush qui n'a de sens qu'en ajoutant une fonction encore inexistante -- le contrat de test "
         "généré ensuite par le harnais ne peut viser qu'une fonction déjà présente dans le fichier cible. "
         "`target_files` doit lister uniquement des fichiers `.py` : le harnais ne sait générer un contrat "
