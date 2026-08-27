@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "11-campaign-bootstrap",
-  "generated_at": "2026-08-27T07:11:30.953431+00:00",
+  "generated_at": "2026-08-27T08:04:29.470876+00:00",
   "files": [
     {
       "path": "src/create_experiment.py",
@@ -42,7 +42,7 @@
     },
     {
       "path": "src/run_experiment.py",
-      "sha256": "ec1d3a236fa8a127d0ff9127bd4479ff9b5351334a81a45ffabbc0c7219df537"
+      "sha256": "93c730d7765367f0439539e580ff5a4585eebd7c3f477385c3cb035c1b1c5d56"
     },
     {
       "path": "tests/test_create_experiment.py",
@@ -54,7 +54,7 @@
     },
     {
       "path": "tests/test_run_experiment.py",
-      "sha256": "8e02476d19722de18323878a45636d9e6d3890b0408451bf0014a58c55ae0644"
+      "sha256": "053a298634f78da985cc90527a74520b78438dff9067bf904da904fb13eb5c8f"
     }
   ]
 }
