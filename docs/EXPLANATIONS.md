@@ -80,6 +80,17 @@ Ollama sur `127.0.0.1`; les workspaces projetés, oracles externes, limites de t
 inchangés. Ce basculement retire Docker du chemin nominal de cette expérience sans supprimer ni affaiblir le
 runtime Docker du harness.
 
+Un oracle généré ne constitue pas seul une autorité suffisante : Ling a produit un cas exigeant
+`compute_magnitudes([]) == [0.0]`, en contradiction avec le contrat déjà validé. La configuration autonome
+peut donc déclarer une `regression_command`, conservée lors de chaque handoff. Le validator exécute d'abord
+l'oracle actif; seulement s'il passe, il exécute la suite produit. Les deux doivent être vertes.
+
+La mission est également transactionnelle sur ses `target_files`. Le launcher capture leur contenu avant la
+machine à états et les restaure atomiquement si le statut terminal n'est pas `completed` ou si l'orchestration
+lève une exception. Un fichier cible nouveau est supprimé lors du rollback; aucun fichier hors allowlist
+n'est touché. Ainsi, une réparation guidée par un faux oracle peut échouer et rester observable sans laisser
+le workspace produit régressé.
+
 Le handoff ne dépend pas du dernier diff, qui peut être vide après un preflight déjà vert. Il transmet au
 modèle les sources Python produit disponibles, leurs fonctions, les cibles courantes et la roadmap bornée.
 Les champs d'infrastructure restent recopiés sans modification et seule une proposition validée peut changer

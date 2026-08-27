@@ -36,5 +36,7 @@
 - [DONE] Reprise CPU-safe — campagne active sur le runtime host existant, sans VM Docker, avec réveil nominal
   rétabli à 10 800 secondes.
 - [DONE] Réinstallation idempotente — un LaunchAgent désactivé est réactivé avant son `bootstrap`.
+- [DONE] Validation transactionnelle — un oracle auto-généré vert doit aussi préserver la suite produit, et
+  toute mission non terminée restaure atomiquement ses seuls fichiers cibles.
 - [TODO] Campagne — observer une session audio interactive réelle lorsque l'autorisation navigateur et un
   périphérique sont disponibles ; aucune décision ni modification de code utilisateur n'est requise.

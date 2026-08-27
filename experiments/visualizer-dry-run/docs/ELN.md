@@ -48,3 +48,10 @@
   été arrêtés avant reprise.
 - La campagne utilise maintenant Pi directement sur l'hôte avec Ollama local. Le contrôle de contexte, les
   limites par phase, l'oracle externe et la finalisation Git restent ceux du même harness.
+
+## 27:11 — Non-régression et rollback autonomes
+
+- Un oracle généré a proposé à tort que l'entrée vide de `compute_magnitudes` retourne `[0.0]`.
+- La suite `tests/validate_product.py` devient une seconde gate obligatoire après chaque oracle vert.
+- Toute mission non terminée restaure ses fichiers cibles à leur contenu initial; le faux contrat et ses
+  tentatives restent dans les artefacts sans altérer le produit.

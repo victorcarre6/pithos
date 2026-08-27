@@ -37,6 +37,24 @@ def test_lifecycle_notifications_are_static_and_best_effort(tmp_path, monkeypatc
     assert "13 s" in requests[1]["text"]
 
 
+def test_failed_mission_restores_only_approved_targets(tmp_path):
+    existing = tmp_path / "src" / "audio.py"
+    existing.parent.mkdir(parents=True)
+    existing.write_text("original\n", encoding="utf-8")
+    snapshot = run_module._snapshot_targets(tmp_path, ["src/audio.py", "src/new.py"])
+    existing.write_text("broken\n", encoding="utf-8")
+    new_file = tmp_path / "src" / "new.py"
+    new_file.write_text("new\n", encoding="utf-8")
+    unrelated = tmp_path / "notes.md"
+    unrelated.write_text("keep\n", encoding="utf-8")
+
+    run_module._restore_targets(tmp_path, snapshot)
+
+    assert existing.read_text(encoding="utf-8") == "original\n"
+    assert not new_file.exists()
+    assert unrelated.read_text(encoding="utf-8") == "keep\n"
+
+
 def test_failed_lifecycle_notification_is_warning_and_never_raises(tmp_path, monkeypatch):
     state = MissionState(
         "run-20260824T142100Z-a1b2c3",
@@ -223,6 +241,40 @@ def test_launch_writes_observable_mission_lifecycle(tmp_path, monkeypatch):
     assert [event["type"] for event in events] == ["run.started", "run.finished"]
     assert events[0]["payload"]["model"] == "pithos/ling"
     assert events[1]["payload"]["status"] == "completed"
+
+
+def test_launch_restores_target_after_a_failed_mission(tmp_path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    target = workspace / "src" / "feature.py"
+    target.parent.mkdir(parents=True)
+    target.write_text("VALUE = 1\n", encoding="utf-8")
+    config = tmp_path / "pi-config"
+    config.mkdir()
+    project = {
+        "experiment_id": "observable",
+        "title": "Mission transactionnelle",
+        "description": "Refuser une régression après un faux oracle.",
+        "runtime": "host",
+        "model": "pithos/ling",
+        "pi_config": str(config),
+        "validation_command": ["python", "acceptance.py"],
+        "target_files": ["src/feature.py"],
+    }
+    (workspace / ".pithos.json").write_text(json.dumps(project))
+
+    def fail(orchestrator, state, context_factory, max_steps=20):
+        target.write_text("VALUE = 0\n", encoding="utf-8")
+        state.status = "failed"
+        state.phase = "failed"
+
+        return state
+
+    monkeypatch.setattr(run_module.Orchestrator, "run", fail)
+
+    result = run_module.launch(workspace, tmp_path / "logs")
+
+    assert result.status == "failed"
+    assert target.read_text(encoding="utf-8") == "VALUE = 1\n"
 
 
 def test_launch_rejects_invalid_experiment_id_before_any_session_runs(tmp_path):

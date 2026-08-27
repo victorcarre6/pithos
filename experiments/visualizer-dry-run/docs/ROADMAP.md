@@ -11,3 +11,5 @@
 - [DONE] Canvas plein écran et trois thèmes cyberpunk (`neon`, `acid`, `ember`).
 - [DONE] Lanceur macOS par double-clic, serveur borné à `127.0.0.1` et smoke HTTP réel.
 - [DONE] Handoff de campagne autonome : le runner choisit et lance le prochain micro-rush sans édition humaine.
+- [DONE] Non-régression autonome : oracle généré + `tests/validate_product.py`, avec rollback des cibles en cas
+  d'échec terminal.

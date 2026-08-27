@@ -78,19 +78,30 @@ class ContextFactory:
 
 
 class CommandValidator:
-    """Run the project-owned validation command outside the model session."""
+    """Run the active oracle, then the project regression command when configured."""
 
-    def __init__(self, workspace, command, timeout=120):
+    def __init__(self, workspace, command, timeout=120, regression_command=None):
         self.workspace = Path(workspace)
-        self.command = list(command)
-        if self.command[0] == "python":
-            self.command[0] = sys.executable
         self.timeout = timeout
+        self.command = self._normalized(command)
+        self.regression_command = self._normalized(regression_command) if regression_command else None
 
     def __call__(self, changed_files):
+        primary = self._run(self.command)
+        if not primary.passed or self.regression_command is None:
+            return primary
+
+        regression = self._run(self.regression_command)
+        command = f"{primary.command} && {regression.command}"
+        stdout = primary.stdout + regression.stdout
+        stderr = primary.stderr + regression.stderr
+
+        return ValidationResult(regression.passed, command, stdout, stderr)
+
+    def _run(self, command):
         try:
             result = subprocess.run(
-                self.command,
+                command,
                 cwd=self.workspace,
                 capture_output=True,
                 text=True,
@@ -101,14 +112,22 @@ class CommandValidator:
             stdout = error.stdout or ""
             stderr = error.stderr or "validation timed out"
 
-            return ValidationResult(False, " ".join(self.command), stdout, stderr)
+            return ValidationResult(False, " ".join(command), stdout, stderr)
 
         return ValidationResult(
             result.returncode == 0,
-            " ".join(self.command),
+            " ".join(command),
             result.stdout,
             result.stderr,
         )
+
+    @staticmethod
+    def _normalized(command):
+        normalized = list(command)
+        if normalized[0] == "python":
+            normalized[0] = sys.executable
+
+        return normalized
 
 
 class LocalFinalizer:

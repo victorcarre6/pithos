@@ -12,5 +12,9 @@
   ],
   "pi_config": "/Users/victorcarre/code/pithos/harness/config/pi",
   "ground_truth": "/Users/victorcarre/code/pithos/harness/ground_truth",
-  "target_function": "compute_magnitudes"
+  "target_function": "compute_magnitudes",
+  "regression_command": [
+    "python",
+    "tests/validate_product.py"
+  ]
 }

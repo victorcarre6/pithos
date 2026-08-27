@@ -30,6 +30,7 @@ def _project(**overrides):
         "validation_command": ["python", "acceptance.py"],
         "pi_config": "/config",
         "ground_truth": "/ground_truth",
+        "regression_command": ["python", "tests/validate_product.py"],
     }
     project.update(overrides)
 
@@ -64,6 +65,7 @@ def test_valid_proposal_overwrites_pithos_json_and_preserves_infra_fields(tmp_pa
     assert written["ground_truth"] == project["ground_truth"]
     assert written["runtime"] == project["runtime"]
     assert written["model"] == project["model"]
+    assert written["regression_command"] == project["regression_command"]
 
 
 def test_skips_without_touching_the_workspace_when_no_seed_is_configured(tmp_path):

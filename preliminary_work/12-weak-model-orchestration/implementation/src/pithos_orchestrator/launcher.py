@@ -70,7 +70,11 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     )
     phase_runner = PiPhaseRunner(configuration, mission_root, events)
     # placeholder command, replaced by OracleAuthor before the preflight gate ever runs it
-    validator = CommandValidator(workspace, validation_command or ["python", "-c", "raise SystemExit(1)"])
+    validator = CommandValidator(
+        workspace,
+        validation_command or ["python", "-c", "raise SystemExit(1)"],
+        regression_command=project.get("regression_command"),
+    )
     oracle_author = None
     if auto_oracle:
         oracle_author = OracleAuthor(
@@ -119,15 +123,22 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     )
     _notify(telegram_socket, project, state, "started")
 
+    target_snapshot = _snapshot_targets(workspace, project.get("target_files") or [])
     try:
         context_factory = ContextFactory(workspace, target_paths=project.get("target_files"), project=project)
         result = orchestrator.run(state, context_factory, max_steps=_MAX_ORCHESTRATOR_STEPS)
     except KeyboardInterrupt:
+        _restore_targets(workspace, target_snapshot)
         orchestrator.interrupt(state, "operator interrupt")
         finish_payload = _finish_payload(state, mission_root, started_monotonic)
         events.append("run.finished", finish_payload)
         _notify(telegram_socket, project, state, "finished", finish_payload)
         raise
+    except BaseException:
+        _restore_targets(workspace, target_snapshot)
+        raise
+    if result.status != "completed":
+        _restore_targets(workspace, target_snapshot)
     finish_payload = _finish_payload(result, mission_root, started_monotonic)
     events.append("run.finished", finish_payload)
     _notify(telegram_socket, project, result, "finished", finish_payload)
@@ -142,6 +153,31 @@ def launch(workspace, logs_root, git_socket=None, telegram_socket=None):
     )
 
     return result
+
+
+def _snapshot_targets(workspace, relative_paths):
+    """Capture the approved target files so a failed mission can be rolled back."""
+
+    snapshot = {}
+    for relative in relative_paths:
+        path = Path(workspace) / relative
+        snapshot[relative] = path.read_bytes() if path.is_file() else None
+
+    return snapshot
+
+
+def _restore_targets(workspace, snapshot):
+    """Restore only configured targets changed by an unsuccessful mission."""
+
+    for relative, content in snapshot.items():
+        path = Path(workspace) / relative
+        if content is None:
+            path.unlink(missing_ok=True)
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(path.suffix + ".tmp")
+        temporary.write_bytes(content)
+        temporary.replace(path)
 
 
 def _finish_payload(state, mission_root, started_monotonic):
