@@ -29,3 +29,12 @@ Chaque rush auto-généré conserve aussi `regression_command: ["python", "tests
 oracle nouveau ne peut donc valider un comportement qui casse le noyau Python, le lanceur localhost ou le
 pipeline JavaScript déjà livré. Si aucune réparation ne satisfait les deux contrats, le launcher restaure les
 fichiers cibles capturés avant mission.
+
+Une roadmap entièrement terminée court-circuite maintenant la génération d'un rush supplémentaire. Le harness
+valide d'abord la suite produit, émet un run terminal observable, propose l'arrêt via Telegram puis écrit un
+marqueur contenant le hash de la roadmap. Tant que ce hash est stable, les réveils suivants sont des no-op;
+un nouveau travail explicitement ajouté à la roadmap invalide naturellement ce marqueur.
+
+La capacité de campagne n'est plus déduite d'une simple découverte de fichier. Deux sessions Pi indépendantes
+ont respectivement créé puis utilisé le skill `pithos-campaign-proof`, avec promotion et snapshots entre les
+deux. Le marqueur exact `PITHOS_CAMPAIGN_SKILL_REUSED` fournit l'observation cognitive demandée par le projet.

@@ -30,6 +30,7 @@ def main() -> int:
     parser.add_argument("--logs-root", type=Path, default=Path.home() / "logs" / "pithos")
     parser.add_argument("--database", type=Path)
     parser.add_argument("--interval-seconds", type=float, default=5)
+    parser.add_argument("--quiet", action="store_true")
     parser.add_argument("mode", choices=("once", "watch"))
     arguments = parser.parse_args()
     logs_root = arguments.logs_root.expanduser().resolve()
@@ -39,9 +40,19 @@ def main() -> int:
     try:
         while True:
             results = _collect(store, logs_root)
-            print(json.dumps(results), flush=True)
             if arguments.mode == "once":
+                if not arguments.quiet:
+                    print(json.dumps(results), flush=True)
                 break
+            ingested = sum(result["ingested"] for result in results)
+            quarantined = sum(result["quarantined"] for result in results)
+            if not arguments.quiet and (ingested or quarantined):
+                summary = {
+                    "sources": len(results),
+                    "ingested": ingested,
+                    "quarantined": quarantined,
+                }
+                print(json.dumps(summary), flush=True)
             time.sleep(arguments.interval_seconds)
     except (OSError, IngestionError) as error:
         print(f"Collector error: {error}")

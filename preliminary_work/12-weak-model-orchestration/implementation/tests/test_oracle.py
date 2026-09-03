@@ -164,16 +164,39 @@ def test_author_oracle_retries_when_generated_case_already_passes(tmp_path):
     assert "confirmed red" in reason
 
 
-def test_author_oracle_rejects_a_case_that_crashes_instead_of_asserting(tmp_path):
+def test_author_oracle_rejects_wrong_arity_before_execution(tmp_path):
     sources = _write_module(tmp_path, "def divide(a, b):\n    return a / b\n")
     payload = {"target_file": "src/module.py", "target_function": "divide", "cases": [{"args": [1], "expect": 1}]}
     opener = _opener_yielding([payload, payload])
 
-    with pytest.raises(OracleSpecError, match="crashed instead of failing its own assertion"):
+    with pytest.raises(OracleSpecError, match="expects 2 positional argument"):
         author_oracle(
             "fake-model",
             "Divide",
             "Fix divide",
+            sources,
+            [],
+            tmp_path / "oracle.py",
+            tmp_path,
+            attempts=1,
+            opener=opener,
+        )
+
+
+def test_author_oracle_rejects_flattened_args_for_one_list_parameter(tmp_path):
+    sources = _write_module(tmp_path, "def compute_magnitudes(samples):\n    return samples\n")
+    payload = {
+        "target_file": "src/module.py",
+        "target_function": "compute_magnitudes",
+        "cases": [{"args": [1.0, 2.0, 3.0], "expect": [3.0, 2.0, 1.0]}],
+    }
+    opener = _opener_yielding([payload, payload])
+
+    with pytest.raises(OracleSpecError, match="expects 1 positional argument"):
+        author_oracle(
+            "fake-model",
+            "Compute magnitudes",
+            "Change compute_magnitudes(samples).",
             sources,
             [],
             tmp_path / "oracle.py",

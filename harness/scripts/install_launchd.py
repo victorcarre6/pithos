@@ -21,12 +21,14 @@ def definitions(harness_root, workspace, logs_root, interval_seconds, home):
     harness_root = Path(harness_root).resolve()
     workspace = Path(workspace).resolve()
     logs_root = Path(logs_root).expanduser().resolve()
+    home = Path(home).resolve()
     project = plist_project(workspace)
     experiment_id = project["experiment_id"]
     python = harness_root / ".venv" / "bin" / "python"
+    executable_path = f"{home / '.npm-global' / 'bin'}:{LAUNCH_PATH}"
     environment = {
-        "HOME": str(Path(home).resolve()),
-        "PATH": LAUNCH_PATH,
+        "HOME": str(home),
+        "PATH": executable_path,
         "PYTHONUNBUFFERED": "1",
     }
 
@@ -42,6 +44,7 @@ def definitions(harness_root, workspace, logs_root, interval_seconds, home):
             str(logs_root),
             "--interval-seconds",
             "5",
+            "--quiet",
             "watch",
         ],
         "WorkingDirectory": str(harness_root),

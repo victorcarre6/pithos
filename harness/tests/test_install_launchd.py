@@ -40,6 +40,8 @@ def test_definitions_use_canonical_launcher_without_secrets(tmp_path):
     assert collector["KeepAlive"] is True
     assert collector["RunAtLoad"] is True
     assert "pithos_event_store.cli" in collector["ProgramArguments"]
+    assert "--quiet" in collector["ProgramArguments"]
+    assert runner["EnvironmentVariables"]["PATH"].startswith(str(tmp_path / ".npm-global" / "bin"))
     assert "TOKEN" not in json.dumps(items)
 
 

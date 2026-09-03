@@ -19,6 +19,16 @@ avant de toucher au code, quand l'oracle est auto-généré. Voir [Décompositio
 plus bas — l'idée, l'implémentation et pourquoi une seule PR/un seul récap Telegram couvrent toujours toute
 la mission, même scindée en plusieurs étapes internes.
 
+## Campagne terminée
+
+Quand `docs/ROADMAP.md` contient au moins un item et que tous sont `[DONE]` ou `[x]`, le harnais ne demande
+plus au modèle d'inventer un rush. Il exécute la `regression_command`, enregistre un run terminal et envoie
+une proposition d'arrêt Telegram. Le marqueur `~/logs/pithos/runtime/<experiment-id>-stop-proposal.json`
+contient le hash de la roadmap : une relance est un no-op tant que ce hash ne change pas.
+
+Ajouter un item `[TODO]` invalide naturellement ce marqueur au prochain réveil. Ne pas supprimer le fichier
+manuellement pour forcer du travail lorsque la roadmap reste terminée.
+
 ## 1. Définir le prochain micro-rush
 
 Choisir un objectif **borné** pour `experiments/visualizer-dry-run/` : idéalement un seul fichier cible, une
@@ -151,6 +161,9 @@ avec les garde-fous suivants :
    traversent la frontière modèle → exécution.
 5. Si `regression_command` est configuré, un oracle vert ne suffit pas : la suite produit historique doit
    passer ensuite. Toute mission qui ne termine pas restaure ses `target_files` au snapshot de départ.
+6. La signature Python de la fonction cible est lue via l'AST. Le nombre d'arguments positionnels est rejeté
+   avant exécution s'il est impossible; pour une fonction recevant une seule liste, `args` doit donc contenir
+   cette liste comme valeur unique, par exemple `[[0.0, 1.0]]`.
 
 ### Limites connues
 

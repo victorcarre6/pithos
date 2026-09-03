@@ -26,6 +26,7 @@ MAX_CONTEXT_FILES = 12
 _IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 _RELATIVE_PATH = re.compile(r"^[A-Za-z0-9_.\-/]{1,120}$")
 _DEF = re.compile(r"(?m)^\s*def\s+([A-Za-z_][A-Za-z0-9_]{0,63})\s*\(")
+_ROADMAP_ITEM = re.compile(r"(?m)^\s*-\s+\[(DONE|TODO|x|X| )\]\s+")
 
 
 class NextRushSpecError(ValueError):
@@ -49,9 +50,21 @@ class NextRushAuthor:
             return False, "propose_next_rush skipped: no seed configured"
 
         # contexte produit borné, y compris lorsque le dernier diff est vide
+        roadmap_path = self.workspace / "docs" / "ROADMAP.md"
+        roadmap_content = ""
+        if roadmap_path.is_file():
+            roadmap_content = roadmap_path.read_text(encoding="utf-8", errors="replace")
+        if roadmap_complete(self.workspace, content=roadmap_content):
+            reason = "all declared roadmap items are done"
+            state.artifacts["stop_proposal"] = reason
+
+            return True, f"project completion proposed: {reason}"
+
+        roadmap = roadmap_content[:4000]
         context_files = candidate_files(self.workspace)
         target_files = list(self.project.get("target_files") or [])
         relevant_files = list(dict.fromkeys([*state.changed_files, *target_files, *context_files]))
+        forbidden_functions = list(state.artifacts.get("avoid_target_functions") or [])
         facts = {
             "seed": seed,
             "current_micro_rush_id": self.project.get("micro_rush_id", ""),
@@ -60,7 +73,8 @@ class NextRushAuthor:
             "changed_files": list(state.changed_files),
             "candidate_files": context_files,
             "existing_functions": existing_functions(self.workspace, relevant_files),
-            "roadmap": _read_bounded(self.workspace / "docs" / "ROADMAP.md"),
+            "forbidden_target_functions": forbidden_functions,
+            "roadmap": roadmap,
         }
 
         # plusieurs générations bornées absorbent les sorties faibles ou momentanément invalides
@@ -74,6 +88,7 @@ class NextRushAuthor:
                     facts["current_micro_rush_id"],
                     self.workspace,
                     current_description=facts["current_description"],
+                    forbidden_target_functions=forbidden_functions,
                 )
                 break
             except NextRushSpecError as error:
@@ -126,6 +141,19 @@ def _read_bounded(path, limit=4000):
     return path.read_text(encoding="utf-8", errors="replace")[:limit]
 
 
+def roadmap_complete(workspace, content=None):
+    """Return whether one declared roadmap has items and every item is done."""
+
+    if content is None:
+        path = Path(workspace) / "docs" / "ROADMAP.md"
+        content = ""
+        if path.is_file():
+            content = path.read_text(encoding="utf-8", errors="replace")
+    statuses = _ROADMAP_ITEM.findall(content)
+
+    return bool(statuses) and all(status.casefold() in {"done", "x"} for status in statuses)
+
+
 def existing_functions(workspace, relative_paths):
     """List `def <name>(` matches found in the given workspace-relative files, sorted and de-duplicated.
 
@@ -156,7 +184,8 @@ def _request_next_rush(model, facts, timeout, opener):
         "qu'un rush qui n'a de sens qu'en ajoutant une fonction encore inexistante -- le contrat de test "
         "généré ensuite par le harnais ne peut viser qu'une fonction déjà présente dans le fichier cible. "
         "`target_files` doit lister uniquement des fichiers `.py` : le harnais ne sait générer un contrat "
-        "que sur du code Python, jamais sur de la documentation ou de la configuration.\n\n"
+        "que sur du code Python, jamais sur de la documentation ou de la configuration. Une fonction dans "
+        "`forbidden_target_functions` vient d'échouer de façon répétée et ne peut pas être proposée à nouveau.\n\n"
         f"Faits : {json.dumps(facts, ensure_ascii=False, sort_keys=True)}"
     )
     payload = {
@@ -206,7 +235,13 @@ def _spec_schema():
     }
 
 
-def _validate_proposal(raw, current_micro_rush_id, workspace, current_description=""):
+def _validate_proposal(
+    raw,
+    current_micro_rush_id,
+    workspace,
+    current_description="",
+    forbidden_target_functions=None,
+):
     if not isinstance(raw, dict):
         raise NextRushSpecError("next-rush proposal must be a JSON object")
 
@@ -237,6 +272,8 @@ def _validate_proposal(raw, current_micro_rush_id, workspace, current_descriptio
         raise NextRushSpecError("next-rush target_function is not defined in the target files")
     if not functions and target_function is not None:
         raise NextRushSpecError("next-rush target_function must be null for new target files")
+    if target_function in set(forbidden_target_functions or []):
+        raise NextRushSpecError("next-rush target_function just failed repeatedly")
 
     return {
         "micro_rush_id": micro_rush_id,

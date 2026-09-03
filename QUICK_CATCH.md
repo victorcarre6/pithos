@@ -1,6 +1,6 @@
 # Pithos — Quick catch
 
-_État vérifié le 27/08/2026._
+_État vérifié le 03/09/2026._
 
 ## Micro quick catch général
 
@@ -12,12 +12,10 @@ complète des runs.
 est consolidé dans `harness/`; `preliminary_work/` conserve les intentions, preuves et snapshots, pas une
 seconde source à modifier. Les snapshots sont synchronisés avec le harness.
 
-**Validation du socle.** La suite complète, le frontend React/Vite et les configurations Compose constituent
-la gate de publication. Les tests couvrent les contrats, probes déterministes, continuité,
-du runtime et du dashboard sont valides. Les tests couvrent les contrats, probes déterministes, continuité,
-runner, brokers Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré,
-rushes auto-proposés, handoff autonome persistant, auto-merge, décomposition en micro-passes (`plan_todo`) et
-intégrations.
+**Validation du socle.** La gate finale passe : **233 tests**, frontend React/Vite, extensions TypeScript,
+configurations Compose et snapshots préliminaires. Elle couvre contrats, probes, continuité, runner, brokers
+Git/Telegram/harness, event store, dashboard, live log, bootstrap, oracle auto-généré, terminaison,
+handoff autonome, auto-merge, décomposition en micro-passes (`plan_todo`) et intégrations.
 
 **Baseline retenue.** Après mise à jour du serveur Ollama de `0.32.13` vers `0.32.15`,
 `maternion/ling-3.0-tiny:8b` charge correctement : smoke **6/6** à 52,57 tok/s, protocol **6/6** à
@@ -25,20 +23,15 @@ intégrations.
 n'a produit aucun token en plus de 15 minutes. La faiblesse observée porte sur l'achèvement multi-tool :
 les deux échecs d'endurance exécutent les tests mais omettent le rapport final.
 
-**Prochain chemin critique.** Les PR `#1` à `#6`, `#8` (level-clamping), `#9` (frame-pipeline) et `#10`
-(compute-magnitudes) sont fusionnées dans `main`. Le harnais peut générer l'oracle du prochain rush lui-même (`.pithos.json` sans
-`validation_command`) et, si `.pithos.json` porte un champ `seed`, proposer lui-même le prochain micro-rush et
-fusionner sa propre PR automatiquement à la fin de chaque mission réussie — voir [`RUN_GUIDE.md`](RUN_GUIDE.md).
-Cette auto-proposition peut cependant redemander un travail déjà fait : `frame-pipeline-v2`, auto-proposé après
-`#9`, redécrivait `process_frame` déjà mergé et a échoué en boucle stérile sur ~1h20 (5 missions) avant que le
-LaunchAgent soit arrêté à la main. `run_experiment.py` plafonne désormais les tentatives consécutives d'un
-même `micro_rush_id` en échec (`MAX_CONSECUTIVE_FAILURES = 3`, fichier d'état
-`~/logs/pithos/runtime/*-failures.json`). Avec un `seed`, ce seuil déclenche désormais la sélection autonome
-d'un autre rush ; sans `seed`, le mode supervisé conserve l'arrêt. La DFT pure `compute_magnitudes` et le
-prototype web sont fusionnés : capture locale, FFT temps réel, plein écran et trois thèmes. Si la proposition
-faite en fin de mission échoue, le réveil suivant effectue uniquement le handoff, recharge la nouvelle
-configuration puis lance le rush choisi par Pithos. Codex et l'utilisateur ne pilotent plus les incréments.
-Aucun secret n'est tracké.
+**État terminal initial.** Les PR `#1` à `#6`, `#8`, `#9` et `#10` sont fusionnées dans `main`; le produit
+local couvre capture, FFT temps réel, plein écran et trois thèmes. Tous les critères du `PROJECT.md` racine
+sont satisfaits. Le run `run-20260903T152634Z-6ec0c3` a créé, promu puis réutilisé cognitivement un skill
+dans deux sessions Pi neuves. La roadmap entièrement `[DONE]` a ensuite produit la proposition d'arrêt
+Telegram `run-20260903T152705Z-c7f1da`; son marqueur est idempotent et lié au hash de la roadmap. Le seul
+contrôle restant est l'usage audio interactif avec autorisation microphone et périphérique réel : il ne
+demande aucun changement de code et ne bloque pas l'état initial défini par le projet. Aucun secret n'est
+tracké. Après mise à jour documentaire, `run-20260903T154816Z-8db897` a revalidé le produit et actualisé le
+hash final; Telegram a correctement classé la requête comme duplicate.
 
 **Runtime de campagne.** Après blocage de Docker Desktop et mesure de sa VM à environ **204 % CPU**, le
 visualiseur utilise le runtime `host` déjà supporté : Pi local, Ollama sur loopback, mêmes projections et
@@ -153,12 +146,13 @@ aucun effet sur le statut du run. Un smoke Ling local puis un envoi Telegram ré
 - **Preuve réelle :** la mission `run-20260824T150624Z-fbeb4f` pousse puis réutilise la PR `#1`, fusionnée
   dans `main` le 24/08/2026.
 
-### 06 — Évolution du harness — **PARTIAL**
+### 06 — Évolution du harness — **DONE**
 
 - **Implémenté :** snapshots `before/after`, manifests SHA-256, promotion contrôlée, validation TypeScript,
   diff/restauration et brokers de mutation.
-- **Acquis réel :** Pi RPC charge les trois extensions Pithos et découvre le skill de continuité sans inference.
-- **À faire :** observer la création puis la **réutilisation cognitive** d'une capacité par Pi en campagne.
+- **Acquis réel :** Pi RPC charge les trois extensions Pithos et découvre le skill de continuité sans
+  inference. Le run `run-20260903T152634Z-6ec0c3` crée ensuite `pithos-campaign-proof`, le promeut avec
+  manifest/journal, puis une seconde session Pi renvoie exactement `PITHOS_CAMPAIGN_SKILL_REUSED`.
 
 ### 07 — Event store SQLite — **DONE**
 

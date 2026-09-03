@@ -2,6 +2,7 @@
 """Launch one experiment run with the available host-side brokers."""
 
 import argparse
+import hashlib
 import json
 import os
 import socket
@@ -13,9 +14,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from pithos_orchestrator.launcher import launch as launch_orchestrated
-from pithos_orchestrator.next_rush import NextRushAuthor
+from pithos_orchestrator.next_rush import NextRushAuthor, roadmap_complete
 from pithos_orchestrator.state import MissionState
+from pithos_runner.events import EventWriter
 from pithos_runner.lock import LockHeld, RunLock
+from pithos_runner.runner import new_run_id
+from pithos_telegram import TelegramBroker
+from pithos_telegram.api import TelegramAPI
 
 
 # au-delà, un micro-rush bloqué (proposition redondante, oracle inatteignable, etc.) retentait
@@ -40,6 +45,43 @@ def launch(workspace: Path, logs_root: Path):
     sockets = {}
     with ExitStack() as stack:
         stack.enter_context(RunLock(runtime_root / f"{project['experiment_id']}.lock"))
+
+        # récupération des checkpoints qu'une ancienne sortie brutale a laissés actifs
+        recovered = _reconcile_stale_runs(logs_root, project["experiment_id"])
+
+        # une roadmap achevée produit une proposition d'arrêt unique, jamais un rush inventé
+        stop_path = runtime_root / f"{project['experiment_id']}-stop-proposal.json"
+        roadmap_path = workspace / "docs" / "ROADMAP.md"
+        roadmap_content = roadmap_path.read_text(encoding="utf-8") if roadmap_path.is_file() else ""
+        roadmap_sha256 = hashlib.sha256(roadmap_content.encode()).hexdigest()
+        if stop_path.is_file():
+            stop = json.loads(stop_path.read_text(encoding="utf-8"))
+            if stop.get("roadmap_sha256") == roadmap_sha256:
+                return {
+                    "status": "skipped",
+                    "reason": "project stop already proposed",
+                    "micro_rush_id": project.get("micro_rush_id"),
+                    "run_id": stop.get("run_id"),
+                    "recovered_missions": recovered,
+                }
+
+        seed = project.get("seed")
+        autonomous = isinstance(seed, str) and bool(seed.strip())
+        if autonomous and roadmap_complete(workspace, content=roadmap_content):
+            advanced = _advance_autonomous_rush(workspace, project, "project roadmap completed")
+            if advanced["status"] == "stop_proposed":
+                result = _publish_stop_proposal(
+                    workspace,
+                    logs_root,
+                    project,
+                    stop_path,
+                    roadmap_sha256,
+                    telegram_environment,
+                    advanced["reason"],
+                )
+                result["recovered_missions"] = recovered
+
+                return result
 
         # un micro-rush réussi ne se répète pas ; une campagne autonome choisit puis lance le suivant
         completion_path = runtime_root / f"{project['experiment_id']}-completed.json"
@@ -149,13 +191,31 @@ def launch(workspace: Path, logs_root: Path):
                 temporary.write_text(json.dumps(completion, indent=2) + "\n", encoding="utf-8")
                 temporary.replace(completion_path)
                 failure_path.unlink(missing_ok=True)
+                stop_reason = getattr(state, "artifacts", {}).get("stop_proposal")
+                if stop_reason:
+                    completed_roadmap = roadmap_path.read_text(encoding="utf-8")
+                    completed_sha256 = hashlib.sha256(completed_roadmap.encode()).hexdigest()
+                    stop_result = _publish_stop_proposal(
+                        workspace,
+                        logs_root,
+                        project,
+                        stop_path,
+                        completed_sha256,
+                        telegram_environment,
+                        stop_reason,
+                    )
+                    result["stop_proposal"] = stop_result
             else:
                 previous_count = 0
                 if failure_path.is_file():
                     previous = json.loads(failure_path.read_text(encoding="utf-8"))
                     if previous.get("micro_rush_id") == project.get("micro_rush_id"):
                         previous_count = previous.get("count", 0)
-                failures = {"micro_rush_id": project.get("micro_rush_id"), "count": previous_count + 1}
+                failures = {
+                    "micro_rush_id": project.get("micro_rush_id"),
+                    "mission_id": state.mission_id,
+                    "count": previous_count + 1,
+                }
                 temporary = failure_path.with_suffix(".tmp")
                 temporary.write_text(json.dumps(failures, indent=2) + "\n", encoding="utf-8")
                 temporary.replace(failure_path)
@@ -185,12 +245,21 @@ def _advance_autonomous_rush(workspace, project, trigger):
         micro_rush_id=project.get("micro_rush_id", ""),
         changed_files=list(project.get("target_files") or []),
     )
+    if trigger == "previous micro-rush repeatedly failed" and project.get("target_function"):
+        state.artifacts["avoid_target_functions"] = [project["target_function"]]
     author = NextRushAuthor(project.get("model", "maternion/ling-3.0-tiny:8b"), project, workspace)
     success, reason = author(state)
     if not success:
         return {
             "status": "planning_failed",
             "reason": reason,
+            "trigger": trigger,
+            "micro_rush_id": project.get("micro_rush_id"),
+        }
+    if state.artifacts.get("stop_proposal"):
+        return {
+            "status": "stop_proposed",
+            "reason": state.artifacts["stop_proposal"],
             "trigger": trigger,
             "micro_rush_id": project.get("micro_rush_id"),
         }
@@ -203,6 +272,197 @@ def _advance_autonomous_rush(workspace, project, trigger):
         "trigger": trigger,
         "project": updated,
     }
+
+
+def _publish_stop_proposal(
+    workspace,
+    logs_root,
+    project,
+    stop_path,
+    roadmap_sha256,
+    telegram_environment,
+    reason,
+):
+    """Validate project state, emit one stop proposal and persist its idempotence marker."""
+
+    # preuve produit avant terminaison
+    command = list(project.get("regression_command") or [])
+    if command and command[0] == "python":
+        command[0] = sys.executable
+    if command:
+        validation = subprocess.run(
+            command,
+            cwd=workspace,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=120,
+        )
+        if validation.returncode != 0:
+            return {
+                "status": "completion_check_failed",
+                "reason": "project roadmap is done but regression validation failed",
+                "micro_rush_id": project.get("micro_rush_id"),
+                "validation_stdout": validation.stdout[-2000:],
+                "validation_stderr": validation.stderr[-2000:],
+            }
+
+    # événement terminal observable
+    run_id = new_run_id()
+    events_path = logs_root / "runs" / run_id / "events.jsonl"
+    events = EventWriter(events_path, run_id, source="campaign-controller")
+    events.append(
+        "run.started",
+        {
+            "experiment_id": project["experiment_id"],
+            "micro_rush_id": f"rush-{project.get('micro_rush_id', project['experiment_id'])}",
+            "model": project.get("model"),
+        },
+    )
+
+    # notification brokerisée et best-effort
+    notification = "not configured"
+    token = telegram_environment.get("TELEGRAM_BOT_TOKEN")
+    user_id = telegram_environment.get("TELEGRAM_USER_ID")
+    if token and user_id:
+        request = {
+            "request_id": f"{project['experiment_id']}-project-stop-proposal",
+            "run_id": run_id,
+            "kind": "STOP_PROPOSAL",
+            "text": (
+                f"Projet {project['experiment_id']} terminé. "
+                "Tous les éléments déclarés dans la roadmap sont DONE et la validation produit passe. "
+                "Pithos propose l'arrêt de la campagne autonome."
+            ),
+        }
+        try:
+            api = TelegramAPI(token)
+            broker = TelegramBroker(api, user_id, logs_root)
+            response = broker.send(request)
+            notification = "duplicate" if response.get("duplicate") else "sent"
+        except RuntimeError as error:
+            notification = f"failed: {error}"
+
+    events.append(
+        "run.finished",
+        {
+            "status": "completed",
+            "stop_reason": reason,
+            "duration_ms": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "total_tokens": 0,
+            "tool_calls": 0,
+            "tool_failures": 0,
+        },
+    )
+    _write_stop_marker(
+        stop_path,
+        run_id,
+        project.get("micro_rush_id"),
+        roadmap_sha256,
+        reason,
+        notification,
+    )
+
+    return {
+        "status": "stop_proposed",
+        "reason": reason,
+        "micro_rush_id": project.get("micro_rush_id"),
+        "run_id": run_id,
+        "notification": notification,
+    }
+
+
+def _write_stop_marker(path, run_id, micro_rush_id, roadmap_sha256, reason, notification):
+    """Atomically persist one stop proposal bound to the roadmap content."""
+
+    marker = {
+        "run_id": run_id,
+        "micro_rush_id": micro_rush_id,
+        "roadmap_sha256": roadmap_sha256,
+        "reason": reason,
+        "notification": notification,
+        "proposed_at": datetime.now(UTC).isoformat(),
+    }
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(marker, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(path)
+
+
+def _reconcile_stale_runs(logs_root, experiment_id):
+    """Append terminal evidence for checkpoints left running while this run owns the experiment lock."""
+
+    recovered = []
+    missions_root = Path(logs_root) / "missions"
+    for state_path in sorted(missions_root.glob("*/state.json")):
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        if state.get("experiment_id") != experiment_id or state.get("status") != "running":
+            continue
+
+        mission_id = state.get("mission_id", state_path.parent.name)
+        reason = "runner exited without a terminal checkpoint; recovered before the next launch"
+        previous_failure = str(state.get("failure_summary") or "").strip()
+        if previous_failure:
+            state["failure_summary"] = f"{previous_failure}\n{reason}"
+        else:
+            state["failure_summary"] = reason
+        state["phase"] = "interrupted"
+        state["status"] = "interrupted"
+        state["updated_at"] = datetime.now(UTC).isoformat()
+        state.setdefault("history", []).append(
+            {
+                "phase": "interrupted",
+                "event": reason,
+                "at": state["updated_at"],
+            }
+        )
+        temporary = state_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(state_path)
+
+        events_path = state_path.parent / "events.jsonl"
+        EventWriter(events_path, mission_id, source="campaign-controller").append(
+            "run.finished",
+            {
+                "status": "interrupted",
+                "stop_reason": reason,
+            },
+        )
+        recovered.append(mission_id)
+
+    runs_root = Path(logs_root) / "runs"
+    for run_path in sorted(runs_root.glob("*/run.json")):
+        run = json.loads(run_path.read_text(encoding="utf-8"))
+        if run.get("experiment_id") != experiment_id or run.get("status") != "running":
+            continue
+
+        run_id = run.get("run_id", run_path.parent.name)
+        reason = "runner exited without a terminal document; recovered before the next launch"
+        run["status"] = "interrupted"
+        run["finished_at"] = datetime.now(UTC).isoformat()
+        run["stop_reason"] = reason
+        run["success"] = {
+            "process": False,
+            "protocol": run.get("success", {}).get("protocol"),
+            "task": run.get("success", {}).get("task"),
+            "report": run.get("success", {}).get("report"),
+        }
+        temporary = run_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(run, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(run_path)
+
+        events_path = run_path.parent / "events.jsonl"
+        EventWriter(events_path, run_id, source="campaign-controller").append(
+            "run.finished",
+            {
+                "status": "interrupted",
+                "stop_reason": reason,
+            },
+        )
+        recovered.append(run_id)
+
+    return recovered
 
 
 def _environment_for(workspace, logs_root):
@@ -292,7 +552,7 @@ def main():
         return 0
     print(json.dumps(result, indent=2))
 
-    return 0 if result["status"] in {"completed", "skipped"} else 1
+    return 0 if result["status"] in {"completed", "skipped", "stop_proposed"} else 1
 
 
 if __name__ == "__main__":

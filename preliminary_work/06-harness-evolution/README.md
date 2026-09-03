@@ -46,5 +46,6 @@ au type de ressource. Après promotion, il programme `/pithos-reload` pour rendr
 est une opération locale explicite sur un chemin précis ; aucun échec n'est restauré automatiquement.
 
 Les tests chargent réellement une extension TypeScript promue dans un nouveau processus Node. Un probe RPC
-charge aussi les extensions et découvre le skill dans un nouveau processus Pi. La réutilisation cognitive du
-skill reste à confirmer lorsque la baseline peut terminer un tour avec tools.
+charge aussi les extensions et découvre le skill dans un nouveau processus Pi. Le run de campagne
+`run-20260903T152634Z-6ec0c3` prouve en plus sa réutilisation cognitive : création outillée, promotion
+archivée, nouveau processus Pi, puis marqueur exact `PITHOS_CAMPAIGN_SKILL_REUSED`.

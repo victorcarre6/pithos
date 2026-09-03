@@ -181,8 +181,8 @@ Ordre initial :
 - [x] Deux réveils ne peuvent pas exécuter Pi simultanément.
 - [x] Un run est interrompu au plus tard après une heure et une boucle déclenche le protocole prévu.
 - [x] Un micro-rush incomplet reprend sur sa branche ; un micro-rush terminé produit une pull request.
-- [ ] Une capacité créée par l'agent est archivée, activée et réutilisée lors d'un run observable (campagne
-      réelle ; les capacités probe restent validées hors campagne, voir chantier `06`).
+- [x] Une capacité créée par l'agent est archivée, activée et réutilisée lors d'un run observable
+      (campagne réelle `run-20260903T152634Z-6ec0c3`, voir chantier `06`).
 - [x] Les événements complets sont conservés en JSONL, ingérés dans SQLite et visibles dans le dashboard.
 - [x] `tail -F ~/logs/pithos/live.log` permet de suivre l'activité sans dépendre du dashboard.
 - [x] L'agent peut signaler un blocage et proposer l'arrêt via Telegram sans exposer les credentials.

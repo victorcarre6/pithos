@@ -77,7 +77,10 @@ launchctl print gui/$(id -u)/dev.pithos.events
 ```
 
 Le runner utilise `StartInterval=10800` sans `RunAtLoad`; le collecteur utilise `RunAtLoad` et `KeepAlive`.
-Les plist ne contiennent aucun credential. Pour revenir en arrière, remplacer `install` par `uninstall`.
+Le collecteur LaunchAgent passe `--quiet` : il n'écrit pas l'inventaire complet des sources à chaque scan;
+les JSONL et SQLite restent inchangés. Le `PATH` des deux agents inclut `~/.npm-global/bin`, emplacement de
+Pi validé lors du setup. Les plist ne contiennent aucun credential. Pour revenir en arrière, remplacer
+`install` par `uninstall`.
 
 ## Bootstrap humain minimal
 
@@ -160,6 +163,15 @@ Le probe doit réussir séparément :
 10. création puis chargement d'une extension dans un nouveau processus.
 
 Classer chaque cas avec `process_success`, `protocol_success`, `task_success` et `report_success`.
+
+La preuve campagne du point 9 peut être rejouée explicitement avec :
+
+```bash
+harness/.venv/bin/python harness/scripts/prove_campaign_skill.py experiments/<experiment-id>
+```
+
+Elle utilise deux processus Pi neufs, promeut le skill entre les deux et conserve streams, manifest et
+validation sous `~/logs/pithos/runs/` et `journals/harness/`.
 
 ### 7. Autoriser l'automatisation progressivement
 

@@ -706,3 +706,32 @@
 - Le launcher snapshotte les seuls `target_files` et les restaure atomiquement pour toute mission non
   `completed` ou exception. Les échecs restent journalisés mais ne peuvent plus laisser une régression locale.
 - Preuves : 70 tests ciblés et suite produit réelle verte (`2 pytest`, `3 node:test`, smoke localhost).
+
+## 03:17 — Convergence, capacité de campagne et terminaison
+
+- L'audit de reprise trouvait **20 missions récentes sans succès**, quatre runs projetés `running` bien que
+  leurs processus aient disparu, et un collecteur LaunchAgent qui réécrivait l'inventaire complet des
+  sources toutes les cinq secondes. Son stdout avait atteint environ **1,3 Go**.
+- L'oracle valide maintenant l'arité de la fonction cible avant exécution et explicite qu'une liste passée
+  comme argument unique doit être imbriquée dans `args`. La proposition suivante exclut aussi une fonction
+  cible qui vient d'échouer de façon répétée.
+- Le runner réconcilie au démarrage les checkpoints de mission et runs génériques restés `running` en
+  `interrupted`, avec historique et `run.finished`. La projection SQLite réelle contient désormais
+  **53 failed, 10 completed, 4 interrupted, 0 running et 0 quarantaine**.
+- Le collecteur installé utilise `--quiet`; son ancien stdout a été archivé puis compressé d'environ
+  **1,3 Go à 13 Mo**. Le nouveau stdout est resté vide pendant le contrôle, sans interrompre l'ingestion.
+- Run réel `run-20260903T152634Z-6ec0c3` : une première session Pi crée le skill
+  `pithos-campaign-proof`, le harness le promeut et l'archive, puis une seconde session neuve produit le
+  marqueur exact `PITHOS_CAMPAIGN_SKILL_REUSED`. Les deux protocoles sont valides, avec **3 tool calls**,
+  **0 failure** et **5 631 tokens** observés.
+- Une roadmap sans item ouvert est maintenant une condition terminale déterministe. Après regression gate
+  verte, `run-20260903T152705Z-c7f1da` a persisté un marqueur lié au hash de la roadmap et envoyé la
+  proposition d'arrêt Telegram. Une seconde exécution a été ignorée idempotemment.
+- Le serveur produit localhost et ses tests passent. La session audio interactive n'a pas été revendiquée :
+  aucun navigateur pilotable n'était disponible et l'autorisation microphone exige une interaction réelle.
+- Gate finale : **233 tests harness**, build Vite, extensions TypeScript, configurations Compose, snapshots
+  synchronisés, puis validation produit réelle (**2 pytest + 3 node:test**) avec bind localhost autorisé.
+- Le marqueur terminal final est `run-20260903T154816Z-8db897`; son hash correspond au document courant et
+  Telegram a dédupliqué la notification initiale. Les LaunchAgents sont réinstallés : collecteur actif et
+  silencieux, runner à **10 800 s**. Leur `PATH` contient maintenant `~/.npm-global/bin`, correction nécessaire
+  pour retrouver l'exécutable `pi` lors d'une future reprise.

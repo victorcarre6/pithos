@@ -1,10 +1,12 @@
 import json
 import sqlite3
+import sys
 from pathlib import Path
 
 import pytest
 
 from pithos_event_store import EventStore, IngestionError
+from pithos_event_store import cli as event_cli
 from pithos_event_store.cli import _collect
 from pithos_event_store.migrations import MIGRATIONS
 
@@ -72,6 +74,46 @@ def test_collector_discovers_runner_and_orchestrated_events(tmp_path):
     assert len(results) == 2
     assert _count(store, "runs") == 2
     store.close()
+
+
+def test_watch_reports_only_one_compact_delta(tmp_path, monkeypatch, capsys):
+    events_path = tmp_path / "runs" / RUN_ID / "events.jsonl"
+    events_path.parent.mkdir(parents=True)
+    _append(events_path, _event(0, "run.started"))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["pithos-events", "--logs-root", str(tmp_path), "--interval-seconds", "0", "watch"],
+    )
+
+    def stop_after_first_scan(_seconds):
+        raise StopIteration
+
+    monkeypatch.setattr(event_cli.time, "sleep", stop_after_first_scan)
+
+    with pytest.raises(StopIteration):
+        event_cli.main()
+
+    output = json.loads(capsys.readouterr().out)
+    assert output == {"sources": 1, "ingested": 1, "quarantined": 0}
+
+
+def test_quiet_watch_emits_no_scan_output(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["pithos-events", "--logs-root", str(tmp_path), "--quiet", "watch"],
+    )
+
+    def stop_after_first_scan(_seconds):
+        raise StopIteration
+
+    monkeypatch.setattr(event_cli.time, "sleep", stop_after_first_scan)
+
+    with pytest.raises(StopIteration):
+        event_cli.main()
+
+    assert capsys.readouterr().out == ""
 
 
 def test_invalid_line_is_quarantined_without_blocking_following_event(tmp_path):

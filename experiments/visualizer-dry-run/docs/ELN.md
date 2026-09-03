@@ -55,3 +55,18 @@
 - La suite `tests/validate_product.py` devient une seconde gate obligatoire après chaque oracle vert.
 - Toute mission non terminée restaure ses fichiers cibles à leur contenu initial; le faux contrat et ses
   tentatives restent dans les artefacts sans altérer le produit.
+
+## 03:17 — État initial atteint et arrêt proposé
+
+- Le run `run-20260903T152634Z-6ec0c3` a fait créer `pithos-campaign-proof` par une session Pi, l'a promu
+  via le `HarnessManager`, puis l'a réutilisé dans une seconde session neuve. Le marqueur exact attendu est
+  observé, avec **3 tool calls**, **0 failure** et le journal complet du harness.
+- Tous les items automatisables de la roadmap sont `[DONE]`. La regression gate produit reste verte.
+- Le run `run-20260903T152705Z-c7f1da` a envoyé la proposition d'arrêt Telegram et persisté un marqueur
+  idempotent lié au hash de la roadmap. Un second appel n'a créé aucune mission.
+- Le seul contrôle différé est une session avec microphone et navigateur interactif réels; aucun changement de
+  code ni choix produit n'en dépend.
+- Validation finale : `project acceptance: PASS`, **2 pytest** et **3 node:test** passent, y compris le bind
+  réel sur `127.0.0.1`.
+- Le marqueur final `run-20260903T154816Z-8db897` correspond au hash courant de la roadmap. Le scheduler est
+  restauré à **10 800 s** et son `PATH` retrouve explicitement l'installation npm globale de Pi.

@@ -25,7 +25,7 @@ sous-agents, tout en conservant une source de vérité externe et un historique 
 
 ## Critères de succès
 
-- [ ] Un skill créé est archivé et actif après redémarrage ; sa réutilisation cognitive par Pi reste à tester.
+- [x] Un skill créé est archivé, actif puis réutilisé cognitivement par une nouvelle session Pi.
 - [x] Une extension créée est validée et chargée dans de nouveaux processus Node et Pi.
 - [x] Une extension invalide laisse l'état actif précédent utilisable.
 - [x] La constitution reste inchangée et permet une restauration.
@@ -41,8 +41,9 @@ sous-agents, tout en conservant une source de vérité externe et un historique 
 - Diff et restauration explicite depuis une constitution dont le hash reste inchangé.
 
 Un processus Pi 0.84.2 en mode RPC a chargé les trois extensions Pithos et découvert la commande
-`pithos-reload` ainsi que `skill:pithos-continuity`, sans inference. La réutilisation cognitive du skill reste
-ouverte à cause des timeouts de la baseline.
+`pithos-reload` ainsi que `skill:pithos-continuity`, sans inference. Le run de campagne
+`run-20260903T152634Z-6ec0c3` complète cette preuve : une première session Pi crée le skill, le manager
+l'archive et le promeut, puis une seconde session neuve l'utilise pour produire le marqueur exact attendu.
 
 ## Dépendances
 

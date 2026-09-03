@@ -8,6 +8,7 @@ that does not fail against the current (unfixed) workspace: an oracle that
 already passes cannot prove anything about the requested change.
 """
 
+import ast
 import json
 import math
 import re
@@ -178,7 +179,9 @@ def _request_spec(
         "Tu proposes un contrat de test d'acceptation pour la tâche suivante. Choisis UNE seule fonction déjà "
         f"définie dans les fichiers ci-dessous et 1 à {MAX_CASES} cas d'entrée/sortie numériques concrets qui "
         "vérifient le comportement attendu. N'invente aucun code, aucune fonction, aucun fichier absent de la "
-        f"liste.{target_instruction} Réponds uniquement avec l'objet JSON demandé.\n\n"
+        f"liste.{target_instruction} `args` est toujours la liste des arguments positionnels : pour une fonction "
+        "`f(values)` qui reçoit une seule liste, encode par exemple `args: [[1, 2, 3]]`, jamais "
+        "`args: [1, 2, 3]`. Réponds uniquement avec l'objet JSON demandé.\n\n"
         f"Titre : {title}\nDescription : {description}\n\n{listing}"
     )
     payload = {
@@ -271,6 +274,7 @@ def _validate_spec(raw, sources, allowed_files):
         raise OracleSpecError("oracle target_function is not a valid identifier")
     if not re.search(rf"(?m)^\s*def\s+{re.escape(target_function)}\s*\(", sources[target_file]):
         raise OracleSpecError(f"oracle target_function {target_function!r} is not defined in {target_file}")
+    positional_bounds = _positional_bounds(sources[target_file], target_function)
 
     cases = raw.get("cases")
     if not isinstance(cases, list) or not cases:
@@ -283,6 +287,15 @@ def _validate_spec(raw, sources, allowed_files):
         args = case.get("args")
         if not isinstance(args, list) or not (1 <= len(args) <= MAX_ARGS):
             raise OracleSpecError("oracle case args must be a short non-empty list")
+        if positional_bounds is not None:
+            minimum, maximum = positional_bounds
+            argument_count = len(args)
+            if argument_count < minimum or maximum is not None and argument_count > maximum:
+                expected = str(minimum) if minimum == maximum else f"{minimum} to {maximum or MAX_ARGS}"
+                raise OracleSpecError(
+                    f"oracle target_function {target_function!r} expects {expected} positional argument(s), "
+                    f"got {argument_count}"
+                )
         cleaned.append(
             {
                 "args": [_numeric_value(value) for value in args],
@@ -291,6 +304,26 @@ def _validate_spec(raw, sources, allowed_files):
         )
 
     return {"target_file": target_file, "target_function": target_function, "cases": cleaned}
+
+
+def _positional_bounds(source, function_name):
+    """Return minimum and maximum positional arguments for one module-level function."""
+
+    try:
+        module = ast.parse(source)
+    except SyntaxError:
+        return None
+
+    for node in module.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) or node.name != function_name:
+            continue
+        positional = [*node.args.posonlyargs, *node.args.args]
+        minimum = len(positional) - len(node.args.defaults)
+        maximum = None if node.args.vararg else len(positional)
+
+        return minimum, maximum
+
+    return None
 
 
 def _numeric_value(value):

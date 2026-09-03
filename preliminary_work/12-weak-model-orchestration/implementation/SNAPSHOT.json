@@ -2,7 +2,7 @@
   "schema_version": 1,
   "direction": "harness-to-preliminary-snapshot",
   "project": "12-weak-model-orchestration",
-  "generated_at": "2026-08-27T10:05:42.665027+00:00",
+  "generated_at": "2026-09-03T15:53:35.043651+00:00",
   "files": [
     {
       "path": "src/pithos_orchestrator/__init__.py",
@@ -30,11 +30,11 @@
     },
     {
       "path": "src/pithos_orchestrator/next_rush.py",
-      "sha256": "3a484a0f116ec171b5f9b04a05906ba6153deeb8919995e4940a2513b9b3b9db"
+      "sha256": "0e3f99581463e3efae65a2659545258cd64df655a0f59d8074ea9cb847f8ce19"
     },
     {
       "path": "src/pithos_orchestrator/oracle.py",
-      "sha256": "a6454f62986a6845ebd058ee98468e1994b634dd7ac8f989aad6a2079c00297d"
+      "sha256": "6a1b4f9715e5f520a7a8ccb9e502a2eb57e256820367c148fbae2b68eca9d0df"
     },
     {
       "path": "src/pithos_orchestrator/pi_phase.py",
@@ -74,11 +74,11 @@
     },
     {
       "path": "tests/test_next_rush.py",
-      "sha256": "a91b8d5162f2e2d1c5971cf9f2b58d6f04b960d1907c2d169d26d60dae05ebe5"
+      "sha256": "fa001f30413b29f597c4eb858cab5f7a1f9fc6fd04d3b2d8e5989d368783f6cf"
     },
     {
       "path": "tests/test_oracle.py",
-      "sha256": "966b25a0d120138e1504c8097b54a9872b0ffc902341cf8b8ee54cd31c90a129"
+      "sha256": "7a948dd5c355a9122bf38394c6e985d447effaf0fd918376d065f1334ed75651"
     },
     {
       "path": "tests/test_orchestrator.py",

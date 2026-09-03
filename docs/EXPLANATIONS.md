@@ -128,3 +128,36 @@ capture et la FFT, tandis que Canvas 2D suffit aux trois bandes réactives. Cela
 sur le MacBook Intel cible et conserve le calcul applicatif pur dans `audio-core.mjs`. Un petit serveur Python
 lié à `127.0.0.1` est nécessaire au secure context navigateur ; il ne constitue ni un service distant ni une
 surface LAN. Aucun endpoint externe n'est présent dans le client.
+
+## Terminaison d'une campagne autonome
+
+La roadmap est l'autorité bornée de fin : elle doit contenir au moins un item et tous ses items doivent être
+`[DONE]` ou `[x]`. Dans cet état, `NextRushAuthor` ne consulte pas le modèle et produit un `stop_proposal`
+déterministe. Le launcher exécute encore la `regression_command`; une campagne ne peut donc pas se déclarer
+terminée sur un produit régressé.
+
+La proposition est un vrai run observable et un message Telegram best-effort. Son marqueur hors Git contient
+le SHA-256 de la roadmap : les réveils répétés restent des no-op tant que le contrat ne change pas, sans rendre
+un futur ajout de backlog invisible. Le signal est une proposition d'arrêt, pas une suppression silencieuse
+du scheduler.
+
+## Durcissement de l'oracle et de la projection
+
+Les `args` produits par le modèle représentent toujours les arguments positionnels. L'AST du module cible
+donne maintenant le minimum et le maximum acceptés; un cas d'arité impossible est rejeté avant import et
+exécution. Cela intercepte notamment la confusion entre une fonction recevant une liste et plusieurs
+arguments scalaires. Après le plafond d'échec d'un rush, sa fonction cible est aussi exclue de la proposition
+suivante pour ne pas reformuler indéfiniment le même contrat.
+
+Les fichiers JSONL restent la source de vérité. Au démarrage, le launcher finalise explicitement les anciens
+checkpoints `running` dont le processus a disparu; SQLite peut alors refléter `interrupted` au lieu d'un état
+actif fantôme. Le collecteur conserve son mode détaillé pour `once`, mais son LaunchAgent utilise `--quiet` :
+l'absence de delta n'engendre plus une copie de l'inventaire des sources toutes les cinq secondes.
+
+## Preuve de capacité en campagne
+
+`prove_campaign_skill.py` sépare volontairement la preuve en deux processus Pi. Le premier ne reçoit que le
+tool `write`, sans skills ni extensions, et matérialise un skill au contenu exact dans le staging. Le
+`HarnessManager` enregistre le snapshot, valide et promeut l'artefact. Le second processus ne reçoit que le
+tool `read`, charge les skills actifs et doit produire un marqueur textuel exact. Manifest, sessions, streams
+Pi et validations restent liés au même run et au journal du harness.

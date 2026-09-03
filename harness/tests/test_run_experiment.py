@@ -249,6 +249,143 @@ def test_completed_autonomous_rush_retries_planning_on_a_later_wake(tmp_path, mo
     assert first["micro_rush_id"] == "band-smoothing"
 
 
+def test_completed_project_proposes_stop_once_without_launching_a_mission(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "final-rush")
+    configuration_path = workspace / ".pithos.json"
+    configuration = json.loads(configuration_path.read_text())
+    configuration["seed"] = "Construire un visualiseur audio destiné au VJing."
+    configuration["model"] = "fake-model"
+    configuration["regression_command"] = ["python", "-c", "raise SystemExit(0)"]
+    configuration_path.write_text(json.dumps(configuration), encoding="utf-8")
+    docs = workspace / "docs"
+    docs.mkdir()
+    (docs / "ROADMAP.md").write_text("- [DONE] Produit livré.\n", encoding="utf-8")
+    logs_root = tmp_path / "logs"
+    launched = []
+
+    def launch_orchestrated(*_args):
+        launched.append(True)
+
+        return SimpleNamespace(status="completed", micro_rush_id="final-rush", mission_id="run-new")
+
+    monkeypatch.setattr(run_module, "launch_orchestrated", launch_orchestrated)
+
+    first = run_module.launch(workspace, logs_root)
+    second = run_module.launch(workspace, logs_root)
+
+    assert first["status"] == "stop_proposed"
+    assert first["notification"] == "not configured"
+    assert second["status"] == "skipped"
+    marker = json.loads(
+        (logs_root / "runtime" / "audio-lab-stop-proposal.json").read_text()
+    )
+    assert marker["run_id"] == first["run_id"]
+    assert marker["roadmap_sha256"]
+    assert launched == []
+
+    (docs / "ROADMAP.md").write_text("- [TODO] Nouveau travail.\n", encoding="utf-8")
+    third = run_module.launch(workspace, logs_root)
+
+    assert third["status"] == "completed"
+    assert launched == [True]
+
+
+def test_newly_completed_project_publishes_stop_for_the_updated_roadmap(tmp_path, monkeypatch):
+    workspace = _configured_workspace(tmp_path, "final-rush")
+    configuration_path = workspace / ".pithos.json"
+    configuration = json.loads(configuration_path.read_text())
+    configuration["seed"] = "Construire un visualiseur audio destiné au VJing."
+    configuration_path.write_text(json.dumps(configuration), encoding="utf-8")
+    roadmap_path = workspace / "docs" / "ROADMAP.md"
+    roadmap_path.parent.mkdir()
+    roadmap_path.write_text("- [TODO] Terminer le produit.\n", encoding="utf-8")
+
+    def complete_project(*_args):
+        roadmap_path.write_text("- [DONE] Terminer le produit.\n", encoding="utf-8")
+
+        return SimpleNamespace(
+            status="completed",
+            micro_rush_id="final-rush",
+            mission_id="run-final",
+            artifacts={"stop_proposal": "all declared roadmap items are done"},
+        )
+
+    monkeypatch.setattr(run_module, "launch_orchestrated", complete_project)
+    monkeypatch.setattr(run_module, "_git_remote", lambda _workspace: None)
+
+    result = run_module.launch(workspace, tmp_path / "logs")
+
+    marker_path = tmp_path / "logs" / "runtime" / "audio-lab-stop-proposal.json"
+    marker = json.loads(marker_path.read_text())
+    expected_hash = run_module.hashlib.sha256(roadmap_path.read_bytes()).hexdigest()
+    assert result["status"] == "completed"
+    assert result["stop_proposal"]["status"] == "stop_proposed"
+    assert marker["roadmap_sha256"] == expected_hash
+
+
+def test_reconciles_stale_mission_with_append_only_terminal_event(tmp_path):
+    logs_root = tmp_path / "logs"
+    mission_id = "run-20260824T180000Z-a1b2c3"
+    mission_root = logs_root / "missions" / mission_id
+    mission_root.mkdir(parents=True)
+    state_path = mission_root / "state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "mission_id": mission_id,
+                "experiment_id": "audio-lab",
+                "phase": "test",
+                "status": "running",
+                "failure_summary": "oracle failed",
+                "history": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    recovered = run_module._reconcile_stale_runs(logs_root, "audio-lab")
+
+    state = json.loads(state_path.read_text())
+    events = [json.loads(line) for line in (mission_root / "events.jsonl").read_text().splitlines()]
+    assert recovered == [mission_id]
+    assert state["phase"] == "interrupted"
+    assert state["status"] == "interrupted"
+    assert "oracle failed" in state["failure_summary"]
+    assert events[-1]["type"] == "run.finished"
+    assert events[-1]["payload"]["status"] == "interrupted"
+
+
+def test_reconciles_stale_generic_run_document(tmp_path):
+    logs_root = tmp_path / "logs"
+    run_id = "run-20260824T180000Z-a1b2c3"
+    run_root = logs_root / "runs" / run_id
+    run_root.mkdir(parents=True)
+    run_path = run_root / "run.json"
+    run_path.write_text(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "experiment_id": "audio-lab",
+                "status": "running",
+                "finished_at": None,
+                "stop_reason": None,
+                "success": {"process": None, "protocol": None, "task": None, "report": None},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    recovered = run_module._reconcile_stale_runs(logs_root, "audio-lab")
+
+    run = json.loads(run_path.read_text())
+    events = [json.loads(line) for line in (run_root / "events.jsonl").read_text().splitlines()]
+    assert recovered == [run_id]
+    assert run["status"] == "interrupted"
+    assert run["finished_at"]
+    assert run["success"]["process"] is False
+    assert events[-1]["payload"]["status"] == "interrupted"
+
+
 def _configured_workspace(tmp_path, micro_rush_id):
     repository = tmp_path / "repository"
     workspace = repository / "experiments" / "audio-lab"

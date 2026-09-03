@@ -13,3 +13,7 @@
 - [DONE] Handoff de campagne autonome : le runner choisit et lance le prochain micro-rush sans édition humaine.
 - [DONE] Non-régression autonome : oracle généré + `tests/validate_product.py`, avec rollback des cibles en cas
   d'échec terminal.
+- [DONE] Skill de campagne créé, promu puis réutilisé par une seconde session Pi
+  (`run-20260903T152634Z-6ec0c3`).
+- [DONE] Terminaison autonome : roadmap terminée, regression gate verte et proposition d'arrêt Telegram
+  idempotente (`run-20260903T152705Z-c7f1da`).

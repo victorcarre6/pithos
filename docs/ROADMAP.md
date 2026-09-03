@@ -38,5 +38,13 @@
 - [DONE] Réinstallation idempotente — un LaunchAgent désactivé est réactivé avant son `bootstrap`.
 - [DONE] Validation transactionnelle — un oracle auto-généré vert doit aussi préserver la suite produit, et
   toute mission non terminée restaure atomiquement ses seuls fichiers cibles.
+- [DONE] Oracle signature-aware — le nombre d'arguments positionnels est validé avant d'exécuter un cas
+  généré, et une fonction ayant déjà échoué en boucle est exclue de la proposition suivante.
+- [DONE] Projection assainie — les runs laissés `running` par une interruption sont réconciliés en
+  `interrupted`; le collecteur LaunchAgent n'écrit plus un inventaire complet toutes les cinq secondes.
+- [DONE] Capacité en campagne — le run `run-20260903T152634Z-6ec0c3` crée, archive, active puis réutilise
+  le skill `pithos-campaign-proof` dans deux sessions Pi neuves.
+- [DONE] Terminaison autonome — une roadmap entièrement terminée produit une proposition d'arrêt Telegram
+  idempotente, liée au hash de la roadmap (`run-20260903T152705Z-c7f1da`).
 - [TODO] Campagne — observer une session audio interactive réelle lorsque l'autorisation navigateur et un
   périphérique sont disponibles ; aucune décision ni modification de code utilisateur n'est requise.

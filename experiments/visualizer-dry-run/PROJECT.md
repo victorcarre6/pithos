@@ -53,11 +53,11 @@ Le micro-rush doit :
 
 ## Critères d'acceptation du micro-rush
 
-- [ ] Une fonction pure produit exactement trois bandes normalisées.
-- [ ] Les tests déterministes passent avec une commande documentée.
-- [ ] Aucun fichier hors de l'expérience n'est modifié par Pi.
-- [ ] Les documents de suivi reflètent les changements réellement vérifiés.
-- [ ] `.pithos/report.md` est conforme au contrat Pithos.
+- [x] Une fonction pure produit exactement trois bandes normalisées.
+- [x] Les tests déterministes passent avec une commande documentée.
+- [x] Aucun fichier hors de l'expérience n'est modifié par Pi.
+- [x] Les documents de suivi reflètent les changements réellement vérifiés.
+- [x] `.pithos/report.md` est conforme au contrat Pithos.
 
 ## Deuxième micro-rush autonome — lissage temporel
 

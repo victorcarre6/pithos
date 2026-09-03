@@ -3,7 +3,12 @@ import json
 
 import pytest
 
-from pithos_orchestrator.next_rush import NextRushAuthor, NextRushSpecError, _validate_proposal
+from pithos_orchestrator.next_rush import (
+    NextRushAuthor,
+    NextRushSpecError,
+    _validate_proposal,
+    roadmap_complete,
+)
 from pithos_orchestrator.state import MissionState
 
 
@@ -86,6 +91,41 @@ def test_skips_without_touching_the_workspace_when_no_seed_is_configured(tmp_pat
     assert not (tmp_path / ".pithos.json").is_file()
 
 
+def test_completed_roadmap_proposes_stop_without_calling_the_model(tmp_path):
+    project = _project()
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "ROADMAP.md").write_text(
+        "# Roadmap\n\n- [DONE] Livrer le visualiseur.\n- [x] Valider le produit.\n",
+        encoding="utf-8",
+    )
+    calls = []
+
+    def opener(request, timeout):
+        calls.append(request)
+        raise AssertionError("a completed roadmap must not call the model")
+
+    state = MissionState("handoff", "visualizer-dry-run")
+    author = NextRushAuthor("fake-model", project, tmp_path, opener=opener)
+
+    success, reason = author(state)
+
+    assert success is True
+    assert "completion proposed" in reason
+    assert state.artifacts["stop_proposal"] == "all declared roadmap items are done"
+    assert not calls
+    assert not (tmp_path / ".pithos.json").is_file()
+
+
+def test_completion_reads_the_entire_roadmap(tmp_path):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    completed = "- [DONE] Item terminé.\n" * 250
+    (docs / "ROADMAP.md").write_text(f"{completed}- [TODO] Item ouvert.\n", encoding="utf-8")
+
+    assert roadmap_complete(tmp_path) is False
+
+
 def test_rejects_a_proposal_reusing_the_current_micro_rush_id(tmp_path):
     project = _project()
     payload = {
@@ -155,6 +195,26 @@ def test_rejects_a_new_function_proposal_for_an_existing_module(tmp_path):
 
     assert success is False
     assert "target_function is not defined" in reason
+
+
+def test_rejects_the_target_function_of_a_repeatedly_failed_rush(tmp_path):
+    target = tmp_path / "src" / "audio_visualizer.py"
+    target.parent.mkdir(parents=True)
+    target.write_text("def compute_magnitudes(samples):\n    return samples\n", encoding="utf-8")
+
+    with pytest.raises(NextRushSpecError, match="just failed repeatedly"):
+        _validate_proposal(
+            {
+                "micro_rush_id": "compute-magnitudes-v4",
+                "title": "Optimiser les magnitudes",
+                "description": "Modifier encore le calcul des magnitudes.",
+                "target_function": "compute_magnitudes",
+                "target_files": ["src/audio_visualizer.py"],
+            },
+            "compute-magnitudes-v3",
+            tmp_path,
+            forbidden_target_functions=["compute_magnitudes"],
+        )
 
 
 @pytest.mark.parametrize("path", ["/etc/passwd", "../outside.py", "src/../../outside.py"])
@@ -279,7 +339,10 @@ def test_facts_include_product_sources_and_roadmap_without_a_changed_file(tmp_pa
     source.write_text("def split_bands(values):\n    return values\n", encoding="utf-8")
     docs = tmp_path / "docs"
     docs.mkdir()
-    (docs / "ROADMAP.md").write_text("- [DONE] Découper les bandes.\n", encoding="utf-8")
+    (docs / "ROADMAP.md").write_text(
+        "- [DONE] Découper les bandes.\n- [TODO] Lire la source audio.\n",
+        encoding="utf-8",
+    )
     payload = {
         "micro_rush_id": "audio-source",
         "title": "Lire la source audio",
